@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ResourceBundleManager">
+    <file url="file://$PROJECT_DIR$/Back-end/src/main/resources/i18n/messages_en.properties" />
+    <file url="file://$PROJECT_DIR$/Back-end/src/main/resources/i18n/messages_vi.properties" />
+  </component>
+</project>
