@@ -1,7 +1,7 @@
 package com.project.webIT.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.project.webIT.settime.BaseEntity;
+import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,13 +23,16 @@ public class User extends BaseEntity implements UserDetails {
 //    @Column(name = "id") //khong can thiet vi id giong mysql
     private Long id;
 
-    @Column(name = "fullname", nullable = false, length = 100)
+    @Column(name="avatar")
+    private String avatar;
+
+    @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 
-    @Column(name = "first_name", length = 50)
+    @Column(name = "first_name",nullable = false, length = 50)
     private String firstName;
 
-    @Column(name = "last_name", length = 50)
+    @Column(name = "last_name",nullable = false, length = 50)
     private String lastName;
 
     @Column(name = "phone_number", nullable = false, length = 20)
@@ -90,6 +93,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "marital_status", length = 50)
     private String maritalStatus;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<AppliedJob> appliedJobs = new ArrayList<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
@@ -97,10 +104,6 @@ public class User extends BaseEntity implements UserDetails {
 //        authorityList.add(new SimpleGrantedAuthority("ROLE_USER"));
         return authorityList;
     }
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<AppliedJob> appliedJobs = new ArrayList<>();
 
     @Override
     public String getUsername() {

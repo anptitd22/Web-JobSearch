@@ -11,7 +11,10 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateUserDTO {
-    @JsonProperty("fullname")
+    @JsonProperty("avatar")
+    private String avatar;
+
+    @JsonProperty("full_name")
     private String fullName;
 
     @JsonProperty("first_name")

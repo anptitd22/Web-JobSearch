@@ -14,7 +14,7 @@ public class CompanyImageDTO {
     @JsonProperty("company_id")
     private Long companyId;
 
-    @Size(min = 5, max = 300, message = "Image's name")
+    @Size(min = 5, max = 500, message = "Image's name")
     @JsonProperty("image_url")
     private String imageUrl;
 }

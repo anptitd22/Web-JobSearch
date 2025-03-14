@@ -29,10 +29,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 @RestController
 @RequestMapping("${api.prefix}/jobs")
@@ -98,9 +97,6 @@ public class JobController {
                         .build());
                 jobImages.add(jobImage);
                 existingJob.setJobImages(jobImages);
-                if(existingJob.getThumbnail().equals("")){
-                    existingJob.setThumbnail(filename);
-                }
             }
             return ResponseEntity.ok().body("load successfully:"+"\n"+jobImages);
         } catch (Exception e){
@@ -190,7 +186,8 @@ public class JobController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getJob(@Valid @PathVariable Long id){
+    public ResponseEntity<?> getJob(
+            @Valid @PathVariable("id") Long id){
         try{
             Job existingjob = jobService.getJobById(id);
             return ResponseEntity.ok().body(JobResponse.fromJob(existingjob));
@@ -254,14 +251,18 @@ public class JobController {
             if (jobService.existByName(jobName)){
                 continue;
             }
+            int a = faker.number().numberBetween(1000,50000);
+            int b = faker.number().numberBetween(a+1000,90000);
             JobDTO jobDTO = JobDTO.builder()
                     .name(jobName)
-                    .salary(Integer.toString(faker.number().numberBetween(100,900000)))
+                    .salary(Integer.toString(a)+"-"+Integer.toString(b))
+                    .salaryNumeric((float)((a+b)*1.0/2.0))
                     .jobLocations(faker.address().city())
-                    .thumbnail("")
-                    .description(faker.lorem().sentence())
-                    .jobFunctionId((long)faker.number().numberBetween(1,3))
-                    .companyId((long)faker.number().numberBetween(1,3))
+                    .description(faker.lorem().sentence(100,500))
+                    .jobFunctionId((long)faker.number().numberBetween(1,7))
+                    .companyId((long)faker.number().numberBetween(1,5))
+                    .typeOfWork(faker.job().field())
+                    .endAt(LocalDateTime.now())
                     .build();
             try {
                 jobService.createJob(jobDTO);

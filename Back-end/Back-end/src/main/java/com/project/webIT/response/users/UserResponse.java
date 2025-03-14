@@ -17,6 +17,8 @@ import java.util.List;
 public class UserResponse {
     private Long id;
 
+    private String avatar;
+
     @JsonProperty("fullname")
     private String fullName;
 
@@ -82,6 +84,7 @@ public class UserResponse {
 
     public static UserResponse fromUser(User user){
         return UserResponse.builder()
+                .avatar(user.getAvatar())
                 .id(user.getId())
                 .fullName(user.getFullName())
                 .phoneNumber(user.getPhoneNumber())

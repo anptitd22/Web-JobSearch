@@ -86,7 +86,7 @@ public class WebSecurityConfig {
 
                             .requestMatchers(
                                     HttpMethod.POST,
-                                    String.format("%s/jobs/**",apiPrefix)).hasAnyRole(Role.COMPANY, Role.ADMIN)
+                                    String.format("%s/jobs/**",apiPrefix)).permitAll()
 
                             .requestMatchers(
                                     HttpMethod.POST,
@@ -101,8 +101,8 @@ public class WebSecurityConfig {
                                     String.format("%s/jobs**",apiPrefix)).permitAll()
 
                             .requestMatchers(
-                                    HttpMethod.GET,
-                                    String.format("%s/jobs/**",apiPrefix)).permitAll()
+                                    HttpMethod.PUT,
+                                    String.format("%s/jobs/**",apiPrefix)).hasAnyRole(Role.COMPANY, Role.ADMIN)
 
                             .requestMatchers(
                                     HttpMethod.DELETE,
@@ -118,7 +118,7 @@ public class WebSecurityConfig {
 
                             .requestMatchers(
                                     HttpMethod.GET,
-                                    String.format("%s/applied/**",apiPrefix)).hasAnyRole(Role.USER, Role.ADMIN)
+                                    String.format("%s/applied/**",apiPrefix)).permitAll()
 
                             .requestMatchers(
                                     HttpMethod.DELETE,
@@ -126,11 +126,11 @@ public class WebSecurityConfig {
 
                             .requestMatchers(
                                     HttpMethod.POST,
-                                    String.format("%s/companies/**",apiPrefix)).hasRole(Role.ADMIN)
+                                    String.format("%s/companies/**",apiPrefix)).permitAll()
 
                             .requestMatchers(
                                     HttpMethod.PUT,
-                                    String.format("%s/companies/**",apiPrefix)).hasRole(Role.ADMIN)
+                                    String.format("%s/companies/**",apiPrefix)).permitAll()
 
                             .requestMatchers(
                                     HttpMethod.GET,
@@ -154,6 +154,10 @@ public class WebSecurityConfig {
 
                             .requestMatchers(
                                     HttpMethod.GET,
+                                    String.format("%s/jobs/**",apiPrefix)).permitAll()
+
+                            .requestMatchers(
+                                    HttpMethod.GET,
                                     String.format("%s/my-career-center/**", apiPrefix)).hasRole(Role.USER)
 
                             .requestMatchers(
@@ -163,6 +167,15 @@ public class WebSecurityConfig {
                             .requestMatchers(
                                     HttpMethod.PUT,
                                     String.format("%s/users/**", apiPrefix)).hasRole(Role.USER)
+
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    String.format("%s/history/**", apiPrefix)).hasRole(Role.USER)
+
+                            .requestMatchers(
+                                    HttpMethod.POST,
+                                    String.format("%s/history/**", apiPrefix)).hasRole(Role.USER)
+
                             .anyRequest().authenticated();
                         }).build();
     }

@@ -1,17 +1,22 @@
 package com.project.webIT.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Table(name = "company")
+@Table(name = "companies")
 @Data
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Company {
+public class Company{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @Column(name = "id") //khong can thiet vi id giong mysql
@@ -35,8 +40,8 @@ public class Company {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "thumbnail")
-    private String thumbnail;
+    @Column(name = "logo", length = 500)
+    private String logo;
 
     @Column(name = "contact")
     private String contact;
@@ -44,10 +49,10 @@ public class Company {
     @Column(name = "size")
     private Long size;
 
-    @Column(name = "active")
-    private boolean active;
+    @Column(name = "is_active")
+    private boolean isActive;
 
-//    @OneToMany
-//    @JoinColumn(name = "id")
-//    private List<CompanyImage> companyImages = new ArrayList<>();
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Job> jobs = new ArrayList<>();
 }

@@ -1,4 +1,4 @@
-package com.project.webIT.settime;
+package com.project.webIT.utils;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -14,22 +14,18 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @MappedSuperclass
-public class BaseEntity {
+public class ViewEntity {
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "viewed_at")
+    private LocalDateTime viewedAt;
 
     @PrePersist
-    protected void onCreate(){
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+    protected void onCreate() {
+        viewedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate(){
-        updatedAt = LocalDateTime.now();
+        viewedAt = LocalDateTime.now();
     }
 }

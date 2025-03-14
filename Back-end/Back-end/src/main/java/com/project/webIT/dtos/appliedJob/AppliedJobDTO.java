@@ -16,7 +16,7 @@ public class AppliedJobDTO {
     @JsonProperty("user_id")
     private Long userId;
 
-    @JsonProperty("fullname")
+    @JsonProperty("full_name")
     @NotBlank(message = "Name is require")
     private String fullName;
 

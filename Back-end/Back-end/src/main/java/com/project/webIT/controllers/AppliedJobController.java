@@ -6,6 +6,7 @@ import com.project.webIT.models.AppliedJob;
 import com.project.webIT.models.Job;
 import com.project.webIT.response.appliedJob.AppliedJobResponse;
 import com.project.webIT.services.AppliedJobService;
+import com.project.webIT.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +16,14 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("${api.prefix}/applied")
 @RequiredArgsConstructor
 public class AppliedJobController {
     private final AppliedJobService appliedJobService;
+    private final UserService userService;
 
     @PostMapping("")
     public ResponseEntity<?> createAppliedJob(
@@ -42,11 +45,16 @@ public class AppliedJobController {
         }
     }
 
-    @GetMapping("user/{user_id}") //danh sach apply
-    public ResponseEntity<?> getAppliedJobsFromUser(@Valid @PathVariable("user_id") Long userId){
+    @GetMapping("user/{userId}") //danh sach apply
+    public ResponseEntity<?> getAppliedJobsFromUser(
+            @Valid @PathVariable("userId") Long userId
+    ){
         try {
-            List<AppliedJob> appliedJobs = appliedJobService.findByUserId(userId);
-            return ResponseEntity.ok().body(appliedJobs);
+            System.out.println("okokokok");
+            List<AppliedJob> appliedJobs = appliedJobService.getAppliedJobFromUser(userId);
+            return ResponseEntity.ok().body(appliedJobs.stream()
+                    .map(AppliedJobResponse::fromAppliedJob)
+                    .collect(Collectors.toList()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -55,18 +63,35 @@ public class AppliedJobController {
     @GetMapping("job/{job_id}") //danh sach apply
     public ResponseEntity<?> getAppliedJobsFromJob(@Valid @PathVariable("job_id") Long jobId){
         try {
-            List<Job> appliedJobs = appliedJobService.findByJobId(jobId);
+            List<AppliedJob> appliedJobs = appliedJobService.findByJobId(jobId);
             return ResponseEntity.ok().body(appliedJobs);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getAppliedJob(@Valid @PathVariable("id") Long id){
+    @GetMapping("{user_id}/{job_id}")
+    public ResponseEntity<?> checkAppliedJob(
+            @Valid @PathVariable("user_id") Long user_id,
+            @Valid @PathVariable("job_id") Long job_id
+    ){
         try {
-            AppliedJob existingAppliedJob = appliedJobService.getAppliedJob(id);
-            return ResponseEntity.ok().body(AppliedJobResponse.fromAppliedJob(existingAppliedJob));
+            List<AppliedJob>appliedJobs = appliedJobService.checkAppliedJob(user_id, job_id);
+            return ResponseEntity.ok().body(appliedJobs.stream()
+                    .map(AppliedJobResponse::fromAppliedJob)
+                    .collect(Collectors.toList()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<?> getAppliedJob(
+            @Valid @PathVariable("id") Long id
+    ){
+        try {
+            AppliedJob appliedJob = appliedJobService.getAppliedJob(id);
+            return ResponseEntity.ok().body(AppliedJobResponse.fromAppliedJob(appliedJob));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

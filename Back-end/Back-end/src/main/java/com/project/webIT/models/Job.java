@@ -1,7 +1,8 @@
 package com.project.webIT.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.project.webIT.settime.BaseEntity;
+import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +26,7 @@ public class Job extends BaseEntity {
     @Column(name = "name", nullable = false, length = 350)
     private String name;
 
+    @Column(name = "salary")
     private String salary;
 
     @Column(name = "salary_numeric")
@@ -36,17 +38,14 @@ public class Job extends BaseEntity {
     @Column(name = "job_locations", nullable = false, length = 400)
     private String jobLocations;
 
-    @Column(name = "thumbnail", length = 300)
-    private String thumbnail;
-
     @Column(name = "description")
     private String description;
 
     @Column(name = "end_at")
     private LocalDateTime endAt;
 
-    @Column(name = "active")
-    private boolean active;
+    @Column(name = "is_active")
+    private boolean isActive;
 
     @Column(name = "view")
     private Long view;
@@ -56,6 +55,7 @@ public class Job extends BaseEntity {
     private JobFunction jobFunction;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "company_id")
     private Company company;
 

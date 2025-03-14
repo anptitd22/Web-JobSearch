@@ -51,6 +51,7 @@ public class JobService implements IJobService {
         newJob.setJobFunction(existingJobFunction);
         newJob.setCompany(existingCompany);
         newJob.setActive(true);
+        newJob.setView((long)0);
         return jobRepository.save(newJob);
     }
 

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.Job;
 import com.project.webIT.models.JobImage;
-import com.project.webIT.settime.BaseEntity;
+import com.project.webIT.utils.BaseEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -31,20 +31,13 @@ public class JobResponse extends BaseEntity {
     @JsonProperty("job_locations")
     private String jobLocations;
 
-    private String thumbnail;
     private String description;
 
     @JsonProperty("job_function_id")
     private Long jobFunctionId;
 
-    @JsonProperty("company_id")
-    private Long companyId;
-
-    @JsonProperty("active")
-    private boolean active;
-
-    @JsonProperty("name_company")
-    private String nameCompany;
+    @JsonProperty("is_active")
+    private boolean isActive;
 
     @JsonProperty("job_images")
     private List<JobImage> jobImages = new ArrayList<>();
@@ -61,12 +54,9 @@ public class JobResponse extends BaseEntity {
                 .name(job.getName())
                 .salary(job.getSalary())
                 .jobLocations(job.getJobLocations())
-                .thumbnail(job.getThumbnail())
                 .description(job.getDescription())
                 .jobFunctionId(job.getJobFunction().getId())
-                .companyId(job.getCompany().getId())
-                .nameCompany(job.getCompany().getName())
-                .active(job.isActive())
+                .isActive(job.isActive())
                 .jobImages(job.getJobImages())
                 .company(job.getCompany())
                 .view(job.getView())

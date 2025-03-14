@@ -14,4 +14,5 @@ import java.util.List;
 public class CompanyListResponse {
     private List<CompanyResponse> companies;
     private int totalPages;
+    private long totalCompanies;
 }

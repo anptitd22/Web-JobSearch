@@ -2,6 +2,7 @@ package com.project.webIT.response.appliedJob;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.webIT.models.AppliedJob;
+import com.project.webIT.models.Job;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -13,10 +14,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class AppliedJobResponse {
+
+    @JsonProperty("id")
+    private Long id;
+
     @JsonProperty("user_id")
     private Long userId;
 
-    @JsonProperty("fullname")
+    @JsonProperty("full_name")
     private String fullName;
 
     private String nationality;
@@ -56,8 +61,38 @@ public class AppliedJobResponse {
     @JsonProperty("apply_date")
     private LocalDateTime applyDate;
 
+    @JsonProperty("is_active")
+    private boolean isActive;
+
+    //job
+    @JsonProperty("job_name")
+    private String jobName;
+
+    @JsonProperty("job_salary")
+    private String jobSalary;
+
+    @JsonProperty("job_locations")
+    private String jobLocations;
+
+    @JsonProperty("job_description")
+    private String description;
+
+    @JsonProperty("job_function_id")
+    private Long jobFunctionId;
+
+    @JsonProperty("job_is_active")
+    private boolean jobIsActive;
+
+    //company
+    @JsonProperty("company_name")
+    private String companyName;
+
+    @JsonProperty("company_logo")
+    private String companyLogo;
+
     public static AppliedJobResponse fromAppliedJob (AppliedJob appliedJob){
         AppliedJobResponse appliedJobResponse = AppliedJobResponse.builder()
+                .id(appliedJob.getId())
                 .userId(appliedJob.getUser().getId())
                 .fullName(appliedJob.getFullName())
                 .email(appliedJob.getEmail())
@@ -73,6 +108,14 @@ public class AppliedJobResponse {
                 .yearsOfExperience(appliedJob.getYearsOfExperience())
                 .note(appliedJob.getNote())
                 .expectedDate(appliedJob.getExpectedDate())
+                .isActive(appliedJob.isActive())
+                .jobName(appliedJob.getJob().getName())
+                .jobSalary(appliedJob.getJob().getSalary())
+                .description(appliedJob.getJob().getDescription())
+                .jobLocations(appliedJob.getJob().getJobLocations())
+                .jobIsActive(appliedJob.getJob().isActive())
+                .companyName(appliedJob.getJob().getCompany().getName())
+                .companyLogo(appliedJob.getJob().getCompany().getLogo())
                 .build();
         appliedJobResponse.setApplyDate(appliedJob.getApplyDate());
         return appliedJobResponse;

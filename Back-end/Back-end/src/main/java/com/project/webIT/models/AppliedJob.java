@@ -25,7 +25,7 @@ public class AppliedJob {
     @JsonBackReference
     private User user;
 
-    @Column(name = "fullname", nullable = false, length = 100)
+    @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 
     @Column(name = "nationality", nullable = false, length = 50)
@@ -37,7 +37,7 @@ public class AppliedJob {
     @Column(name = "phone_number", nullable = false, length = 20)
     private String phoneNumber;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "job_id")
     private Job job;
 
@@ -65,8 +65,8 @@ public class AppliedJob {
     @Column(name = "status")
     private String status;
 
-    @Column(name = "active")
-    private boolean active;
+    @Column(name = "is_active")
+    private boolean isActive;
 
     @Column(name = "highest_education", nullable = false, length = 200)
     private String highestEducation;

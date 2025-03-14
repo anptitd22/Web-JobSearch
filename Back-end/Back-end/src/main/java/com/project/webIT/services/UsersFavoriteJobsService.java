@@ -7,7 +7,7 @@ import com.project.webIT.models.UsersFavoriteJobs;
 import com.project.webIT.repositories.JobRepository;
 import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.repositories.UsersFavoriteJobsRepository;
-import com.project.webIT.services.IService.IUserFavoriteJobsService;
+import com.project.webIT.services.IService.IUsersFavoriteJobsService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
-public class UsersFavoriteJobsService implements IUserFavoriteJobsService {
+public class UsersFavoriteJobsService implements IUsersFavoriteJobsService {
 
     private final UsersFavoriteJobsRepository usersFavoriteJobsRepository;
     private final UserRepository userRepository;
@@ -35,14 +35,12 @@ public class UsersFavoriteJobsService implements IUserFavoriteJobsService {
         if (existingJob.isPresent()) {
             UsersFavoriteJobs job = existingJob.get();
             job.setActive(!job.isActive()); // Đảo trạng thái isDeleted
-            System.out.println("đã đổi trạng thái favorite job");
             return usersFavoriteJobsRepository.save(job);
         } else {
             UsersFavoriteJobs newJob = new UsersFavoriteJobs();
             newJob.setUser(existingUser);
             newJob.setJob(exisJob);
             newJob.setActive(true);
-            System.out.println("đã thêm favorite job");
             return usersFavoriteJobsRepository.save(newJob);
         }
     }

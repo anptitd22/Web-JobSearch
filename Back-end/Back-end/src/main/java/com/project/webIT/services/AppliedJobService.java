@@ -9,6 +9,7 @@ import com.project.webIT.models.User;
 import com.project.webIT.repositories.AppliedJobRepository;
 import com.project.webIT.repositories.JobRepository;
 import com.project.webIT.repositories.UserRepository;
+import com.project.webIT.response.appliedJob.AppliedJobResponse;
 import com.project.webIT.services.IService.IAppliedJobService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -44,9 +45,6 @@ public class AppliedJobService implements IAppliedJobService {
         appliedJob.setJob(job);
         appliedJob.setApplyDate(LocalDateTime.now());
         appliedJob.setStatus(AppliedJobStatus.PENDING);
-//        if (!CurrentJobLevelStatus.currentJobLevel.contains(appliedJob.getStatus().toUpperCase())){
-//            throw new InvalidParamException("Only choice of 'INTERN/STUDENT, FRESHER/ENTRY LEVEL, EXPERIENCED (NON-MANAGER), MANAGER, DIRECTOR AND ABOVE'");
-//        }
         LocalDateTime expectedDate = appliedJobDTO.getExpectedDate();
         if (expectedDate != null && expectedDate.isBefore(LocalDateTime.now())){
             throw new DataNotFoundException("Date must be least today!");
@@ -57,8 +55,8 @@ public class AppliedJobService implements IAppliedJobService {
     }
 
     @Override
-    public AppliedJob getAppliedJob(Long id) {
-        return appliedJobRepository.findById(id).orElse(null);
+    public List<AppliedJob> checkAppliedJob(Long user_id, Long job_id){
+        return appliedJobRepository.findByUserIdAndJobId(user_id, job_id);
     }
 
     @Override
@@ -82,15 +80,20 @@ public class AppliedJobService implements IAppliedJobService {
     }
 
     @Override
-    public List<AppliedJob> findByUserId(Long userId) {
+    public List<AppliedJob> getAppliedJobFromUser(Long userId) {
         return appliedJobRepository.findByUserId(userId);
     }
 
     @Override
-    public List<Job> findByJobId(Long jobId) {
+    public List<AppliedJob> findByJobId(Long jobId) {
         return appliedJobRepository.findByJobId(jobId);
     }
 
+    @Override
+    public AppliedJob getAppliedJob(Long id) throws Exception{
+        return appliedJobRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("not found applied job"));
+    }
 
     @Override
     public void deleteApplied(Long id) throws DataNotFoundException {

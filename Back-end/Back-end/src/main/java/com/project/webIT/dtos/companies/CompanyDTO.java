@@ -20,14 +20,13 @@ public class CompanyDTO {
 
     @JsonProperty("phone_number")
     @NotBlank(message = "Phone number is require")
-
     private String phoneNumber;
 
     private String email;
 
     private String description;
 
-    private String thumbnail;
+    private String logo;
 
     private String contact;
 

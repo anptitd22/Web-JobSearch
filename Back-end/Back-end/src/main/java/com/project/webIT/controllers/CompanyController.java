@@ -3,9 +3,11 @@ package com.project.webIT.controllers;
 import com.project.webIT.dtos.companies.CompanyDTO;
 import com.project.webIT.dtos.companies.CompanyImageDTO;
 import com.project.webIT.models.Company;
-import com.project.webIT.models.CompanyImage;
+import com.project.webIT.models.CompanyImages;
+import com.project.webIT.models.Job;
 import com.project.webIT.response.companies.CompanyListResponse;
 import com.project.webIT.response.companies.CompanyResponse;
+import com.project.webIT.response.jobs.JobResponse;
 import com.project.webIT.services.CompanyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("${api.prefix}/companies")
@@ -69,10 +72,10 @@ public class CompanyController {
             if (files == null) {
                 files = new ArrayList<>(); //truong hop khong tai file
             }
-            if(files.size() >= CompanyImage.MAXIMUM_IMAGES_PER_COMPANY){
+            if(files.size() >= CompanyImages.MAXIMUM_IMAGES_PER_COMPANY){
                 return ResponseEntity.badRequest().body("You can only upload maximum 10 images");
             }
-            List<CompanyImage> companyImages = new ArrayList<>();
+            List<CompanyImages> companyImages = new ArrayList<>();
             for (MultipartFile file : files) {
                 if (file.getSize() == 0) { //truong hop file rong
                     continue;
@@ -89,7 +92,7 @@ public class CompanyController {
                 //Luu file va cap nhat duong dan trong DTO
                 String filename = storeFile(file); //Thay the ham
                 //Luu vao bang company_image
-                CompanyImage companyImage = companyService.createCompanyImage(existingCompany.getId(),
+                CompanyImages companyImage = companyService.createCompanyImage(existingCompany.getId(),
                         CompanyImageDTO.builder()
                                 .imageUrl(filename)
                                 .build());
@@ -155,22 +158,37 @@ public class CompanyController {
         }
     }
 
+    @GetMapping("{companyId}/jobs")
+    public ResponseEntity<?> getJobs(@Valid @PathVariable("companyId") Long companyId){
+        try{
+            List<Job> jobs = companyService.getJobsByCompanyId(companyId);
+            return ResponseEntity.ok().body(jobs.stream()
+                    .map(JobResponse::fromJob)
+                    .collect(Collectors.toList()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping("")
     public ResponseEntity<CompanyListResponse> getCompany(
-            @RequestParam("page")   int page,
-            @RequestParam("limit")  int limit
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0", name= "page")   int page,
+            @RequestParam(defaultValue = "20",name = "limit")  int limit
     ){
         //Tao Pageable tu thong tin trang va gioi han
         PageRequest pageRequest = PageRequest.of(page, limit,
-                Sort.by("createdAt").descending());
+                Sort.by("name").descending());
         //Lay tong page
-        Page<CompanyResponse> companyPage = companyService.getAllCompanies(pageRequest);
+        Page<CompanyResponse> companyPage = companyService.getAllCompanies(keyword, pageRequest);
         int totalPages = companyPage.getTotalPages();
         List<CompanyResponse> companies = companyPage.getContent();
+        System.out.println(companies);
         return ResponseEntity.ok(CompanyListResponse
                 .builder()
                 .companies(companies)
                 .totalPages(totalPages)
+                .totalCompanies(companyPage.getTotalElements())
                 .build());
     }
 

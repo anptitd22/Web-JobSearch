@@ -19,6 +19,6 @@ public class UserLoginDTO {
     private String password;
 
     @JsonProperty("role_id")
-    @NotNull(message = "Role ?")
+    @NotNull(message = "Role is required")
     private Long roleId;
 }
