@@ -1,25 +1,34 @@
 package com.project.webIT.controllers;
 
+import com.project.webIT.dtos.users.PasswordDTO;
 import com.project.webIT.dtos.users.UpdateUserDTO;
 import com.project.webIT.dtos.users.UserDTO;
 import com.project.webIT.dtos.users.UserLoginDTO;
+import com.project.webIT.models.Company;
 import com.project.webIT.models.User;
+import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.response.auth.LoginResponse;
 import com.project.webIT.response.auth.RegisterResponse;
+import com.project.webIT.response.companies.CompanyResponse;
 import com.project.webIT.response.users.UserResponse;
+import com.project.webIT.services.CloudinaryService;
 import com.project.webIT.services.UserService;
 import com.project.webIT.components.LocalizationUtils;
 import com.project.webIT.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -28,6 +37,7 @@ import java.util.Objects;
 public class UserController {
     private final UserService userService;
     private final LocalizationUtils localizationUtils;
+    private final CloudinaryService cloudinaryService;
 
     @PostMapping("/register")
     public ResponseEntity<?> createUser(
@@ -94,8 +104,46 @@ public class UserController {
         }
     }
 
+    private boolean isImageFile(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && (contentType.endsWith(".jpg") || contentType.endsWith(".png"));
+    }
+
+    @PostMapping(value = "uploads/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> postImage(
+            @PathVariable("userId") Long userId,
+            @RequestPart("files") List<MultipartFile> files
+    ){
+        try{
+            if (files == null) {
+                files = new ArrayList<>(); //truong hop khong tai file
+            }
+            if(files.size() > 1){
+                return ResponseEntity.badRequest().body("You can only upload maximum 1 images");
+            }
+            MultipartFile file = files.getFirst();
+            if (file.getSize() == 0) { //truong hop file rong
+                return ResponseEntity.badRequest().body("upload fail");
+            }
+            if (file.getSize() > 10 * 1024 * 1024) { //kiem tra kich thuoc file anh
+                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).
+                        body("File is too large, Maximum is 10MB");
+            }
+            if (isImageFile(file)) {
+                return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).
+                        body("File must be an image");
+            };
+            String publicId = userService.getPublicId(userId);
+            if (!publicId.isEmpty()){
+                return ResponseEntity.ok().body(cloudinaryService.updateImage(publicId,file));
+            }
+            return ResponseEntity.ok().body(cloudinaryService.upload(file));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PutMapping("details/{userId}")
-    @Transactional
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable ("userId") Long userId,
             @RequestBody UpdateUserDTO updateUserDTO,
@@ -110,6 +158,27 @@ public class UserController {
             }
 
             User updateUser = userService.updateUser(userId, updateUserDTO);
+            return ResponseEntity.ok().body(UserResponse.fromUser(updateUser));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("password/{userId}")
+    public ResponseEntity<UserResponse> updateEmail(
+            @PathVariable ("userId") Long userId,
+            @RequestBody PasswordDTO passwordDTO,
+            @RequestHeader("Authorization") String authorizationHeader
+    ){
+        try {
+            String extractedToken = authorizationHeader.substring(7); //bo Bearer
+            User user = userService.getUserDetailsFromToken(extractedToken);
+            //kiem tra xem dung tai khoan khong
+            if(!Objects.equals(user.getId(), userId)){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            User updateUser = userService.updatePassword(userId, passwordDTO);
             return ResponseEntity.ok().body(UserResponse.fromUser(updateUser));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

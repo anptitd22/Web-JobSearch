@@ -52,8 +52,8 @@ public class CompanyService implements ICompanyService {
     }
 
     @Override
-    public Page<CompanyResponse> getAllCompanies(String keyword, PageRequest pageRequest) {
-        Page<Company> companyPage = companyRepository.searchCompanies(keyword, pageRequest);
+    public Page<CompanyResponse> getAllCompanies(String keyword, Long industryId, PageRequest pageRequest) {
+        Page<Company> companyPage = companyRepository.searchCompanies(keyword, industryId, pageRequest);
         return companyPage.map(CompanyResponse::fromCompany);
     }
 
@@ -98,7 +98,7 @@ public class CompanyService implements ICompanyService {
     public CompanyImages createCompanyImage(Long companyId, CompanyImageDTO companyImageDTO) throws Exception {
         Company existingCompany = companyRepository.findById(companyId)
                 .orElseThrow(() ->
-                        new DataNotFoundException("Cannot find Job Function with id = "
+                        new DataNotFoundException("Cannot find Company with id = "
                                 +companyImageDTO.getCompanyId()));
         CompanyImages newCompanyImage = CompanyImages.builder()
                 .company(existingCompany)
@@ -111,5 +111,16 @@ public class CompanyService implements ICompanyService {
                     CompanyImages.MAXIMUM_IMAGES_PER_COMPANY);
         }
         return companyImageRepository.save(newCompanyImage);
+    }
+
+    @Override
+    public Company createCompanyLogo(Long companyId, String url, String publicId) throws Exception {
+        Company existingCompany = companyRepository.findById(companyId)
+                .orElseThrow(() ->
+                        new DataNotFoundException("Cannot find Company with id = "
+                                +companyId));
+        existingCompany.setLogo(url);
+        existingCompany.setPublicIdImages(publicId);
+        return companyRepository.save(existingCompany);
     }
 }

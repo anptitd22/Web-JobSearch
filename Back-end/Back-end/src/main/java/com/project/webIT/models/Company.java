@@ -19,11 +19,14 @@ import java.util.List;
 public class Company{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "id") //khong can thiet vi id giong mysql
     private Long id;
 
     @Column(name = "name", nullable = false, length = 200)
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "industry_id", nullable = false)
+    private Industry industry;
 
     @Column(name = "location", nullable = false, length = 200)
     private String location;
@@ -43,6 +46,9 @@ public class Company{
     @Column(name = "logo", length = 500)
     private String logo;
 
+    @Column(name = "public_id_images")
+    private String publicIdImages;
+
     @Column(name = "contact")
     private String contact;
 
@@ -52,7 +58,7 @@ public class Company{
     @Column(name = "is_active")
     private boolean isActive;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<Job> jobs = new ArrayList<>();
+//    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JsonManagedReference
+//    private List<Job> jobs = new ArrayList<>();
 }

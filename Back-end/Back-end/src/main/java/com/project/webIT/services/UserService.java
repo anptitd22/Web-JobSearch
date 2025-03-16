@@ -2,6 +2,7 @@ package com.project.webIT.services;
 
 import com.project.webIT.components.JwtTokenUtils;
 import com.project.webIT.components.LocalizationUtils;
+import com.project.webIT.dtos.users.PasswordDTO;
 import com.project.webIT.dtos.users.UpdateUserDTO;
 import com.project.webIT.dtos.users.UserDTO;
 import com.project.webIT.exception.DataNotFoundException;
@@ -14,6 +15,7 @@ import com.project.webIT.services.IService.IUserService;
 import com.project.webIT.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.ValidationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -186,6 +188,14 @@ public class UserService implements IUserService {
             existingUser.setMaritalStatus(updateUserDTO.getMaritalStatus());
         }
 
+        if (updateUserDTO.getAvatar() != null && !updateUserDTO.getAvatar().isEmpty()) {
+            existingUser.setAvatar(updateUserDTO.getAvatar());
+        }
+
+        if (updateUserDTO.getPublicIdImages() != null && !updateUserDTO.getPublicIdImages().isEmpty()) {
+            existingUser.setPublicIdImages(updateUserDTO.getPublicIdImages());
+        }
+
         if (updateUserDTO.getFacebookAccountId() > 0) {
             existingUser.setFacebookAccountId(updateUserDTO.getFacebookAccountId());
         }
@@ -205,4 +215,41 @@ public class UserService implements IUserService {
 
         return userRepository.save(existingUser);
     }
+
+    @Override
+    public User updatePassword(Long userId, PasswordDTO passwordDTO) throws Exception {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found !"));
+        if (!passwordEncoder.matches(passwordDTO.getCurrentPassword(), existingUser.getPassword())){
+            throw new DataNotFoundException("Password and current password not same");
+        }
+        if (passwordDTO.getPassword() != null && !passwordDTO.getPassword().isEmpty()) {
+            if(!passwordDTO.getPassword().equals(passwordDTO.getRetypePassword())){
+                throw new DataNotFoundException("Password and RetypePassword not The Same");
+            }
+            String newPassword = passwordDTO.getPassword();
+            String encodedPassword = passwordEncoder.encode(newPassword);
+            existingUser.setPassword(encodedPassword);
+        }
+        return userRepository.save(existingUser);
+    }
+
+    @Override
+    public String getPublicId(Long userId) throws Exception{
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(()->new DataNotFoundException("user not found"));
+        if(existingUser.getPublicIdImages() != null && !existingUser.getPublicIdImages().isEmpty()){
+            return existingUser.getPublicIdImages();
+        }
+        return "";
+    }
+
+//    @Override
+//    public User createUserAvatar(Long userId, String url, String publicIdImages) throws Exception{
+//        User existingUser = userRepository.findById(userId)
+//                .orElseThrow(() -> new DataNotFoundException("User not found !"));
+//        existingUser.setAvatar(url);
+//        existingUser.setPublicIdImages(publicIdImages);
+//        return userRepository.save(existingUser);
+//    }
 }

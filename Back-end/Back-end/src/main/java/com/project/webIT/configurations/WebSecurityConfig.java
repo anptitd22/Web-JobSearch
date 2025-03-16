@@ -176,6 +176,10 @@ public class WebSecurityConfig {
                                     HttpMethod.POST,
                                     String.format("%s/history/**", apiPrefix)).hasRole(Role.USER)
 
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    String.format("%s/industries/**", apiPrefix)).permitAll()
+
                             .anyRequest().authenticated();
                         }).build();
     }

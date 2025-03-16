@@ -26,6 +26,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name="avatar")
     private String avatar;
 
+    @Column(name="public_id_images")
+    private String publicIdImages;
+
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 

@@ -21,6 +21,10 @@ spring:
       max-request-size: 10MB
 api:
   prefix: api/v1
+cloudinary:
+  cloudName: dyzdqrbw8
+  apiKey: 757177834276449
+  apiSecret: qPik8swLit-zRJhjffcIdFSVMfQ
 jwt: #json web token
   expiration: 2592000 #30days: 30*24*60*60
   secretKey: FfyEJyyYieuIdNN99gm8ibEik38pjPBk7elv2qz4utE=

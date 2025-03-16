@@ -17,6 +17,10 @@ import java.util.List;
 public class CompanyResponse {
     private Long id;
     private String logo;
+
+    @JsonProperty("public_id_images")
+    private String publicIdImages;
+
     private String name;
     private String location;
     private String nation;
@@ -32,8 +36,10 @@ public class CompanyResponse {
 
     private Long size;
 
-    @JsonProperty("jobs")
-    private List<Job> jobs = new ArrayList<>();
+    private String industry;
+
+//    @JsonProperty("jobs")
+//    private List<Job> jobs = new ArrayList<>();
 
 //    @JsonProperty("company_images")
 //    private List<CompanyImage> companyImages = new ArrayList<>();
@@ -42,6 +48,7 @@ public class CompanyResponse {
         return CompanyResponse.builder()
                 .id(company.getId())
                 .logo(company.getLogo())
+                .industry(company.getIndustry().getName())
                 .name(company.getName())
                 .location(company.getLocation())
                 .nation(company.getNation())
@@ -50,7 +57,8 @@ public class CompanyResponse {
                 .description(company.getDescription())
                 .contact(company.getContact())
                 .size(company.getSize())
-                .jobs(company.getJobs())
+                .publicIdImages(company.getPublicIdImages())
+//                .jobs(company.getJobs())
 //                .companyImages(company.getCompanyImages())
                 .build();
     }

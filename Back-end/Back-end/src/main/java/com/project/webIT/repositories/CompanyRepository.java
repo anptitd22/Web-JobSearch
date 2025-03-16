@@ -15,8 +15,10 @@ public interface CompanyRepository extends JpaRepository<Company,Long> {
 //    List<Company> findByCompanyId(Long companyId);
 
     @Query("SELECT c From Company c WHERE "+
-            ":keyword IS NULL OR :keyword = '' OR c.name LIKE %:keyword%")
+            "(:industryId IS NULL OR :industryId = 0 OR c.industry.id = :industryId) " +
+            "AND (:keyword IS NULL OR :keyword = '' OR c.name LIKE %:keyword%)")
     Page<Company> searchCompanies
             (@Param("keyword") String keyword,
+             @Param("industryId") Long industryId,
              Pageable pageable);
 }

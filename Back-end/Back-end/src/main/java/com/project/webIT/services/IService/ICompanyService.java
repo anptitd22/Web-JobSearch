@@ -18,7 +18,7 @@ public interface ICompanyService {
 
     List<Job> getJobsByCompanyId (Long companyId);
 
-    Page<CompanyResponse> getAllCompanies(String keyword, PageRequest pageRequest);
+    Page<CompanyResponse> getAllCompanies(String keyword, Long industryId, PageRequest pageRequest);
 
     Company updateCompany(long id, CompanyDTO companyDTO) throws Exception;
 
@@ -29,4 +29,6 @@ public interface ICompanyService {
     boolean existByName(String name);
 
     CompanyImages createCompanyImage(Long companyId, CompanyImageDTO companyImageDTO) throws Exception;
+
+    Company createCompanyLogo(Long companyId, String url, String publicId) throws Exception;
 }

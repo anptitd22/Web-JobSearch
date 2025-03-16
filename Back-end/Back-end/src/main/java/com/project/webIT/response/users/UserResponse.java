@@ -19,7 +19,10 @@ public class UserResponse {
 
     private String avatar;
 
-    @JsonProperty("fullname")
+    @JsonProperty("public_id_images")
+    private String publicIdImages;
+
+    @JsonProperty("full_name")
     private String fullName;
 
     @JsonProperty("first_name")
@@ -85,6 +88,7 @@ public class UserResponse {
     public static UserResponse fromUser(User user){
         return UserResponse.builder()
                 .avatar(user.getAvatar())
+                .publicIdImages(user.getPublicIdImages())
                 .id(user.getId())
                 .fullName(user.getFullName())
                 .phoneNumber(user.getPhoneNumber())
