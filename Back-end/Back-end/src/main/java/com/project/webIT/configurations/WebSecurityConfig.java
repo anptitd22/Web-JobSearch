@@ -180,6 +180,13 @@ public class WebSecurityConfig {
                                     HttpMethod.GET,
                                     String.format("%s/industries/**", apiPrefix)).permitAll()
 
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    String.format("%s/dashboard/**", apiPrefix)).permitAll()
+
+                            .requestMatchers(
+                                    HttpMethod.POST,
+                                    String.format("%s/dashboard/**", apiPrefix)).permitAll()
                             .anyRequest().authenticated();
                         }).build();
     }
