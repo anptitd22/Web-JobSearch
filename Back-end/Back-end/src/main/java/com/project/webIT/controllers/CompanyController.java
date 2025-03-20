@@ -90,11 +90,11 @@ public class CompanyController {
                 return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).
                         body("File must be an image");
             }
-            Map image = cloudinaryService.upload(file);
-            Object url = image.get("url");
-            Object publicId = image.get("public_id");
-            Company company = companyService.createCompanyLogo(companyId, url.toString(), publicId.toString());
-            return ResponseEntity.ok().body(CompanyResponse.fromCompany(company));
+            String publicId = companyService.getPublicId(companyId);
+            if (!publicId.isEmpty()){
+                return ResponseEntity.ok().body(cloudinaryService.updateImage(publicId,file));
+            }
+            return ResponseEntity.ok().body(cloudinaryService.upload(file));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

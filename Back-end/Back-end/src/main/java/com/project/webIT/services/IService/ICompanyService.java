@@ -20,6 +20,8 @@ public interface ICompanyService {
 
     Page<CompanyResponse> getAllCompanies(String keyword, Long industryId, PageRequest pageRequest);
 
+    String getPublicId(Long companyId) throws Exception;
+
     Company updateCompany(long id, CompanyDTO companyDTO) throws Exception;
 
     void deleteCompany(long id);
@@ -30,5 +32,5 @@ public interface ICompanyService {
 
     CompanyImages createCompanyImage(Long companyId, CompanyImageDTO companyImageDTO) throws Exception;
 
-    Company createCompanyLogo(Long companyId, String url, String publicId) throws Exception;
+//    Company createCompanyLogo(Long companyId, String url, String publicId) throws Exception;
 }

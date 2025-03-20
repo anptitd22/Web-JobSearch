@@ -58,6 +58,13 @@ public class CompanyService implements ICompanyService {
     }
 
     @Override
+    public String getPublicId(Long companyId) throws Exception {
+        Company existingCompany = companyRepository.findById(companyId)
+                .orElseThrow(() -> new DataNotFoundException("company not found"));
+        return existingCompany.getPublicIdImages();
+    }
+
+    @Override
     public Company updateCompany(long id, CompanyDTO companyDTO) throws Exception {
         Company existingCompany = companyRepository.findById(id)
                 .orElseThrow(() ->
@@ -113,14 +120,14 @@ public class CompanyService implements ICompanyService {
         return companyImageRepository.save(newCompanyImage);
     }
 
-    @Override
-    public Company createCompanyLogo(Long companyId, String url, String publicId) throws Exception {
-        Company existingCompany = companyRepository.findById(companyId)
-                .orElseThrow(() ->
-                        new DataNotFoundException("Cannot find Company with id = "
-                                +companyId));
-        existingCompany.setLogo(url);
-        existingCompany.setPublicIdImages(publicId);
-        return companyRepository.save(existingCompany);
-    }
+//    @Override
+//    public Company createCompanyLogo(Long companyId, String url, String publicId) throws Exception {
+//        Company existingCompany = companyRepository.findById(companyId)
+//                .orElseThrow(() ->
+//                        new DataNotFoundException("Cannot find Company with id = "
+//                                +companyId));
+//        existingCompany.setLogo(url);
+//        existingCompany.setPublicIdImages(publicId);
+//        return companyRepository.save(existingCompany);
+//    }
 }
