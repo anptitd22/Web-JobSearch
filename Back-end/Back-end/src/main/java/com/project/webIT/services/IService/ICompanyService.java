@@ -16,7 +16,7 @@ public interface ICompanyService {
 
     Company getCompanyById(long id) throws Exception;
 
-    List<Job> getJobsByCompanyId (Long companyId);
+    List<Job> getJobs (Long id, String keyword, Long jobFunctionId);
 
     Page<CompanyResponse> getAllCompanies(String keyword, Long industryId, PageRequest pageRequest);
 

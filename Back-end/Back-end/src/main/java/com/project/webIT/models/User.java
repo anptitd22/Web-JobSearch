@@ -96,6 +96,12 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "marital_status", length = 50)
     private String maritalStatus;
 
+//    @OneToMany(mappedBy = "user")
+//    private Set<Session> sessions = new HashSet<>();
+//
+//    @OneToMany(mappedBy = "user")
+//    private Set<ChatHistory> chatHistories = new HashSet<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<AppliedJob> appliedJobs = new ArrayList<>();

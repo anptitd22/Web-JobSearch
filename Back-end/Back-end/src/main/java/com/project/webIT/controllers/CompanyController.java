@@ -111,9 +111,13 @@ public class CompanyController {
     }
 
     @GetMapping("{companyId}/jobs")
-    public ResponseEntity<?> getJobs(@Valid @PathVariable("companyId") Long companyId){
+    public ResponseEntity<?> getJobs(
+            @Valid @PathVariable("companyId") Long companyId,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0", name="job_function_id") Long jobFunctionId
+    ){
         try{
-            List<Job> jobs = companyService.getJobsByCompanyId(companyId);
+            List<Job> jobs = companyService.getJobs(companyId, keyword, jobFunctionId);
             return ResponseEntity.ok().body(jobs.stream()
                     .map(JobResponse::fromJob)
                     .collect(Collectors.toList()));

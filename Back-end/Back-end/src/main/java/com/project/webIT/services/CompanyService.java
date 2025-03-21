@@ -47,8 +47,8 @@ public class CompanyService implements ICompanyService {
     }
 
     @Override
-    public List<Job> getJobsByCompanyId(Long companyId) {
-        return jobRepository.findByCompanyId(companyId);
+    public List<Job> getJobs(Long companyId, String keyword, Long jobFunctionId) {
+        return jobRepository.searchJobs(companyId, keyword, jobFunctionId);
     }
 
     @Override

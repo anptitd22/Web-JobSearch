@@ -15,6 +15,13 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     boolean existsByName(String name);
 
 //    Page<Job> findAll(Pageable pageable); //phan trang cac job
+    @Query("SELECT j From Job j where  j.company.id = :companyId AND "+
+            "(:jobFunctionId IS NULL OR :jobFunctionId = 0 OR j.jobFunction.id = :jobFunctionId) "+
+            "AND (:keyword IS NULL OR :keyword = '' OR j.name LIKE %:keyword%)")
+    List<Job> searchJobs
+            (@Param("companyId") Long companyId,
+            @Param("keyword") String keyword,
+            @Param("jobFunctionId") Long jobFunctionId);
 
     @Query("SELECT j FROM Job j WHERE " +
             "(:jobFunctionId IS NULL OR :jobFunctionId = 0 OR j.jobFunction.id = :jobFunctionId) " +
