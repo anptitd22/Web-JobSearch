@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -25,16 +26,33 @@ public class UserFavoriteJobsController {
             UsersFavoriteJobs usersFavoriteJobs = favoriteJobService.saveFavoriteJob(userId, jobId);
             return ResponseEntity.ok(UsersFavoriteJobsResponse.fromUserFavoriteJobs(usersFavoriteJobs));
         } catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     @GetMapping("my-jobs/{userId}")
-    public ResponseEntity<List<UsersFavoriteJobsResponse>> getFavorites(@PathVariable("userId") Long userId){
-        List<UsersFavoriteJobs> usersFavoriteJobsList = favoriteJobService.getUserFavorites(userId);
-        List<UsersFavoriteJobsResponse> responseList = usersFavoriteJobsList.stream()
-                .map(UsersFavoriteJobsResponse::fromUserFavoriteJobs)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(responseList);
+    public ResponseEntity<?> getFavorites(@PathVariable("userId") Long userId){
+        try{
+            List<UsersFavoriteJobs> usersFavoriteJobsList = favoriteJobService.getUserFavorites(userId);
+            List<UsersFavoriteJobsResponse> responseList = usersFavoriteJobsList.stream()
+                    .map(UsersFavoriteJobsResponse::fromUserFavoriteJobs)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(responseList);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("my-jobs/default/{userId}")
+    public ResponseEntity<?> getFavoritesDefault(@PathVariable("userId") Long userId){
+        try{
+            List<UsersFavoriteJobs> usersFavoriteJobsList = favoriteJobService.getUserFavoritesDefault(userId);
+            List<UsersFavoriteJobsResponse> responseList = usersFavoriteJobsList.stream()
+                    .map(UsersFavoriteJobsResponse::fromUserFavoriteJobs)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(responseList);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }

@@ -5,8 +5,6 @@ import com.project.webIT.models.User;
 import com.project.webIT.models.UserDashboard;
 import com.project.webIT.repositories.UserDashboardRepository;
 import com.project.webIT.repositories.UserRepository;
-import com.project.webIT.services.IService.IUserDashboardService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +13,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserDashboardService implements IUserDashboardService {
+public class UserDashboardService implements com.project.webIT.services.IService.UserDashboardService {
 
     private final UserDashboardRepository userDashboardRepository;
     private final UserRepository userRepository;

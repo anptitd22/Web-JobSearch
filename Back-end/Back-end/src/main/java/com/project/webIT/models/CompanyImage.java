@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CompanyImages {
+public class CompanyImage {
     public static final int MAXIMUM_IMAGES_PER_COMPANY = 10;
 
     @Id

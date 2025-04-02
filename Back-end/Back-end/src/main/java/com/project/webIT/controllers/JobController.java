@@ -187,7 +187,8 @@ public class JobController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getJob(
-            @Valid @PathVariable("id") Long id){
+            @Valid @PathVariable("id") Long id
+    ){
         try{
             Job existingjob = jobService.getJobById(id);
             return ResponseEntity.ok().body(JobResponse.fromJob(existingjob));

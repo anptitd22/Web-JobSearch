@@ -7,7 +7,6 @@ import com.project.webIT.models.User;
 import com.project.webIT.repositories.JobRepository;
 import com.project.webIT.repositories.JobViewHistoryRepository;
 import com.project.webIT.repositories.UserRepository;
-import com.project.webIT.services.IService.IJobViewHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class JobViewHistoryService implements IJobViewHistoryService {
+public class JobViewHistoryService implements com.project.webIT.services.IService.JobViewHistoryService {
     private final JobViewHistoryRepository jobViewHistoryRepository;
     private final UserRepository userRepository;
     private final JobRepository jobRepository;

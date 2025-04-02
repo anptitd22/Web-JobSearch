@@ -3,6 +3,7 @@ package com.project.webIT.response.users;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.webIT.models.AppliedJob;
 import com.project.webIT.models.User;
+import com.project.webIT.models.UserPayment;
 import lombok.*;
 
 import java.util.Date;
@@ -85,6 +86,8 @@ public class UserResponse {
 
     private List<AppliedJob> appliedJobs;
 
+    private List<UserPayment> userPayments;
+
     public static UserResponse fromUser(User user){
         return UserResponse.builder()
                 .avatar(user.getAvatar())
@@ -111,6 +114,7 @@ public class UserResponse {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .currentJobLevel(user.getCurrentJobLevel())
+                .userPayments(user.getUserPayments())
                 .build();
     }
 }

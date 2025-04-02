@@ -4,6 +4,6 @@ import com.project.webIT.models.Role;
 
 import java.util.List;
 
-public interface IRoleService {
+public interface RoleService {
     List<Role> getAllRoles();
 }

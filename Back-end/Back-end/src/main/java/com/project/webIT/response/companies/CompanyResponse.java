@@ -38,8 +38,8 @@ public class CompanyResponse {
 
     private String industry;
 
-//    @JsonProperty("jobs")
-//    private List<Job> jobs = new ArrayList<>();
+    @JsonProperty("total_jobs")
+    private Long totalJobs;
 
 //    @JsonProperty("company_images")
 //    private List<CompanyImage> companyImages = new ArrayList<>();
@@ -58,6 +58,7 @@ public class CompanyResponse {
                 .contact(company.getContact())
                 .size(company.getSize())
                 .publicIdImages(company.getPublicIdImages())
+                .totalJobs((long)company.getTotal_jobs())
 //                .jobs(company.getJobs())
 //                .companyImages(company.getCompanyImages())
                 .build();

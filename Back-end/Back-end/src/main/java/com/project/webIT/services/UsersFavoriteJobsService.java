@@ -7,16 +7,16 @@ import com.project.webIT.models.UsersFavoriteJobs;
 import com.project.webIT.repositories.JobRepository;
 import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.repositories.UsersFavoriteJobsRepository;
-import com.project.webIT.services.IService.IUsersFavoriteJobsService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @AllArgsConstructor
-public class UsersFavoriteJobsService implements IUsersFavoriteJobsService {
+public class UsersFavoriteJobsService implements com.project.webIT.services.IService.UsersFavoriteJobsService {
 
     private final UsersFavoriteJobsRepository usersFavoriteJobsRepository;
     private final UserRepository userRepository;
@@ -41,12 +41,18 @@ public class UsersFavoriteJobsService implements IUsersFavoriteJobsService {
             newJob.setUser(existingUser);
             newJob.setJob(exisJob);
             newJob.setActive(true);
+            newJob.setUpdatedAt(LocalDateTime.now());
             return usersFavoriteJobsRepository.save(newJob);
         }
     }
 
     @Override
     public List<UsersFavoriteJobs> getUserFavorites(Long userId) {
+        return usersFavoriteJobsRepository.findByUserIdOrderByUpdatedAtDesc(userId);
+    }
+
+    @Override
+    public List<UsersFavoriteJobs> getUserFavoritesDefault(Long userId) {
         return usersFavoriteJobsRepository.findByUserId(userId);
     }
 }

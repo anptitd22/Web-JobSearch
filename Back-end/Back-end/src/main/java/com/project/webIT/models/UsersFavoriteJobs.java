@@ -1,5 +1,6 @@
 package com.project.webIT.models;
 
+import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UsersFavoriteJobs {
+public class UsersFavoriteJobs extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,7 +28,4 @@ public class UsersFavoriteJobs {
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive ;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -26,29 +26,43 @@ public class ChatbotQuestionController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getQuestionById(@PathVariable Long id) {
-        Optional<ChatbotQuestion> question = questionService.getQuestionById(id);
-        if(question.isPresent()){
-            return ResponseEntity.ok().body(question.get());
+        try{
+            Optional<ChatbotQuestion> question = questionService.getQuestionById(id);
+            if(question.isPresent()){
+                return ResponseEntity.ok().body(question.get());
+            }
+            return ResponseEntity.badRequest().body("not found");
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.badRequest().body("not found");
+
     }
 
     @PostMapping
-    public ChatbotQuestion createQuestion(@RequestBody ChatbotQuestion question) {
-        return questionService.saveQuestion(question);
+    public ResponseEntity<?> createQuestion(@RequestBody ChatbotQuestion question) {
+        try{
+            return ResponseEntity.ok().body(questionService.saveQuestion(question));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateQuestion(@PathVariable Long id, @RequestBody ChatbotQuestion questionDetails) {
-        Optional<ChatbotQuestion> questionOptional = questionService.getQuestionById(id);
-        if (questionOptional.isPresent()) {
-            ChatbotQuestion question = questionOptional.get();
-            question.setText(questionDetails.getText());
-            question.setAnswer(questionDetails.getAnswer());
-            return ResponseEntity.ok(questionService.saveQuestion(question));
-        } else {
-            return ResponseEntity.badRequest().body("not found");
+        try{
+            Optional<ChatbotQuestion> questionOptional = questionService.getQuestionById(id);
+            if (questionOptional.isPresent()) {
+                ChatbotQuestion question = questionOptional.get();
+                question.setText(questionDetails.getText());
+                question.setAnswer(questionDetails.getAnswer());
+                return ResponseEntity.ok(questionService.saveQuestion(question));
+            } else {
+                return ResponseEntity.badRequest().body("not found");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
+
     }
 
     @DeleteMapping("/{id}")

@@ -187,11 +187,9 @@ public class WebSecurityConfig {
                             .requestMatchers(
                                     HttpMethod.POST,
                                     String.format("%s/dashboard/**", apiPrefix)).permitAll()
-
                             .requestMatchers(
                                     HttpMethod.GET,
                                     String.format("%s/questions/**", apiPrefix)).permitAll()
-
                             .requestMatchers(
                                     HttpMethod.POST,
                                     String.format("%s/questions/**", apiPrefix)).permitAll()
@@ -203,6 +201,26 @@ public class WebSecurityConfig {
                             .requestMatchers(
                                     HttpMethod.DELETE,
                                     String.format("%s/questions/**", apiPrefix)).permitAll()
+
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    String.format("%s/locations/**", apiPrefix)).permitAll()
+
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    String.format("%s/cv/**", apiPrefix)).permitAll()
+
+                            .requestMatchers(
+                                    HttpMethod.PUT,
+                                    String.format("%s/cv/**", apiPrefix)).permitAll()
+
+                            .requestMatchers(
+                                    HttpMethod.DELETE,
+                                    String.format("%s/cv/**", apiPrefix)).permitAll()
+
+                            .requestMatchers(
+                                    HttpMethod.POST,
+                                    String.format("%s/payments/**", apiPrefix)).permitAll()
                             .anyRequest().authenticated();
                         }).build();
     }

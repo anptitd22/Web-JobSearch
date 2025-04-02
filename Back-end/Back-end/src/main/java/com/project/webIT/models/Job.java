@@ -55,8 +55,8 @@ public class Job extends BaseEntity {
     private JobFunction jobFunction;
 
     @ManyToOne
-    @JsonBackReference
     @JoinColumn(name = "company_id")
+    @JsonBackReference
     private Company company;
 
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

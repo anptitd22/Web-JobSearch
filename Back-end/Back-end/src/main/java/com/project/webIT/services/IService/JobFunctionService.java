@@ -5,7 +5,7 @@ import com.project.webIT.models.JobFunction;
 
 import java.util.List;
 
-public interface IJobFunctionService {
+public interface JobFunctionService {
     JobFunction createJobFunction(JobFunctionDTO jobFunctionDTO);
 
     JobFunction getJobFunctionById(long id);

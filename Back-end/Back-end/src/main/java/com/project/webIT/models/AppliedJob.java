@@ -1,6 +1,7 @@
 package com.project.webIT.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AppliedJob {
+public class AppliedJob extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @Column(name = "id") //khong can thiet vi id giong mysql
@@ -39,6 +40,7 @@ public class AppliedJob {
 
     @ManyToOne
     @JoinColumn(name = "job_id")
+    @JsonBackReference
     private Job job;
 
     @Column(name = "address", nullable = false, length = 200)

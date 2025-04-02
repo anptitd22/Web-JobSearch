@@ -1,9 +1,7 @@
 package com.project.webIT.controllers;
 
 import com.project.webIT.dtos.companies.CompanyDTO;
-import com.project.webIT.dtos.companies.CompanyImageDTO;
 import com.project.webIT.models.Company;
-import com.project.webIT.models.CompanyImages;
 import com.project.webIT.models.Job;
 import com.project.webIT.response.companies.CompanyListResponse;
 import com.project.webIT.response.companies.CompanyResponse;
@@ -12,7 +10,6 @@ import com.project.webIT.services.CloudinaryService;
 import com.project.webIT.services.CompanyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,17 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.stream.Collectors;
 

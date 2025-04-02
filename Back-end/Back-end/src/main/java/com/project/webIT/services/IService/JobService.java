@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 
-public interface IJobService {
+public interface JobService {
     Job createJob(JobDTO jobDTO) throws Exception;
 
     Job getJobById(long id) throws Exception;

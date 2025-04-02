@@ -4,11 +4,9 @@ import com.project.webIT.exception.DataNotFoundException;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.User;
 import com.project.webIT.models.UsersFavoriteCompanies;
-import com.project.webIT.models.UsersFavoriteJobs;
 import com.project.webIT.repositories.CompanyRepository;
 import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.repositories.UsersFavoriteCompaniesRepository;
-import com.project.webIT.services.IService.IUsersFavoriteCompaniesService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +16,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
-public class UsersFavoriteCompaniesService implements IUsersFavoriteCompaniesService {
+public class UsersFavoriteCompaniesService implements com.project.webIT.services.IService.UsersFavoriteCompaniesService {
 
     private final UsersFavoriteCompaniesRepository usersFavoriteCompaniesRepository;
     private final UserRepository userRepository;

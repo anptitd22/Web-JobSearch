@@ -3,7 +3,7 @@ package com.project.webIT.services.IService;
 import com.project.webIT.dtos.companies.CompanyDTO;
 import com.project.webIT.dtos.companies.CompanyImageDTO;
 import com.project.webIT.models.Company;
-import com.project.webIT.models.CompanyImages;
+import com.project.webIT.models.CompanyImage;
 import com.project.webIT.models.Job;
 import com.project.webIT.response.companies.CompanyResponse;
 import org.springframework.data.domain.Page;
@@ -11,7 +11,7 @@ import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
-public interface ICompanyService {
+public interface CompanyService {
     Company createCompany(CompanyDTO companyDTO);
 
     Company getCompanyById(long id) throws Exception;
@@ -30,7 +30,7 @@ public interface ICompanyService {
 
     boolean existByName(String name);
 
-    CompanyImages createCompanyImage(Long companyId, CompanyImageDTO companyImageDTO) throws Exception;
+    CompanyImage createCompanyImage(Long companyId, CompanyImageDTO companyImageDTO) throws Exception;
 
 //    Company createCompanyLogo(Long companyId, String url, String publicId) throws Exception;
 }

@@ -13,7 +13,6 @@ import com.project.webIT.repositories.JobFunctionRepository;
 import com.project.webIT.repositories.JobImageRepository;
 import com.project.webIT.repositories.JobRepository;
 import com.project.webIT.response.jobs.JobResponse;
-import com.project.webIT.services.IService.IJobService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -26,7 +25,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class JobService implements IJobService {
+public class JobService implements com.project.webIT.services.IService.JobService {
     private final JobRepository jobRepository;
     private final JobFunctionRepository jobFunctionRepository;
     private final ModelMapper modelMapper;

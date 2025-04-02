@@ -10,7 +10,6 @@ import com.project.webIT.models.Status.CompanyFeedbackStatus;
 import com.project.webIT.repositories.AppliedJobRepository;
 import com.project.webIT.repositories.CompanyRepository;
 import com.project.webIT.repositories.CompanyFeedbackRepository;
-import com.project.webIT.services.IService.ICompanyFeedbackService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class CompanyFeedbackService implements ICompanyFeedbackService {
+public class CompanyFeedbackService implements com.project.webIT.services.IService.CompanyFeedbackService {
     private final CompanyFeedbackRepository companyFeedbackRepository;
     private final CompanyRepository companyRepository;
     private final AppliedJobRepository appliedJobRepository;

@@ -3,7 +3,6 @@ package com.project.webIT.services;
 import com.project.webIT.dtos.jobs.JobFunctionDTO;
 import com.project.webIT.models.JobFunction;
 import com.project.webIT.repositories.JobFunctionRepository;
-import com.project.webIT.services.IService.IJobFunctionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +11,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class JobFunctionService implements IJobFunctionService {
+public class JobFunctionService implements com.project.webIT.services.IService.JobFunctionService {
 
     private final JobFunctionRepository jobFunctionRepository;
 

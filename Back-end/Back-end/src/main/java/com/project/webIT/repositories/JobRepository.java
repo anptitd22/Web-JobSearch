@@ -10,8 +10,6 @@ import java.util.List;
 
 public interface JobRepository extends JpaRepository<Job, Long> {
 
-    List<Job> findByCompanyId(Long companyId);
-
     boolean existsByName(String name);
 
 //    Page<Job> findAll(Pageable pageable); //phan trang cac job

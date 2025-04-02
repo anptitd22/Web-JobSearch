@@ -1,9 +1,6 @@
 package com.project.webIT.controllers;
 
-import com.project.webIT.dtos.users.PasswordDTO;
-import com.project.webIT.dtos.users.UpdateUserDTO;
-import com.project.webIT.dtos.users.UserDTO;
-import com.project.webIT.dtos.users.UserLoginDTO;
+import com.project.webIT.dtos.users.*;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.User;
 import com.project.webIT.repositories.UserRepository;
@@ -115,7 +112,7 @@ public class UserController {
             @RequestPart("files") List<MultipartFile> files
     ){
         try{
-            if (files == null) {
+            if (files == null || files.isEmpty()) {
                 files = new ArrayList<>(); //truong hop khong tai file
             }
             if(files.size() > 1){
@@ -139,7 +136,7 @@ public class UserController {
             }
             return ResponseEntity.ok().body(cloudinaryService.upload(file));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -165,7 +162,7 @@ public class UserController {
     }
 
     @PutMapping("password/{userId}")
-    public ResponseEntity<UserResponse> updateEmail(
+    public ResponseEntity<UserResponse> updatePassword(
             @PathVariable ("userId") Long userId,
             @RequestBody PasswordDTO passwordDTO,
             @RequestHeader("Authorization") String authorizationHeader
@@ -182,6 +179,27 @@ public class UserController {
             return ResponseEntity.ok().body(UserResponse.fromUser(updateUser));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("email/{userId}")
+    public ResponseEntity<?> updateEmail(
+            @PathVariable ("userId") Long userId,
+            @RequestBody EmailDTO emailDTO,
+            @RequestHeader("Authorization") String authorizationHeader
+    ){
+        try {
+            String extractedToken = authorizationHeader.substring(7); //bo Bearer
+            User user = userService.getUserDetailsFromToken(extractedToken);
+            //kiem tra xem dung tai khoan khong
+            if(!Objects.equals(user.getId(), userId)){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            User updateUser = userService.updateEmail(userId, emailDTO);
+            //tra token trong response
+            return ResponseEntity.ok().body(UserResponse.fromUser(updateUser));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

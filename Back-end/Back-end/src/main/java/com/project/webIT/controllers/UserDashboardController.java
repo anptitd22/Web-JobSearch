@@ -33,7 +33,7 @@ public class UserDashboardController {
             UserDashboard userDashboard = userDashboardService.updateAppliedJobs(user.getId());
             return ResponseEntity.ok().body(userDashboard);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -48,7 +48,7 @@ public class UserDashboardController {
             UserDashboard userDashboard =userDashboardService.updateJobViews(user.getId());
             return ResponseEntity.ok().body(userDashboard);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -64,7 +64,7 @@ public class UserDashboardController {
             UserDashboard userDashboard = userDashboardService.updateJobSearches(user.getId());
             return ResponseEntity.ok().body(userDashboard);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 

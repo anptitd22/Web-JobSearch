@@ -2,20 +2,18 @@ package com.project.webIT.services;
 
 import com.project.webIT.components.JwtTokenUtils;
 import com.project.webIT.components.LocalizationUtils;
-import com.project.webIT.dtos.users.PasswordDTO;
-import com.project.webIT.dtos.users.UpdateUserDTO;
-import com.project.webIT.dtos.users.UserDTO;
+import com.project.webIT.dtos.users.*;
 import com.project.webIT.exception.DataNotFoundException;
+import com.project.webIT.exception.InvalidParamException;
 import com.project.webIT.exception.PermissionDenyException;
 import com.project.webIT.models.Role;
 import com.project.webIT.models.User;
+import com.project.webIT.models.UserCV;
 import com.project.webIT.repositories.RoleRepository;
 import com.project.webIT.repositories.UserRepository;
-import com.project.webIT.services.IService.IUserService;
 import com.project.webIT.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.ValidationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -28,7 +26,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements IUserService {
+public class UserService implements com.project.webIT.services.IService.UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
@@ -235,6 +233,20 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public User updateEmail(Long userId, EmailDTO emailDTO) throws Exception {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found !"));
+
+        if (!passwordEncoder.matches(emailDTO.getCurrentPassword(), existingUser.getPassword())){
+            throw new DataNotFoundException("Password and current password not same");
+        }
+        if (emailDTO.getNewEmail() != null && !emailDTO.getNewEmail().isEmpty()) {
+            existingUser.setEmail(emailDTO.getNewEmail());
+        }
+        return userRepository.save(existingUser);
+    }
+
+    @Override
     public String getPublicId(Long userId) throws Exception{
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(()->new DataNotFoundException("user not found"));
@@ -244,6 +256,15 @@ public class UserService implements IUserService {
         return "";
     }
 
+    @Override
+    public Boolean checkSizeCV(Long userId, Long size) throws Exception{
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(()->new DataNotFoundException("user not found"));
+        if(existingUser.getUserCVS().size()==5){
+            return false;
+        }
+        return (existingUser.getUserCVS().size()+size) <= 5;
+    }
 //    @Override
 //    public User createUserAvatar(Long userId, String url, String publicIdImages) throws Exception{
 //        User existingUser = userRepository.findById(userId)

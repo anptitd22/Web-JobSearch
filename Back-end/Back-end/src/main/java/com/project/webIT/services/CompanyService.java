@@ -5,13 +5,12 @@ import com.project.webIT.dtos.companies.CompanyImageDTO;
 import com.project.webIT.exception.DataNotFoundException;
 import com.project.webIT.exception.InvalidParamException;
 import com.project.webIT.models.Company;
-import com.project.webIT.models.CompanyImages;
+import com.project.webIT.models.CompanyImage;
 import com.project.webIT.models.Job;
 import com.project.webIT.repositories.CompanyImageRepository;
 import com.project.webIT.repositories.CompanyRepository;
 import com.project.webIT.repositories.JobRepository;
 import com.project.webIT.response.companies.CompanyResponse;
-import com.project.webIT.services.IService.ICompanyService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -23,7 +22,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class CompanyService implements ICompanyService {
+public class CompanyService implements com.project.webIT.services.IService.CompanyService {
     private final CompanyRepository companyRepository;
     private final CompanyImageRepository companyImageRepository;
     private final JobRepository jobRepository;
@@ -102,20 +101,20 @@ public class CompanyService implements ICompanyService {
     }
 
     @Override
-    public CompanyImages createCompanyImage(Long companyId, CompanyImageDTO companyImageDTO) throws Exception {
+    public CompanyImage createCompanyImage(Long companyId, CompanyImageDTO companyImageDTO) throws Exception {
         Company existingCompany = companyRepository.findById(companyId)
                 .orElseThrow(() ->
                         new DataNotFoundException("Cannot find Company with id = "
                                 +companyImageDTO.getCompanyId()));
-        CompanyImages newCompanyImage = CompanyImages.builder()
+        CompanyImage newCompanyImage = CompanyImage.builder()
                 .company(existingCompany)
                 .imageUrl(companyImageDTO.getImageUrl())
                 .build();
         //khong cho insert qua 5 anh
         int size = companyImageRepository.findByCompanyId(companyId).size();
-        if(size >= CompanyImages.MAXIMUM_IMAGES_PER_COMPANY){
+        if(size >= CompanyImage.MAXIMUM_IMAGES_PER_COMPANY){
             throw new InvalidParamException("Number of Image must be <= " +
-                    CompanyImages.MAXIMUM_IMAGES_PER_COMPANY);
+                    CompanyImage.MAXIMUM_IMAGES_PER_COMPANY);
         }
         return companyImageRepository.save(newCompanyImage);
     }

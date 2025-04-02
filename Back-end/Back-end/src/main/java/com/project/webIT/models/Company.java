@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,4 +62,7 @@ public class Company{
 //    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 //    @JsonManagedReference
 //    private List<Job> jobs = new ArrayList<>();
+
+    @Formula("(SELECT COUNT(*) FROM jobs j WHERE j.company_id = id)")
+    private Long total_jobs;
 }

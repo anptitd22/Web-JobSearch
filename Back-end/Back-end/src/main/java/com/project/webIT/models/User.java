@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -96,15 +97,20 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "marital_status", length = 50)
     private String maritalStatus;
 
-//    @OneToMany(mappedBy = "user")
-//    private Set<Session> sessions = new HashSet<>();
-//
-//    @OneToMany(mappedBy = "user")
-//    private Set<ChatHistory> chatHistories = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("updatedAt DESC")
+    @JsonManagedReference
+    private List<AppliedJob> appliedJobs = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<AppliedJob> appliedJobs = new ArrayList<>();
+    @Where(clause = "is_active = true")
+    private List<UserCV> userCVS = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("createdAt DESC")
+    @JsonManagedReference
+    private List<UserPayment> userPayments = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

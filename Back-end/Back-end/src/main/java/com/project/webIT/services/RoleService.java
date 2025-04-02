@@ -2,7 +2,6 @@ package com.project.webIT.services;
 
 import com.project.webIT.models.Role;
 import com.project.webIT.repositories.RoleRepository;
-import com.project.webIT.services.IService.IRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +9,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RoleService implements IRoleService {
+public class RoleService implements com.project.webIT.services.IService.RoleService {
     private final RoleRepository roleRepository;
 
     @Override

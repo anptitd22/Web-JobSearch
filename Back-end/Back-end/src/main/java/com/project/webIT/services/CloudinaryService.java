@@ -49,5 +49,43 @@ public class CloudinaryService {
         }
         return upload(file);
     }
-
+    ///////uploads docx
+    public Map uploadCV(MultipartFile file)  {
+        if (file==null || file.isEmpty()){
+            return new HashMap<>();
+        }
+        try{
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String fileName = UUID.randomUUID().toString() + "_" + Instant.now().getEpochSecond() + fileExtension;
+            Map data = this.cloudinary.uploader().upload(file.getBytes(),  ObjectUtils.asMap(
+                    "public_id", fileName,
+                    "display_name", file.getOriginalFilename(),
+                    "overwrite", true,
+                    "resource_type", "raw"
+            ));
+            return data;
+        }catch (IOException io){
+            throw new RuntimeException("Upload không thành công");
+        }
+    }
+    public Map deleteCV(String publicId) {
+        try {
+//            publicId = publicId.substring(0, publicId.lastIndexOf('.'));
+            Map options = ObjectUtils.asMap(
+                    "resource_type", "raw",  // Quan trọng cho PDF/DOCX
+                    "invalidate", true      // Xóa cache CDN
+            );
+            Map result = cloudinary.uploader().destroy(publicId, options);
+            return result;
+        } catch (IOException e) {
+            throw new RuntimeException("Xóa file không thành công");
+        }
+    }
+    public Map updateCV(String publicId, MultipartFile file) {
+        if(publicId!=null){
+            deleteCV(publicId);
+        }
+        return upload(file);
+    }
 }

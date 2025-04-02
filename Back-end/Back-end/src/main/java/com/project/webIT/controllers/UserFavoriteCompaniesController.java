@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,7 +28,7 @@ public class UserFavoriteCompaniesController {
             UsersFavoriteCompanies usersFavoriteCompanies = usersFavoriteCompaniesService.saveFavoriteCompany(userId, companyId);
             return ResponseEntity.ok(usersFavoriteCompanies);
         } catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
