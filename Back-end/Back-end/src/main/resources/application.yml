@@ -19,6 +19,44 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 903939132080-8f1s8o9fgb80q8est4j8he4hhr86rjhd.apps.googleusercontent.com
+            client-secret: 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
+            redirect-uri: "${GOOGLE_REDIRECT_URI:http://localhost:4200/auth/google/callback}"
+            auth-uri: https://accounts.google.com/o/oauth2/v2/auth
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            scope: profile,email
+            resource-server:
+              opaque-token:
+                introspection-uri: "https://googleapis.com"
+          facebook:
+            client-id: 679621127764992
+            client-secret: a54c2fa9035b4087a7bffd2ce7d8311f
+            redirect-uri: "${FACEBOOK_REDIRECT_URI:http://localhost:4200/auth/facebook/callback}"
+            auth-uri: https://www.facebook.com/v22.0/dialog/oauth
+            token-uri: https://graph.facebook.com/oauth/access_token?grant_type=authorization_code
+            user-info-uri: https://graph.facebook.com/me?fields=id,name,email,picture.type(large)
+            scope:
+              - public_profile
+              - email
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: tu123098b@gmail.com
+    password: ylzgsbsjndyzvnlo
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 api:
   prefix: api/v1
 cloudinary:
@@ -28,3 +66,4 @@ cloudinary:
 jwt: #json web token
   expiration: 2592000 #30days: 30*24*60*60
   secretKey: FfyEJyyYieuIdNN99gm8ibEik38pjPBk7elv2qz4utE=
+

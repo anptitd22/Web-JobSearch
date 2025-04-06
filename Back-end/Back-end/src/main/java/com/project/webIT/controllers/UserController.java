@@ -1,23 +1,21 @@
 package com.project.webIT.controllers;
 
 import com.project.webIT.dtos.users.*;
-import com.project.webIT.models.Company;
 import com.project.webIT.models.User;
-import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.response.auth.LoginResponse;
 import com.project.webIT.response.auth.RegisterResponse;
-import com.project.webIT.response.companies.CompanyResponse;
 import com.project.webIT.response.users.UserResponse;
+import com.project.webIT.services.AuthService;
 import com.project.webIT.services.CloudinaryService;
 import com.project.webIT.services.UserService;
 import com.project.webIT.components.LocalizationUtils;
 import com.project.webIT.utils.MessageKeys;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +33,7 @@ public class UserController {
     private final UserService userService;
     private final LocalizationUtils localizationUtils;
     private final CloudinaryService cloudinaryService;
+    private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<?> createUser(
@@ -67,15 +66,13 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody UserLoginDTO userLoginDTO
+            @RequestBody UserLoginDTO userLoginDTO,
+            HttpServletRequest request
     ){
         //kiem tra dang nhap va sinh token
         try {
-            String token = userService.login(
-                    userLoginDTO.getEmail(),
-                    userLoginDTO.getPassword(),
-                    userLoginDTO.getRoleId() == null ? 1 : userLoginDTO.getRoleId()
-            );
+//            String userAgent = request.getHeader("User-Agent");
+            String token = userService.loginUser(userLoginDTO);
             //tra token trong response
             return ResponseEntity.ok().body(LoginResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY))
@@ -141,7 +138,7 @@ public class UserController {
     }
 
     @PutMapping("details/{userId}")
-    public ResponseEntity<UserResponse> updateUser(
+    public ResponseEntity<?> updateUser(
             @PathVariable ("userId") Long userId,
             @RequestBody UpdateUserDTO updateUserDTO,
             @RequestHeader("Authorization") String authorizationHeader
@@ -157,7 +154,7 @@ public class UserController {
             User updateUser = userService.updateUser(userId, updateUserDTO);
             return ResponseEntity.ok().body(UserResponse.fromUser(updateUser));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error",e.getMessage()));
         }
     }
 
@@ -201,5 +198,79 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("auth/social-login")
+    public ResponseEntity<String> socialAuth (
+            @RequestParam("login_type") String loginType
+    ){
+        System.out.println("Received request with login_type: " + loginType);
+        loginType = loginType.trim().toLowerCase();
+        String url = authService.generateAuthUrl(loginType);
+        return ResponseEntity.ok(url);
+    }
+
+    @GetMapping("auth/social/callback")
+    public ResponseEntity<?>callback (
+            @RequestParam("code") String code,
+            @RequestParam(name = "login_type", required = false) String loginType,
+            HttpServletRequest request
+    ) throws Exception {
+        System.out.println("Code: " + code + ", LoginType: " + loginType);
+        Map<String, Object> userInfo = authService.authenticateAndFetchProfile(code, loginType);
+        if(userInfo == null) {
+//            return ResponseEntity.badRequest().body(new ResponseObject("Failed to authenticate",
+//                    HttpStatus.BAD_REQUEST,null));
+            return ResponseEntity.badRequest().body("Failed to authenticate");
+        }
+        String accountId = "";
+        String name = "";
+        String picture = "";
+        String email = "";
+
+        if (loginType.trim().equals("google")) {
+            accountId = (String) Objects.requireNonNullElse(userInfo.get("sub"), "");
+            name = (String) Objects.requireNonNullElse(userInfo.get("name"), "");
+            picture = (String) Objects.requireNonNullElse(userInfo.get("picture"), "");
+            email = (String) Objects.requireNonNullElse(userInfo.get("email"), "");
+        } else if (loginType.trim().equals("facebook")) {
+//            loginType: "facebook"
+            accountId = (String) Objects.requireNonNullElse(userInfo.get("id"), "");
+            name = (String) Objects.requireNonNullElse(userInfo.get("name"), "");
+            email = (String) Objects.requireNonNullElse(userInfo.get("email"), "");
+            // Lấy URL ảnh từ cấu trúc dữ liệu của Facebook
+            Object pictureObj = userInfo.get("picture");
+            if (pictureObj instanceof Map) {
+                Map<?, ?> pictureData = (Map<?, ?>) pictureObj;
+                Object dataObj = pictureData.get("data");
+                if (dataObj instanceof Map) {
+                    Map<?, ?> dataMap = (Map<?, ?>) dataObj;
+                    Object urlObj = dataMap.get("url");
+                    if (urlObj instanceof String) {
+                        picture = (String) urlObj;
+                    }
+                }
+            }
+        }
+        // Tạo đối tượng UserLoginDTO
+        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
+                .email(email)
+                .fullName(name)
+                .password("")
+                .phoneNumber("")
+                .avatar(picture) //profileImage
+                .facebookAccountId("")
+                .googleAccountId("")
+                .roleId((long)1)
+                .build();
+        if (loginType.trim().equals("google")) {
+            userLoginDTO.setGoogleAccountId(accountId);
+            //userLoginDTO.setFacebookAccountId("");
+        } else if (loginType.trim().equals("facebook")) {
+            userLoginDTO.setFacebookAccountId(accountId);
+            //userLoginDTO.setGoogleAccountId("");
+        }
+
+        return this.login(userLoginDTO,request);
     }
 }

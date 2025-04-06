@@ -1,15 +1,12 @@
 package com.project.webIT.services.IService;
 
-import com.project.webIT.dtos.users.EmailDTO;
-import com.project.webIT.dtos.users.PasswordDTO;
-import com.project.webIT.dtos.users.UpdateUserDTO;
-import com.project.webIT.dtos.users.UserDTO;
+import com.project.webIT.dtos.users.*;
 import com.project.webIT.models.User;
 
 public interface UserService {
     User createUser(UserDTO userDTO) throws Exception;
 
-    String login(String email, String password, Long roleId) throws Exception;
+    String loginUser(UserLoginDTO userLoginDTO) throws Exception;
 
     User getUserDetailsFromToken (String extractedToken) throws Exception;
 

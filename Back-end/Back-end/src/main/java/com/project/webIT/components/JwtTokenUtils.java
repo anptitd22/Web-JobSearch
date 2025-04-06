@@ -10,6 +10,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -34,16 +35,26 @@ public class JwtTokenUtils {
 //        this.generateSecretKey();
         claims.put("email", user.getEmail());
         claims.put("userId", user.getId());
-        try{
+        return createToken(claims, user.getEmail());
+    }
+//    public String generateTokenFromOAuth2(OAuth2User oAuth2User)throws Exception {
+//        Map<String, Object> claims = new HashMap<>();
+//        String email = oAuth2User.getAttribute("email"); // Lấy email từ OAuth2 response
+//        claims.put("email", email);
+//        claims.put("name", oAuth2User.getAttribute("name")); // Thêm tên user
+//        claims.put("provider", "oauth2"); // Đánh dấu user từ OAuth2
+//        return createToken(claims, email);
+//    }
+    private String createToken(Map<String, Object> claims, String subject) throws Exception{
+        try {
             return Jwts.builder()
-                    .setClaims(claims) //how to extract claims for this ?
-                    .setSubject(user.getEmail())
-                    .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L)) //thoi gian truy cap
+                    .setClaims(claims)
+                    .setSubject(subject)
+                    .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L))
                     .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                     .compact();
         } catch (Exception e) {
-            // co the dung inject Logger thay sout
-            throw new InvalidParamException("Cannot create jwt token, error: "+e.getMessage());
+            throw new InvalidParamException("Cannot create JWT token, error: " + e.getMessage());
         }
     }
 

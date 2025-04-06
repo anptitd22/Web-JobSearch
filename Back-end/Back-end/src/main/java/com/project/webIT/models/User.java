@@ -33,13 +33,13 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 
-    @Column(name = "first_name",nullable = false, length = 50)
+    @Column(name = "first_name", length = 50)
     private String firstName;
 
-    @Column(name = "last_name",nullable = false, length = 50)
+    @Column(name = "last_name", length = 50)
     private String lastName;
 
-    @Column(name = "phone_number", nullable = false, length = 20)
+    @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
     @Column(name = "email", nullable = false, length = 100)
@@ -48,20 +48,20 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "address", length = 200)
     private String address;
 
-    @Column(name = "password", nullable = false, length = 200)
+    @Column(name = "password", length = 200)
     private String password;
 
     @Column(name = "is_active")
     private boolean isActive;
 
-    @Column(name = "date_of_birth", nullable = false)
+    @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
     @Column(name = "facebook_account_id")
-    private int facebookAccountId;
+    private String facebookAccountId;
 
     @Column(name = "google_account_id")
-    private int googleAccountId;
+    private String googleAccountId;
 
     @ManyToOne
     @JoinColumn(name = "role_id")

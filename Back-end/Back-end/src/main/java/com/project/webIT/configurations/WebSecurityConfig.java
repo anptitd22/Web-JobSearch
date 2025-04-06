@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -52,13 +53,18 @@ public class WebSecurityConfig {
                     requests
                             .requestMatchers(
                             String.format("%s/users/register", apiPrefix),
-                            String.format("%s/users/login", apiPrefix)
+                            String.format("%s/users/login", apiPrefix),
+                            String.format("%s/users/auth/**", apiPrefix)
                             )
                             .permitAll()
 
                             .requestMatchers(
                                     HttpMethod.POST,
                                     String.format("%s/users/**", apiPrefix)).hasRole(Role.USER)
+
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    String.format("%s/users/**", apiPrefix)).permitAll()
 
                             .requestMatchers(
                                     HttpMethod.GET,
@@ -221,7 +227,16 @@ public class WebSecurityConfig {
                             .requestMatchers(
                                     HttpMethod.POST,
                                     String.format("%s/payments/**", apiPrefix)).permitAll()
+
+                            .requestMatchers(
+                                    HttpMethod.POST,
+                                    String.format("%s/mail/**", apiPrefix)).permitAll()
                             .anyRequest().authenticated();
-                        }).build();
+                        })
+                        .build();
+    }
+    @Bean
+    public DefaultOAuth2UserService oAuth2UserService() {
+        return new DefaultOAuth2UserService();
     }
 }
