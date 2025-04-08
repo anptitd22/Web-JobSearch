@@ -1,4 +1,4 @@
-package com.project.webIT.exception;
+package com.project.webIT.exceptions;
 
 public class InvalidParamException extends Exception{
     public InvalidParamException(String message){

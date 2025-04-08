@@ -11,11 +11,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company,Long> {
     boolean existsByName (String name);
-//    List<Company> findByCompanyId(Long companyId);
+
+    Optional<Company> findByAccount (String account);
 
     @Query("SELECT c From Company c WHERE "+
             "(:industryId IS NULL OR :industryId = 0 OR c.industry.id = :industryId) " +

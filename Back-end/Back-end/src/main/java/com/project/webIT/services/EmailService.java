@@ -1,6 +1,5 @@
 package com.project.webIT.services;
 
-import com.project.webIT.exception.InvalidParamException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

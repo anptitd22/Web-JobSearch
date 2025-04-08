@@ -1,7 +1,7 @@
 package com.project.webIT.services;
 
 import com.project.webIT.dtos.users.UserCVDTO;
-import com.project.webIT.exception.DataNotFoundException;
+import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.User;
 import com.project.webIT.models.UserCV;
 import com.project.webIT.repositories.UserCvRepository;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package com.project.webIT.exception;
+package com.project.webIT.exceptions;
 
 public class PermissionDenyException extends Exception{
     public PermissionDenyException(String message){

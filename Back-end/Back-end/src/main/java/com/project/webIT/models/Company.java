@@ -1,5 +1,6 @@
 package com.project.webIT.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
@@ -21,6 +22,12 @@ public class Company{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name="account", nullable = false,length = 255)
+    private String account;
+
+    @Column(name="password", nullable = false,length = 255)
+    private String password;
 
     @Column(name = "name", nullable = false, length = 200)
     private String name;
@@ -58,6 +65,10 @@ public class Company{
 
     @Column(name = "is_active")
     private boolean isActive;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
 //    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 //    @JsonManagedReference

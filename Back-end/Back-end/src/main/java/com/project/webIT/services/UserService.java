@@ -3,12 +3,9 @@ package com.project.webIT.services;
 import com.project.webIT.components.JwtTokenUtils;
 import com.project.webIT.components.LocalizationUtils;
 import com.project.webIT.dtos.users.*;
-import com.project.webIT.exception.DataNotFoundException;
-import com.project.webIT.exception.InvalidParamException;
-import com.project.webIT.exception.PermissionDenyException;
+import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.Role;
 import com.project.webIT.models.User;
-import com.project.webIT.models.UserCV;
 import com.project.webIT.repositories.RoleRepository;
 import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.utils.MessageKeys;
@@ -23,8 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -34,7 +29,7 @@ public class UserService implements com.project.webIT.services.IService.UserServ
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenUtils jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationManager authenticationManager;
     private final LocalizationUtils localizationUtils;
 
@@ -69,62 +64,6 @@ public class UserService implements com.project.webIT.services.IService.UserServ
         }
         return userRepository.save(newUser);
     }
-
-//    @Transactional
-//    @Override
-//    public String loginUser(UserLoginDTO userLoginDTO) throws Exception {
-//        Optional<User> optionalUser = userRepository.findByEmail(userLoginDTO.getEmail());
-//        String subject = null;
-//        Optional<Role> optionalRole = roleRepository.findById(userLoginDTO.getRoleId());
-//        if (optionalRole.isEmpty()) {
-//            throw new DataNotFoundException(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_ROLE));
-//        }
-//        if(optionalUser.isEmpty() && !userLoginDTO.getFacebookAccountId().isEmpty()){
-//            optionalUser = userRepository.findByFacebookAccountId(userLoginDTO.getFacebookAccountId());
-//            subject = "Facebook" + userLoginDTO.getFacebookAccountId();
-//            if(optionalUser.isEmpty()){
-//                User newUser = User.builder()
-//                        .isActive(true)
-//                        .fullName(userLoginDTO.getFullName() != null ? userLoginDTO.getFullName(): "")
-//                        .email(userLoginDTO.getEmail())
-//                        .avatar(userLoginDTO.getAvatar())
-//                        .facebookAccountId(userLoginDTO.getFacebookAccountId())
-//                        .role(optionalRole.get())
-//                        .password("")
-//                        .build();
-//                userRepository.save(newUser);
-//                return jwtTokenUtil.generateToken(newUser); //tra ve token jwt
-//            }
-//            if (userLoginDTO.getPhoneNumber() != null
-//                    && !userLoginDTO.getPhoneNumber().isBlank()
-//                    && userRepository.existsByPhoneNumber(userLoginDTO.getPhoneNumber())) {
-//                throw new DataNotFoundException("phone number is exist");
-//            }
-//        }
-//        if(optionalUser.isEmpty()){
-//            throw new DataNotFoundException(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_EMAIL_PASS));
-//        }
-//        //security
-//        User existingUser = optionalUser.get();
-//        //check password
-//        if (existingUser.getFacebookAccountId().isEmpty() && existingUser.getGoogleAccountId().isEmpty()){
-//            if (!passwordEncoder.matches(userLoginDTO.getPassword(), existingUser.getPassword())){
-//                throw new BadCredentialsException(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_EMAIL_PASS));
-//            }
-//            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-//                    userLoginDTO.getEmail(), userLoginDTO.getPassword(), existingUser.getAuthorities()
-//            );
-//            //authenticate with Java spring security
-//            authenticationManager.authenticate(authenticationToken);
-//        }
-//        if (optionalRole.get().getId() !=1 || !userLoginDTO.getRoleId().equals(existingUser.getRole().getId())){
-//            throw new DataNotFoundException(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_ROLE));
-//        }
-//        if(!optionalUser.get().isActive()){
-//            throw new DataNotFoundException("user is locked");
-//        }
-//        return jwtTokenUtil.generateToken(existingUser); //tra ve token jwt
-//    }
 
     @Transactional
     @Override
@@ -181,7 +120,7 @@ public class UserService implements com.project.webIT.services.IService.UserServ
                         .build();
 
                 userRepository.save(newUser);
-                return jwtTokenUtil.generateToken(newUser);
+                return jwtTokenUtils.generateToken(newUser);
             }
         }
 
@@ -197,7 +136,7 @@ public class UserService implements com.project.webIT.services.IService.UserServ
         validateUserStatus(existingUser);
         validateUserRole(existingUser, role);
 
-        return jwtTokenUtil.generateToken(existingUser);
+        return jwtTokenUtils.generateToken(existingUser);
     }
 
     // Xử lý đăng nhập Google
@@ -229,7 +168,7 @@ public class UserService implements com.project.webIT.services.IService.UserServ
                         .build();
 
                 userRepository.save(newUser);
-                return jwtTokenUtil.generateToken(newUser);
+                return jwtTokenUtils.generateToken(newUser);
             }
         }
 
@@ -245,7 +184,7 @@ public class UserService implements com.project.webIT.services.IService.UserServ
         validateUserStatus(existingUser);
         validateUserRole(existingUser, role);
 
-        return jwtTokenUtil.generateToken(existingUser);
+        return jwtTokenUtils.generateToken(existingUser);
     }
 
     // Xử lý đăng nhập thông thường
@@ -278,7 +217,7 @@ public class UserService implements com.project.webIT.services.IService.UserServ
         validateUserStatus(existingUser);
         validateUserRole(existingUser, role);
 
-        return jwtTokenUtil.generateToken(existingUser);
+        return jwtTokenUtils.generateToken(existingUser);
     }
 
     private void validateUserStatus(User user) throws DataNotFoundException {
@@ -297,10 +236,10 @@ public class UserService implements com.project.webIT.services.IService.UserServ
     @Transactional
     @Override
     public User getUserDetailsFromToken(String extractedToken) throws Exception {
-        if(jwtTokenUtil.isTokenExpired(extractedToken)){
+        if(jwtTokenUtils.isTokenExpired(extractedToken)){
             throw new Exception("Token is expired");
         }
-        String email = jwtTokenUtil.extractEmail(extractedToken);
+        String email = jwtTokenUtils.extractEmail(extractedToken);
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isPresent()){
             return userOptional.get();

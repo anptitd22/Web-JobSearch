@@ -115,6 +115,7 @@ public class UserResponse {
                 .lastName(user.getLastName())
                 .currentJobLevel(user.getCurrentJobLevel())
                 .userPayments(user.getUserPayments())
+                .roleID(user.getRole().getId())
                 .build();
     }
 }

@@ -1,8 +1,10 @@
 package com.project.webIT.controllers;
 
 import com.project.webIT.dtos.companies.CompanyDTO;
+import com.project.webIT.dtos.companies.CompanyLoginDTO;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.Job;
+import com.project.webIT.response.ResponseObject;
 import com.project.webIT.response.companies.CompanyListResponse;
 import com.project.webIT.response.companies.CompanyResponse;
 import com.project.webIT.response.jobs.JobResponse;
@@ -31,6 +33,32 @@ import java.util.stream.Collectors;
 public class CompanyController {
     private final CompanyService companyService;
     private final CloudinaryService cloudinaryService;
+
+    @PostMapping(value = "login")
+    public ResponseEntity<ResponseObject> loginCompany(
+            @Valid @RequestBody CompanyLoginDTO companyLoginDTO,
+            BindingResult result
+    ) throws Exception{
+        if(result.hasErrors()){
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(
+                    ResponseObject.builder()
+                            .message(String.join(";", errorMessages))
+                            .status(HttpStatus.BAD_REQUEST)
+                            .build()
+            );
+        }
+        String token = companyService.loginCompany(companyLoginDTO);
+        return ResponseEntity.ok().body(
+                ResponseObject.builder()
+                        .status(HttpStatus.OK)
+                        .message("Bạn đã đăng nhập thành công")
+                        .data(token).build()
+        );
+    }
 
     @PostMapping(value = "")
     public ResponseEntity<?> createCompany(
@@ -91,8 +119,24 @@ public class CompanyController {
         }
     }
 
+    @GetMapping("details")
+    public ResponseEntity<ResponseObject> getCompanyDetail(
+            @RequestHeader("Authorization") String authorizationHeader
+    )throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        Company company = companyService.getCompanyDetail(extractedToken);
+        return ResponseEntity.ok(
+                ResponseObject.builder()
+                        .status(HttpStatus.OK)
+                        .message("Lấy thông tin công ty thành công")
+                        .data(CompanyResponse.fromCompany(company)).build()
+        );
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCompany(@Valid @PathVariable Long id){
+    public ResponseEntity<?> getCompany(
+            @Valid @PathVariable Long id
+    ){
         try{
             Company existingCompany = companyService.getCompanyById(id);
             return ResponseEntity.ok().body(CompanyResponse.fromCompany(existingCompany));

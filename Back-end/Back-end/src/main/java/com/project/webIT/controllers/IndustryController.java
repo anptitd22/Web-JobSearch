@@ -2,8 +2,10 @@ package com.project.webIT.controllers;
 
 import com.project.webIT.models.Industry;
 import com.project.webIT.models.JobFunction;
+import com.project.webIT.response.ResponseObject;
 import com.project.webIT.services.IndustryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +20,12 @@ public class IndustryController {
     private final IndustryService industryService;
 
     @GetMapping("")
-    public ResponseEntity<?> getAllIndustries(){
+    public ResponseEntity<ResponseObject> getAllIndustries() throws Exception {
         List<Industry> industries = industryService.getAllIndustries();
-        return ResponseEntity.ok().body(industries);
+        return ResponseEntity.ok(ResponseObject.builder()
+                .message("Thành công")
+                .status(HttpStatus.OK)
+                .data(industries)
+                .build());
     }
 }

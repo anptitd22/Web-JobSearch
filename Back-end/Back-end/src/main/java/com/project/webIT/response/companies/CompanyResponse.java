@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.Job;
 import com.project.webIT.models.JobImage;
+import com.project.webIT.models.Role;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -41,6 +42,9 @@ public class CompanyResponse {
     @JsonProperty("total_jobs")
     private Long totalJobs;
 
+    @JsonProperty("role_id")
+    private Long roleId;
+
 //    @JsonProperty("company_images")
 //    private List<CompanyImage> companyImages = new ArrayList<>();
 
@@ -59,7 +63,7 @@ public class CompanyResponse {
                 .size(company.getSize())
                 .publicIdImages(company.getPublicIdImages())
                 .totalJobs((long)company.getTotal_jobs())
-//                .jobs(company.getJobs())
+                .roleId(company.getRole().getId())
 //                .companyImages(company.getCompanyImages())
                 .build();
     }

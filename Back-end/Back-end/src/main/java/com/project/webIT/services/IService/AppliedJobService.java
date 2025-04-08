@@ -1,7 +1,7 @@
 package com.project.webIT.services.IService;
 
 import com.project.webIT.dtos.appliedJob.AppliedJobDTO;
-import com.project.webIT.exception.DataNotFoundException;
+import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.AppliedJob;
 
 import java.util.List;

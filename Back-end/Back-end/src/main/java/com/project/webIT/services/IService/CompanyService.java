@@ -2,6 +2,7 @@ package com.project.webIT.services.IService;
 
 import com.project.webIT.dtos.companies.CompanyDTO;
 import com.project.webIT.dtos.companies.CompanyImageDTO;
+import com.project.webIT.dtos.companies.CompanyLoginDTO;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.CompanyImage;
 import com.project.webIT.models.Job;
@@ -12,6 +13,9 @@ import org.springframework.data.domain.PageRequest;
 import java.util.List;
 
 public interface CompanyService {
+
+    String loginCompany(CompanyLoginDTO companyLoginDTO) throws Exception;
+
     Company createCompany(CompanyDTO companyDTO);
 
     Company getCompanyById(long id) throws Exception;
@@ -23,6 +27,8 @@ public interface CompanyService {
     String getPublicId(Long companyId) throws Exception;
 
     Company updateCompany(long id, CompanyDTO companyDTO) throws Exception;
+
+    Company getCompanyDetail (String token) throws Exception;
 
     void deleteCompany(long id);
 

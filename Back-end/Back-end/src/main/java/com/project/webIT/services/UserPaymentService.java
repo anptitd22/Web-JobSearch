@@ -1,7 +1,7 @@
 package com.project.webIT.services;
 
 import com.project.webIT.dtos.users.UserPaymentDTO;
-import com.project.webIT.exception.DataNotFoundException;
+import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.Status.Payment;
 import com.project.webIT.models.User;
 import com.project.webIT.models.UserPayment;

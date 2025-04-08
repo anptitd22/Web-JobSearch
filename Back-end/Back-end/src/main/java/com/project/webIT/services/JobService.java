@@ -2,8 +2,8 @@ package com.project.webIT.services;
 
 import com.project.webIT.dtos.jobs.JobDTO;
 import com.project.webIT.dtos.jobs.JobImageDTO;
-import com.project.webIT.exception.DataNotFoundException;
-import com.project.webIT.exception.InvalidParamException;
+import com.project.webIT.exceptions.DataNotFoundException;
+import com.project.webIT.exceptions.InvalidParamException;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.Job;
 import com.project.webIT.models.JobFunction;
@@ -73,8 +73,6 @@ public class JobService implements com.project.webIT.services.IService.JobServic
     @Override
     public Job updateJob(long id, JobDTO jobDTO) throws Exception {
         Job existingJob = getJobById(id);
-        //copy cac thuoc tinh tu DTO -> Job
-        //co the dung ModelMapper
         if(existingJob != null){
             JobFunction existingJobFunction = jobFunctionRepository.findById(jobDTO.getJobFunctionId())
                     .orElseThrow(() ->

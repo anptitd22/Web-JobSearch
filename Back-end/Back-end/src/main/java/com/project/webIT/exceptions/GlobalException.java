@@ -1,4 +1,4 @@
-package com.project.webIT.exception;
+package com.project.webIT.exceptions;
 
 import com.project.webIT.response.ResponseObject;
 import org.springframework.http.HttpStatus;

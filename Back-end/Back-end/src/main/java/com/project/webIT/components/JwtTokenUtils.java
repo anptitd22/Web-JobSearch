@@ -1,6 +1,7 @@
 package com.project.webIT.components;
 
-import com.project.webIT.exception.InvalidParamException;
+import com.project.webIT.exceptions.InvalidParamException;
+import com.project.webIT.models.Company;
 import com.project.webIT.models.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -10,7 +11,6 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -37,14 +37,12 @@ public class JwtTokenUtils {
         claims.put("userId", user.getId());
         return createToken(claims, user.getEmail());
     }
-//    public String generateTokenFromOAuth2(OAuth2User oAuth2User)throws Exception {
-//        Map<String, Object> claims = new HashMap<>();
-//        String email = oAuth2User.getAttribute("email"); // Lấy email từ OAuth2 response
-//        claims.put("email", email);
-//        claims.put("name", oAuth2User.getAttribute("name")); // Thêm tên user
-//        claims.put("provider", "oauth2"); // Đánh dấu user từ OAuth2
-//        return createToken(claims, email);
-//    }
+    public String generateTokenFromCompany(Company company)throws Exception {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("account", company.getAccount());
+        claims.put("companyId", company.getId());
+        return createToken(claims, company.getAccount());
+    }
     private String createToken(Map<String, Object> claims, String subject) throws Exception{
         try {
             return Jwts.builder()

@@ -1,9 +1,11 @@
 package com.project.webIT.services;
 
+import com.project.webIT.components.JwtTokenUtils;
 import com.project.webIT.dtos.companies.CompanyDTO;
 import com.project.webIT.dtos.companies.CompanyImageDTO;
-import com.project.webIT.exception.DataNotFoundException;
-import com.project.webIT.exception.InvalidParamException;
+import com.project.webIT.dtos.companies.CompanyLoginDTO;
+import com.project.webIT.exceptions.DataNotFoundException;
+import com.project.webIT.exceptions.InvalidParamException;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.CompanyImage;
 import com.project.webIT.models.Job;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +30,29 @@ public class CompanyService implements com.project.webIT.services.IService.Compa
     private final CompanyImageRepository companyImageRepository;
     private final JobRepository jobRepository;
     private final ModelMapper modelMapper;
+    private final JwtTokenUtils jwtTokenUtils;
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public String loginCompany(CompanyLoginDTO companyLoginDTO) throws Exception {
+
+        if (companyLoginDTO.getRoleID() != 2){
+            throw new Exception("bạn cần đăng nhập bằng tài khoản công ty");
+        }
+        Optional<Company> company = companyRepository.findByAccount(companyLoginDTO.getAccount());
+
+        if (company.isEmpty()){
+            throw new DataNotFoundException("không tìm thấy tài khoản hoặc mật khẩu");
+        }
+
+        Company existingCompany = company.get();
+
+        if(!passwordEncoder.matches(companyLoginDTO.getPassword(),existingCompany.getPassword())){
+            throw new DataNotFoundException("không tìm thấy tài khoản hoặc mật khẩu");
+        }
+
+        return jwtTokenUtils.generateTokenFromCompany(existingCompany);
+    }
 
     @Override
     public Company createCompany(CompanyDTO companyDTO) {
@@ -75,6 +101,19 @@ public class CompanyService implements com.project.webIT.services.IService.Compa
             return companyRepository.save(existingCompany);
         }
         return null;
+    }
+
+    @Override
+    public Company getCompanyDetail(String token) throws Exception {
+        if(jwtTokenUtils.isTokenExpired(token)){
+            throw new Exception("Token is expired");
+        }
+        String account = jwtTokenUtils.extractEmail(token);
+        Optional<Company> company = companyRepository.findByAccount(account);
+        if (company.isEmpty()) {
+            throw new DataNotFoundException("Company not found");
+        }
+        return company.get();
     }
 
     @Override

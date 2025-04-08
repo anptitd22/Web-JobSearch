@@ -2,8 +2,7 @@ package com.project.webIT.controllers;
 
 import com.project.webIT.dtos.users.*;
 import com.project.webIT.models.User;
-import com.project.webIT.response.auth.LoginResponse;
-import com.project.webIT.response.auth.RegisterResponse;
+import com.project.webIT.response.ResponseObject;
 import com.project.webIT.response.users.UserResponse;
 import com.project.webIT.services.AuthService;
 import com.project.webIT.services.CloudinaryService;
@@ -36,52 +35,50 @@ public class UserController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> createUser(
+    public ResponseEntity<ResponseObject> createUser(
             @Valid @RequestBody UserDTO userDTO,
             BindingResult result
-    ){
-        try{
-            if (result.hasErrors()){
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            if (!userDTO.getPassword().equals(userDTO.getRetypePassword())){
-                return ResponseEntity.badRequest().body(RegisterResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKeys.PASSWORD_NOT_MATCH))
-                        .build());
-            }
-            User newUser = userService.createUser(userDTO);
-            return ResponseEntity.ok().body(RegisterResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_SUCCESSFULLY,newUser))
-                    .user(newUser)
-                    .build());
-        } catch (Exception e) {
+    ) throws Exception{
+        if (result.hasErrors()){
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
             return ResponseEntity.badRequest().body(
-                    localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_FAILED, e.getMessage()));
+                    ResponseObject.builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .message(String.join(";",errorMessages))
+                            .build()
+            );
         }
+        if (!userDTO.getPassword().equals(userDTO.getRetypePassword())){
+            return ResponseEntity.badRequest().body(
+                    ResponseObject.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKeys.PASSWORD_NOT_MATCH))
+                            .status(HttpStatus.BAD_REQUEST)
+                            .build());
+        }
+        User newUser = userService.createUser(userDTO);
+        return ResponseEntity.ok().body(
+                ResponseObject.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_SUCCESSFULLY,newUser))
+                        .data(newUser)
+                        .status(HttpStatus.OK)
+                        .build());
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
+    public ResponseEntity<ResponseObject> login(
             @RequestBody UserLoginDTO userLoginDTO,
             HttpServletRequest request
-    ){
-        //kiem tra dang nhap va sinh token
-        try {
-//            String userAgent = request.getHeader("User-Agent");
-            String token = userService.loginUser(userLoginDTO);
-            //tra token trong response
-            return ResponseEntity.ok().body(LoginResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY))
-                    .token(token).build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(LoginResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_FAILED,e.getMessage()))
-                    .build());
-        }
+    ) throws  Exception {
+        String token = userService.loginUser(userLoginDTO);
+        //tra token trong response
+        return ResponseEntity.ok().body(
+                ResponseObject.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY))
+                        .status(HttpStatus.OK)
+                        .data(token).build());
     }
 
     @PostMapping("/details")

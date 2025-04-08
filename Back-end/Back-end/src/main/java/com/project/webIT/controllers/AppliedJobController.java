@@ -1,9 +1,8 @@
 package com.project.webIT.controllers;
 
 import com.project.webIT.dtos.appliedJob.AppliedJobDTO;
-import com.project.webIT.exception.DataNotFoundException;
+import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.AppliedJob;
-import com.project.webIT.models.Job;
 import com.project.webIT.response.appliedJob.AppliedJobResponse;
 import com.project.webIT.services.AppliedJobService;
 import com.project.webIT.services.UserService;
@@ -50,7 +49,6 @@ public class AppliedJobController {
             @Valid @PathVariable("userId") Long userId
     ){
         try {
-            System.out.println("okokokok");
             List<AppliedJob> appliedJobs = appliedJobService.getAppliedJobFromUser(userId);
             return ResponseEntity.ok().body(appliedJobs.stream()
                     .map(AppliedJobResponse::fromAppliedJob)

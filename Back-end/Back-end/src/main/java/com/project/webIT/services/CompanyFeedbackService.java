@@ -1,8 +1,8 @@
 package com.project.webIT.services;
 
 import com.project.webIT.dtos.companies.CompanyFeedbackDTO;
-import com.project.webIT.exception.DataNotFoundException;
-import com.project.webIT.exception.InvalidParamException;
+import com.project.webIT.exceptions.DataNotFoundException;
+import com.project.webIT.exceptions.InvalidParamException;
 import com.project.webIT.models.AppliedJob;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.CompanyFeedback;

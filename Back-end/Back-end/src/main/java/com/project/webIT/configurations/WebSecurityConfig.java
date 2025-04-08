@@ -41,6 +41,7 @@ public class WebSecurityConfig {
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
                 configuration.setExposedHeaders(List.of("x-auth-token"));
+//                configuration.setAllowCredentials(true);
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                 source.registerCorsConfiguration("/**",configuration);
                 httpSecurityCorsConfigurer.configurationSource(source);
@@ -52,11 +53,11 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(requests -> {
                     requests
                             .requestMatchers(
-                            String.format("%s/users/register", apiPrefix),
-                            String.format("%s/users/login", apiPrefix),
-                            String.format("%s/users/auth/**", apiPrefix)
-                            )
-                            .permitAll()
+                                    String.format("%s/users/register", apiPrefix),
+                                    String.format("%s/users/login", apiPrefix),
+                                    String.format("%s/users/auth/**", apiPrefix),
+                                    String.format("%s/companies/login", apiPrefix)
+                            ).permitAll()
 
                             .requestMatchers(
                                     HttpMethod.POST,
@@ -76,7 +77,7 @@ public class WebSecurityConfig {
 
                             .requestMatchers(
                                     HttpMethod.POST,
-                                    String.format("%s/functions/**",apiPrefix)).hasRole(Role.ADMIN)
+                                    String.format("%s/functions/**",apiPrefix)).permitAll()
 
                             .requestMatchers(
                                     HttpMethod.PUT,

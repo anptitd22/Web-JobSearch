@@ -1,6 +1,6 @@
 package com.project.webIT.services;
 
-import com.project.webIT.exception.DataNotFoundException;
+import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.User;
 import com.project.webIT.models.UserDashboard;
 import com.project.webIT.repositories.UserDashboardRepository;

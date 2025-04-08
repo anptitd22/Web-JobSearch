@@ -1,8 +1,8 @@
 package com.project.webIT.controllers;
 
 import com.project.webIT.dtos.users.ResetPasswordDTO;
-import com.project.webIT.exception.DataNotFoundException;
-import com.project.webIT.exception.InvalidParamException;
+import com.project.webIT.exceptions.DataNotFoundException;
+import com.project.webIT.exceptions.InvalidParamException;
 import com.project.webIT.models.PasswordResetToken;
 import com.project.webIT.models.User;
 import com.project.webIT.repositories.PasswordResetTokenRepository;
