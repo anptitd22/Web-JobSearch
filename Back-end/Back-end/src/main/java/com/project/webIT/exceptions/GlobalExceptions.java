@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import static org.springframework.http.ResponseEntity.status;
 
 @RestControllerAdvice
-public class GlobalException {
+public class GlobalExceptions {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) //500-error group

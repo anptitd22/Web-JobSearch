@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
 @Configuration
-public class LanguageConfig {
+public class LanguageConfiguration {
 
     @Bean
     public MessageSource messageSource(){

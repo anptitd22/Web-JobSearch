@@ -14,7 +14,6 @@ import lombok.*;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "id") //khong can thiet vi id giong mysql
     private Long id;
 
     @Column(name = "name", nullable = false, length = 30)

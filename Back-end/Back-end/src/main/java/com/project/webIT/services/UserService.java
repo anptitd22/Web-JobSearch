@@ -239,7 +239,7 @@ public class UserService implements com.project.webIT.services.IService.UserServ
         if(jwtTokenUtils.isTokenExpired(extractedToken)){
             throw new Exception("Token is expired");
         }
-        String email = jwtTokenUtils.extractEmail(extractedToken);
+        String email = jwtTokenUtils.extractSubject(extractedToken);
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isPresent()){
             return userOptional.get();

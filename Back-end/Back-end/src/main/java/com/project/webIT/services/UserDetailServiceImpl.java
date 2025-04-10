@@ -1,4 +1,4 @@
-package com.project.webIT.provider;
+package com.project.webIT.services;
 
 import com.project.webIT.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;

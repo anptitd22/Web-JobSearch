@@ -1,9 +1,7 @@
-package com.project.webIT.filters;
+package com.project.webIT.components;
 
-import com.project.webIT.components.JwtTokenUtils;
-import com.project.webIT.models.User;
-import com.project.webIT.provider.CompanyDetailServiceImpl;
-import com.project.webIT.provider.UserDetailServiceImpl;
+import com.project.webIT.services.CompanyDetailServiceImpl;
+import com.project.webIT.services.UserDetailServiceImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -19,7 +17,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;

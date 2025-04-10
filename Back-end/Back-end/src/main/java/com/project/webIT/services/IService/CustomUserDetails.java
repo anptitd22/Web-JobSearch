@@ -1,4 +1,4 @@
-package com.project.webIT.provider;
+package com.project.webIT.services.IService;
 
 import org.springframework.security.core.userdetails.UserDetails;
 

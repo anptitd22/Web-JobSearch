@@ -25,7 +25,7 @@ import java.util.List;
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
-public class WebSecurityConfig {
+public class WebSecurityConfiguration {
     //kiem tra quyen truy cap
     private final JwtTokenFilter jwtTokenFilter;
 

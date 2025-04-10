@@ -29,45 +29,34 @@ public class JwtTokenUtils {
     @Value("${jwt.secretKey}")
     private String secretKey;
 
-    public String generateToken(User user) throws Exception {
+    public String generateToken(User user){
         //properties -> claims
         Map<String, Object> claims = new HashMap<>();
-//        this.generateSecretKey();
         claims.put("email", user.getEmail());
         claims.put("userId", user.getId());
+        claims.put("role", user.getRole().getName());
         return createToken(claims, user.getEmail());
     }
-    public String generateTokenFromCompany(Company company)throws Exception {
+    public String generateTokenFromCompany(Company company){
         Map<String, Object> claims = new HashMap<>();
         claims.put("account", company.getAccount());
         claims.put("companyId", company.getId());
+        claims.put("role", company.getRole().getName());
         return createToken(claims, company.getAccount());
     }
-    private String createToken(Map<String, Object> claims, String subject) throws Exception{
-        try {
-            return Jwts.builder()
-                    .setClaims(claims)
-                    .setSubject(subject)
-                    .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L))
-                    .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                    .compact();
-        } catch (Exception e) {
-            throw new InvalidParamException("Cannot create JWT token, error: " + e.getMessage());
-        }
+    private String createToken(Map<String, Object> claims, String subject){
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private Key getSignInKey(){
         byte[] bytes = Decoders.BASE64.decode(secretKey); //FfyEJyyYieuIdNN99gm8ibEik38pjPBk7elv2qz4utE=
         return Keys.hmacShaKeyFor(bytes);
     }
-    //ham tao key
-//    private String generateSecretKey(){
-//        SecureRandom random = new SecureRandom();
-//        byte[] keyBytes = new byte[32];
-//        random.nextBytes(keyBytes);
-//        String secretKey = Encoders.BASE64.encode(keyBytes);
-//        return secretKey;
-//    }
 
     private Claims extractAllClaims (String token){
         return Jwts.parser()
@@ -87,13 +76,26 @@ public class JwtTokenUtils {
         return expirationDate.before(new Date());
     }
 
-    public String extractEmail(String token){
-        return extractClaim(token, Claims::getSubject); //subject: email
+    public String extractSubject(String token){
+        return extractClaim(token, Claims::getSubject); //subject: email or account
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     public boolean validateToken (String token, UserDetails userDetails){
-        String email = extractEmail(token);
-        return (email.equals(userDetails.getUsername()) &&
-                !isTokenExpired(token)); //kiem tra email va han su dung cua token
+        String subject = extractSubject(token);
+        return (subject.equals(userDetails.getUsername()) &&
+                !isTokenExpired(token)); //kiem tra subject va han su dung cua token
     }
+    //ham tao key
+//    private String generateSecretKey(){
+//        SecureRandom random = new SecureRandom();
+//        byte[] keyBytes = new byte[32];
+//        random.nextBytes(keyBytes);
+//        String secretKey = Encoders.BASE64.encode(keyBytes);
+//        return secretKey;
+//    }
+
 }

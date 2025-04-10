@@ -17,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,29 +32,30 @@ public class CompanyService implements com.project.webIT.services.IService.Compa
     private final CompanyRepository companyRepository;
     private final CompanyImageRepository companyImageRepository;
     private final JobRepository jobRepository;
+    private final AuthenticationManager authenticationManager;
     private final ModelMapper modelMapper;
     private final JwtTokenUtils jwtTokenUtils;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public String loginCompany(CompanyLoginDTO companyLoginDTO) throws Exception {
-
-        if (companyLoginDTO.getRoleID() != 2){
-            throw new Exception("bạn cần đăng nhập bằng tài khoản công ty");
-        }
-        Optional<Company> company = companyRepository.findByAccount(companyLoginDTO.getAccount());
-
-        if (company.isEmpty()){
-            throw new DataNotFoundException("không tìm thấy tài khoản hoặc mật khẩu");
+        if (companyLoginDTO.getRoleID() != 2) {
+            throw new Exception("Bạn cần đăng nhập bằng tài khoản công ty");
         }
 
-        Company existingCompany = company.get();
+        // Dùng AuthenticationManager để uỷ quyền cho CompanyAuthenticationProvider xử lý xác thực
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        companyLoginDTO.getAccount(),
+                        companyLoginDTO.getPassword()
+                )
+        );
 
-        if(!passwordEncoder.matches(companyLoginDTO.getPassword(),existingCompany.getPassword())){
-            throw new DataNotFoundException("không tìm thấy tài khoản hoặc mật khẩu");
-        }
+        // Lấy thông tin company sau khi xác thực thành công
+        Company company = (Company) authentication.getPrincipal();
 
-        return jwtTokenUtils.generateTokenFromCompany(existingCompany);
+        // Tạo và trả về token
+        return jwtTokenUtils.generateTokenFromCompany(company);
     }
 
     @Override
@@ -108,7 +112,7 @@ public class CompanyService implements com.project.webIT.services.IService.Compa
         if(jwtTokenUtils.isTokenExpired(token)){
             throw new Exception("Token is expired");
         }
-        String account = jwtTokenUtils.extractEmail(token);
+        String account = jwtTokenUtils.extractSubject(token);
         Optional<Company> company = companyRepository.findByAccount(account);
         if (company.isEmpty()) {
             throw new DataNotFoundException("Company not found");

@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -84,15 +85,11 @@ public class UserController {
     @PostMapping("/details")
     public ResponseEntity<UserResponse> getUserDetails(
             @RequestHeader("Authorization") String authorizationHeader
-    ){
+    )throws Exception{
         //kiem tra dang nhap va sinh token
-        try {
-            String extractedToken = authorizationHeader.substring(7); //bo Bearer
-            User user = userService.getUserDetailsFromToken(extractedToken);
-            return ResponseEntity.ok().body(UserResponse.fromUser(user));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        String extractedToken = authorizationHeader.substring(7); //bo Bearer
+        User user = userService.getUserDetailsFromToken(extractedToken);
+        return ResponseEntity.ok().body(UserResponse.fromUser(user));
     }
 
     private boolean isImageFile(MultipartFile file) {
