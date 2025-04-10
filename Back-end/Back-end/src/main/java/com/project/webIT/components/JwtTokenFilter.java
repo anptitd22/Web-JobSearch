@@ -2,6 +2,10 @@ package com.project.webIT.filters;
 
 import com.project.webIT.components.JwtTokenUtils;
 import com.project.webIT.models.User;
+import com.project.webIT.provider.CompanyDetailServiceImpl;
+import com.project.webIT.provider.UserDetailServiceImpl;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.internal.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -19,6 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -27,11 +35,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Value("${api.prefix}") //annotation bean - not lombok
     private String apiPrefix;
 
-    private final UserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtil;
+    private final UserDetailServiceImpl userDetailService;
+    private final CompanyDetailServiceImpl companyDetailService;
 
     @Override
-    protected void doFilterInternal(
+    protected void doFilterInternal (
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
@@ -41,28 +50,46 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
                 return;
             }
+
             final String authHeader = request.getHeader("Authorization");
+            final String authType = request.getHeader("X-Auth-Type");
+
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                 return;
             }
             final String token = authHeader.substring(7);
-            final String email = jwtTokenUtil.extractEmail(token);
-            if (email != null &&
-                    SecurityContextHolder.getContext().getAuthentication() == null){
-                User userDetails = (User) userDetailsService.loadUserByUsername(email);
+            final String subject = jwtTokenUtil.extractSubject(token);
+            final String role = jwtTokenUtil.extractRole(token);
+
+            if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null){
+                UserDetails userDetails = null;
+
+                if ("company".equalsIgnoreCase(authType)) {
+                    userDetails = companyDetailService.loadUserByUsername(subject);
+                } else {
+                    userDetails = userDetailService.loadUserByUsername(subject);
+                }
+
                 if (jwtTokenUtil.validateToken(token, userDetails)){
+                    List<GrantedAuthority> authorities = Collections.singletonList(
+                            new SimpleGrantedAuthority("ROLE_" + role.toUpperCase())
+                    );
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
                                     null,
-                                    userDetails.getAuthorities()
+                                    authorities
                             );
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
             }
             filterChain.doFilter(request, response); //enable bypass
+        } catch (ExpiredJwtException e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
+        } catch (JwtException e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         }
