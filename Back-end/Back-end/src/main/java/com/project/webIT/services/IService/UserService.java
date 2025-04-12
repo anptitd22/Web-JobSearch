@@ -1,6 +1,6 @@
 package com.project.webIT.services.IService;
 
-import com.project.webIT.dtos.users.*;
+import com.project.webIT.dtos.request.*;
 import com.project.webIT.models.User;
 
 public interface UserService {
@@ -14,7 +14,7 @@ public interface UserService {
 
     User updatePassword(Long userId, PasswordDTO passwordDTO) throws Exception;
 
-    User updateEmail(Long userId, EmailDTO emailDTO) throws Exception;
+    String updateEmail(Long userId, EmailDTO emailDTO) throws Exception;
 
 
 //    User createUserAvatar (Long userId, String url, String publicIdImages) throws Exception;

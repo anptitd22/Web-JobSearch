@@ -1,6 +1,6 @@
 package com.project.webIT.services.IService;
 
-import com.project.webIT.dtos.jobs.JobFunctionDTO;
+import com.project.webIT.dtos.request.JobFunctionDTO;
 import com.project.webIT.models.JobFunction;
 
 import java.util.List;

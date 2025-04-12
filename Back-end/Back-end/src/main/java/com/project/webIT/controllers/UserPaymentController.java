@@ -1,35 +1,38 @@
 package com.project.webIT.controllers;
 
-import com.project.webIT.dtos.users.UserPaymentDTO;
+import com.project.webIT.dtos.request.UserPaymentDTO;
 import com.project.webIT.models.UserPayment;
 import com.project.webIT.repositories.UserPaymentRepository;
-import com.project.webIT.response.users.UserPaymentResponse;
-import com.project.webIT.services.UserPaymentService;
+import com.project.webIT.dtos.response.ObjectResponse;
+import com.project.webIT.dtos.response.UserPaymentResponse;
+import com.project.webIT.services.UserPaymentServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("${api.prefix}/payments")
 @RequiredArgsConstructor
 public class UserPaymentController {
     private final UserPaymentRepository userPaymentRepository;
-    private final UserPaymentService userPaymentService;
+    private final UserPaymentServiceImpl userPaymentServiceImpl;
     @PostMapping("")
-    public ResponseEntity<?> userPayment (
+    public ResponseEntity<ObjectResponse<UserPaymentResponse>> userPayment(
             @Valid @RequestBody UserPaymentDTO userPaymentDTO
-    ){
-        try{
-            UserPayment userPayment = userPaymentService.createBill(userPaymentDTO);
-            return ResponseEntity.ok().body(UserPaymentResponse.fromUserPayment(userPayment));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    ) throws Exception {
+        UserPayment userPayment = userPaymentServiceImpl.createBill(userPaymentDTO);
+
+        return ResponseEntity.ok(
+                ObjectResponse.<UserPaymentResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("Payment information retrieved successfully")
+                        .data(UserPaymentResponse.fromUserPayment(userPayment))
+                        .build()
+        );
     }
 }

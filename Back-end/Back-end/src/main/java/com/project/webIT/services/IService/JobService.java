@@ -1,10 +1,10 @@
 package com.project.webIT.services.IService;
 
-import com.project.webIT.dtos.jobs.JobDTO;
-import com.project.webIT.dtos.jobs.JobImageDTO;
+import com.project.webIT.dtos.request.JobDTO;
+import com.project.webIT.dtos.request.JobImageDTO;
 import com.project.webIT.models.Job;
 import com.project.webIT.models.JobImage;
-import com.project.webIT.response.jobs.JobResponse;
+import com.project.webIT.dtos.response.JobResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;

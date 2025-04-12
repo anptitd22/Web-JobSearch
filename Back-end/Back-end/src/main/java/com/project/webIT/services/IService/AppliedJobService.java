@@ -1,13 +1,12 @@
 package com.project.webIT.services.IService;
 
-import com.project.webIT.dtos.appliedJob.AppliedJobDTO;
+import com.project.webIT.dtos.request.AppliedJobDTO;
 import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.AppliedJob;
 
 import java.util.List;
 
-public interface AppliedJobService {
-    AppliedJob createAppliedJob(AppliedJobDTO appliedJobDTO) throws Exception;
+public interface AppliedJobService extends BaseService<AppliedJobDTO, AppliedJob, Long>{
 
     List<AppliedJob> checkAppliedJob(Long userId, Long jobId);
 

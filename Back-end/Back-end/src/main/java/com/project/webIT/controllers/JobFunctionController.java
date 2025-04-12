@@ -1,16 +1,16 @@
 package com.project.webIT.controllers;
 
-import com.project.webIT.dtos.jobs.JobFunctionDTO;
+import com.project.webIT.dtos.request.JobFunctionDTO;
+import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.JobFunction;
-import com.project.webIT.response.ResponseObject;
-import com.project.webIT.services.JobFunctionService;
+import com.project.webIT.dtos.response.ObjectResponse;
+import com.project.webIT.services.JobFunctionServiceImpl;
 import jakarta.validation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,78 +20,81 @@ import java.util.List;
 //@Validated
 //Dependency Injection
 @RequiredArgsConstructor
-public class JobFunctionController {
+public class JobFunctionController implements BaseController<JobFunctionDTO, Long>{
 
-    private final JobFunctionService jobFunctionService;
+    private final JobFunctionServiceImpl jobFunctionService;
 
     @PostMapping("")
-    public ResponseEntity<ResponseObject> createJobFunction(
-            @Valid @RequestBody JobFunctionDTO jobFunctionDTO,
-            BindingResult result
-    ) throws Exception {
+    @Override
+    public ResponseEntity<ObjectResponse<?>> create(JobFunctionDTO request, BindingResult result) throws Exception {
         if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
             return ResponseEntity.badRequest().body(
-                    ResponseObject.builder()
+                    ObjectResponse.<Void>builder()
                             .status(HttpStatus.BAD_REQUEST)
-                            .message(String.join(";",errorMessages))
+                            .message(ValidationHelper.extractDetailedErrorMessages(result))
+                            .data(null)
                             .build()
             );
         }
-        jobFunctionService.createJobFunction(jobFunctionDTO);
-        return ResponseEntity.ok().body(
-                ResponseObject.builder()
+
+        jobFunctionService.createJobFunction(request);
+
+        return ResponseEntity.ok(
+                ObjectResponse.<Void>builder()
                         .status(HttpStatus.OK)
-                        .message("Bạn đã thêm thành công ngành nghề "+jobFunctionDTO.getName())
+                        .message("Job function created successfully")
+                        .data(null)
                         .build()
         );
     }
 
-    @GetMapping("")
-    public ResponseEntity<ResponseObject> getJobFunctions() throws Exception{
-        List<JobFunction> jobFunctions = jobFunctionService.getAllJobFunctions();
-        return ResponseEntity.ok().body(
-                ResponseObject
-                        .builder()
-                        .message("Bạn đã lấy danh sách ngành nghề thành công")
+    @PutMapping("{id}")
+    @Override
+    public ResponseEntity<ObjectResponse<?>> update(Long id, JobFunctionDTO request, BindingResult result) throws Exception {
+        JobFunction updatedJobFunction = jobFunctionService.updateJobFunction(id, request);
+
+        return ResponseEntity.ok(
+                ObjectResponse.<JobFunction>builder()
                         .status(HttpStatus.OK)
+                        .message("Job function updated successfully")
+                        .data(updatedJobFunction)
+                        .build()
+        );
+    }
+
+    @Override
+    public ResponseEntity<ObjectResponse<?>> getAll() {
+        List<JobFunction> jobFunctions = jobFunctionService.getAllJobFunctions();
+
+        return ResponseEntity.ok(
+                ObjectResponse.<List<JobFunction>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Job functions retrieved successfully")
                         .data(jobFunctions)
                         .build()
         );
     }
 
-    @PutMapping("/{id}")
-    @Transactional
-    public ResponseEntity<ResponseObject> updateJobFunction(
-            @Valid @PathVariable Long id,
-            @Valid @RequestBody JobFunctionDTO jobFunctionDTO
-    ) throws Exception {
-        JobFunction newJobFunction = jobFunctionService.updateJobFunction(id,jobFunctionDTO);
-        return ResponseEntity.ok().body(
-                ResponseObject
-                        .builder()
-                        .message("Bạn đã cập ngành nghề "+newJobFunction.getName())
+    @Override
+    public ResponseEntity<ObjectResponse<?>> getById(Long id) throws Exception {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<ObjectResponse<?>> deleteById(Long id) throws Exception {
+        jobFunctionService.deleteJobFunction(id);
+
+        return ResponseEntity.ok(
+                ObjectResponse.<Void>builder()
                         .status(HttpStatus.OK)
-                        .data(newJobFunction)
+                        .message("Job function deleted successfully")
+                        .data(null)
                         .build()
         );
     }
 
-    @DeleteMapping("/{id}")
-    @Transactional
-    public ResponseEntity<ResponseObject> deleteJobFunction(
-            @Valid @PathVariable Long id
-    ) throws Exception {
-        jobFunctionService.deleteJobFunction(id);
-        return ResponseEntity.ok().body(
-                ResponseObject
-                        .builder()
-                        .message("Bạn đã xóa ngành nghề: "+id+" thành công")
-                        .status(HttpStatus.OK)
-                        .build()
-        );
+    @Override
+    public ResponseEntity<ObjectResponse<?>> deleteByListId(List<Long> listId) throws Exception {
+        return null;
     }
 }

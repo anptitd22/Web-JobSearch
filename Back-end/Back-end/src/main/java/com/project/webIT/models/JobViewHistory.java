@@ -1,11 +1,7 @@
 package com.project.webIT.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.project.webIT.utils.ViewEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "job_view_history")

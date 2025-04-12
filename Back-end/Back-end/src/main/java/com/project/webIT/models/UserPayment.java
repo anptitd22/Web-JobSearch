@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Entity
 @Table(name = "user_payments")
@@ -40,4 +41,11 @@ public class UserPayment {
 
     @Column(name="created_at")
     private LocalDateTime createdAt;
+
+    public static final Map<String, String> STATUS_MAP = Map.of(
+            "COMPLETED", "Thành công",
+            "APPROVED", "Đã duyệt",
+            "FAILED", "Thất bại",
+            "CANCELED", "Đã hủy"
+    );
 }

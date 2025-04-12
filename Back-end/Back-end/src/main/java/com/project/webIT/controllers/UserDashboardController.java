@@ -2,17 +2,14 @@ package com.project.webIT.controllers;
 
 import com.project.webIT.models.User;
 import com.project.webIT.models.UserDashboard;
-import com.project.webIT.services.UserDashboardService;
-import com.project.webIT.services.UserService;
+import com.project.webIT.dtos.response.ObjectResponse;
+import com.project.webIT.services.UserDashboardServiceImpl;
+import com.project.webIT.services.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,61 +17,90 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserDashboardController {
 
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
-    private final UserDashboardService userDashboardService;
+    private final UserDashboardServiceImpl userDashboardServiceImpl;
 
     @PostMapping("/update-applied-jobs")
-    public ResponseEntity<?> updateAppliedJobs(@RequestHeader("Authorization") String authorizationHeader) {
-        try {
-            String extractedToken = authorizationHeader.substring(7);
-            User user = userService.getUserDetailsFromToken(extractedToken);
+    public ResponseEntity<ObjectResponse<UserDashboard>> updateAppliedJobs(
+            @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
+        UserDashboard userDashboard = userDashboardServiceImpl.updateAppliedJobs(user.getId());
 
-            UserDashboard userDashboard = userDashboardService.updateAppliedJobs(user.getId());
-            return ResponseEntity.ok().body(userDashboard);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        return ResponseEntity.ok(
+                ObjectResponse.<UserDashboard>builder()
+                        .status(HttpStatus.OK)
+                        .message("Increased number of applied jobs successfully")
+                        .data(userDashboard)
+                        .build()
+        );
     }
 
     /**
-     * Endpoint để cập nhật số lượng lần xem công việc.
+     * Endpoint to update job view count.
      */
     @PostMapping("/update-job-views")
-    public ResponseEntity<?> updateJobViews(@RequestHeader("Authorization") String authorizationHeader) {
-        try {
-            String extractedToken = authorizationHeader.substring(7);
-            User user = userService.getUserDetailsFromToken(extractedToken);
-            UserDashboard userDashboard =userDashboardService.updateJobViews(user.getId());
-            return ResponseEntity.ok().body(userDashboard);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<ObjectResponse<UserDashboard>> updateJobViews(
+            @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
+        UserDashboard userDashboard = userDashboardServiceImpl.updateJobViews(user.getId());
+
+        return ResponseEntity.ok(
+                ObjectResponse.<UserDashboard>builder()
+                        .status(HttpStatus.OK)
+                        .message("Increased number of job views successfully")
+                        .data(userDashboard)
+                        .build()
+        );
     }
 
     /**
-     * Endpoint để cập nhật số lượng lần tìm kiếm công việc.
+     * Endpoint to update job search count.
      */
     @PostMapping("/update-job-searches")
-    public ResponseEntity<?> updateJobSearches(@RequestHeader("Authorization") String authorizationHeader) {
-        try {
-            String extractedToken = authorizationHeader.substring(7);
-            User user = userService.getUserDetailsFromToken(extractedToken);
-            // Giả sử lấy userId từ token
-            UserDashboard userDashboard = userDashboardService.updateJobSearches(user.getId());
-            return ResponseEntity.ok().body(userDashboard);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<ObjectResponse<UserDashboard>> updateJobSearches(
+            @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
+        UserDashboard userDashboard = userDashboardServiceImpl.updateJobSearches(user.getId());
+
+        return ResponseEntity.ok(
+                ObjectResponse.<UserDashboard>builder()
+                        .status(HttpStatus.OK)
+                        .message("Increased number of job searches successfully")
+                        .data(userDashboard)
+                        .build()
+        );
     }
 
-//    @GetMapping("")
+    @GetMapping("")
+    public ResponseEntity<ObjectResponse<Map<String, Object>>> getDashboardData(
+            @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
+        Map<String, Object> dashboardData = userDashboardServiceImpl.getLast12MonthsData(user.getId());
+        return ResponseEntity.ok(
+                ObjectResponse.<Map<String, Object>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Fetched user dashboard data successfully")
+                        .data(dashboardData)
+                        .build()
+        );
+    }
+
+    //    @GetMapping("")
 //    public ResponseEntity<?> getDashboardData(
 //            @RequestHeader("Authorization") String authorizationHeader
 //    ) {
 //        try{
 //            String extractedToken = authorizationHeader.substring(7);
-//            User user = userService.getUserDetailsFromToken(extractedToken);
+//            User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
 //
 //            // Lấy danh sách 12 tháng gần nhất
 //            List<String> months = new ArrayList<>();
@@ -107,16 +133,4 @@ public class UserDashboardController {
 //            return ResponseEntity.badRequest().body(e.getMessage());
 //        }
 //    }
-
-    @GetMapping("")
-    public ResponseEntity<?> getDashboardData(@RequestHeader("Authorization") String authorizationHeader) {
-        try {
-            String extractedToken = authorizationHeader.substring(7);
-            User user = userService.getUserDetailsFromToken(extractedToken);
-
-            return ResponseEntity.ok(userDashboardService.getLast12MonthsData(user.getId()));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 }

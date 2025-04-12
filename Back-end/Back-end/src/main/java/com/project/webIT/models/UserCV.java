@@ -1,7 +1,6 @@
 package com.project.webIT.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

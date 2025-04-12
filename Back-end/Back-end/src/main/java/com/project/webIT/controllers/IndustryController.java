@@ -1,9 +1,8 @@
 package com.project.webIT.controllers;
 
 import com.project.webIT.models.Industry;
-import com.project.webIT.models.JobFunction;
-import com.project.webIT.response.ResponseObject;
-import com.project.webIT.services.IndustryService;
+import com.project.webIT.dtos.response.ObjectResponse;
+import com.project.webIT.services.IndustryServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,15 +16,17 @@ import java.util.List;
 @RequestMapping("${api.prefix}/industries")
 @RequiredArgsConstructor
 public class IndustryController {
-    private final IndustryService industryService;
+    private final IndustryServiceImpl industryServiceImpl;
 
     @GetMapping("")
-    public ResponseEntity<ResponseObject> getAllIndustries() throws Exception {
-        List<Industry> industries = industryService.getAllIndustries();
-        return ResponseEntity.ok(ResponseObject.builder()
-                .message("Thành công")
-                .status(HttpStatus.OK)
-                .data(industries)
-                .build());
+    public ResponseEntity<ObjectResponse<List<Industry>>> getAllIndustries() throws Exception {
+        List<Industry> industries = industryServiceImpl.getAllIndustries();
+        return ResponseEntity.ok(
+                ObjectResponse.<List<Industry>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Industry list retrieved successfully")
+                        .data(industries)
+                        .build()
+        );
     }
 }

@@ -1,15 +1,17 @@
 package com.project.webIT.controllers;
 
-import com.project.webIT.dtos.companies.CompanyDTO;
-import com.project.webIT.dtos.companies.CompanyLoginDTO;
+import com.project.webIT.dtos.request.CompanyDTO;
+import com.project.webIT.dtos.request.CompanyLoginDTO;
+import com.project.webIT.helper.FileHelper;
+import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.Job;
-import com.project.webIT.response.ResponseObject;
-import com.project.webIT.response.companies.CompanyListResponse;
-import com.project.webIT.response.companies.CompanyResponse;
-import com.project.webIT.response.jobs.JobResponse;
-import com.project.webIT.services.CloudinaryService;
-import com.project.webIT.services.CompanyService;
+import com.project.webIT.dtos.response.ObjectResponse;
+import com.project.webIT.dtos.response.CompanyListResponse;
+import com.project.webIT.dtos.response.CompanyResponse;
+import com.project.webIT.dtos.response.JobResponse;
+import com.project.webIT.services.CloudinaryServiceImpl;
+import com.project.webIT.services.CompanyServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,268 +31,229 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("${api.prefix}/companies")
 @RequiredArgsConstructor
-public class CompanyController {
-    private final CompanyService companyService;
-    private final CloudinaryService cloudinaryService;
+public class CompanyController implements BaseController<CompanyDTO, Long>{
+    private final CompanyServiceImpl companyServiceImpl;
+    private final CloudinaryServiceImpl cloudinaryServiceImpl;
 
-    @PostMapping(value = "login")
-    public ResponseEntity<ResponseObject> loginCompany(
+    @PostMapping("login")
+    public ResponseEntity<ObjectResponse<String>> loginCompany(
             @Valid @RequestBody CompanyLoginDTO companyLoginDTO,
             BindingResult result
-    ) throws Exception{
-        if(result.hasErrors()){
-            List<String> errorMessages = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
+    ) throws Exception {
+        if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(
-                    ResponseObject.builder()
-                            .message(String.join(";", errorMessages))
+                    ObjectResponse.<String>builder()
                             .status(HttpStatus.BAD_REQUEST)
+                            .message(ValidationHelper.extractDetailedErrorMessages(result))
+                            .data(null)
                             .build()
             );
         }
-        String token = companyService.loginCompany(companyLoginDTO);
-        return ResponseEntity.ok().body(
-                ResponseObject.builder()
+        String token = companyServiceImpl.loginCompany(companyLoginDTO);
+        return ResponseEntity.ok(
+                ObjectResponse.<String>builder()
                         .status(HttpStatus.OK)
                         .message("Bạn đã đăng nhập thành công")
-                        .data(token).build()
+                        .data(token)
+                        .build()
         );
-    }
-
-    @PostMapping(value = "")
-    public ResponseEntity<?> createCompany(
-            @Valid @RequestBody CompanyDTO companyDTO,
-            BindingResult result
-    ){
-        try{
-            if(result.hasErrors()){
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            Company newCompany = companyService.createCompany(companyDTO);
-            return ResponseEntity.ok().body(newCompany);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    private boolean isImageFile(MultipartFile file) {
-        String contentType = file.getContentType();
-        return contentType != null && (contentType.endsWith(".jpg") || contentType.endsWith(".png") || contentType.endsWith(".webp"));
     }
 
     @PostMapping(value = "uploads/{companyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> postImage(
+    public ResponseEntity<ObjectResponse<?>> postImage(
             @PathVariable("companyId") Long companyId,
             @RequestPart("files") List<MultipartFile> files
-    ){
-        try{
-            if (files == null) {
-                files = new ArrayList<>(); //truong hop khong tai file
-            }
-            if(files.size() > 1){
-                return ResponseEntity.badRequest().body("You can only upload maximum 1 images");
-            }
-            MultipartFile file = files.getFirst();
-            if (file.getSize() == 0) { //truong hop file rong
-                return ResponseEntity.badRequest().body("upload fail");
-            }
-            if (file.getSize() > 10 * 1024 * 1024) { //kiem tra kich thuoc file anh
-                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).
-                        body("File is too large, Maximum is 10MB");
-            }
-            if (isImageFile(file)) {
-                return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).
-                        body("File must be an image");
-            }
-            String publicId = companyService.getPublicId(companyId);
-            if (!publicId.isEmpty()){
-                return ResponseEntity.ok().body(cloudinaryService.updateImage(publicId,file));
-            }
-            return ResponseEntity.ok().body(cloudinaryService.upload(file));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    ) throws Exception {
+        if (files == null) {
+            files = new ArrayList<>();
         }
-    }
+        if (files.size() > 1) {
+            return ResponseEntity.badRequest().body(
+                    ObjectResponse.<String>builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .message("You can only upload maximum 1 images")
+                            .data(null)
+                            .build()
+            );
+        }
 
-    @GetMapping("details")
-    public ResponseEntity<ResponseObject> getCompanyDetail(
-            @RequestHeader("Authorization") String authorizationHeader
-    )throws Exception {
-        String extractedToken = authorizationHeader.substring(7);
-        Company company = companyService.getCompanyDetail(extractedToken);
+        MultipartFile file = files.getFirst();
+        if (file.getSize() == 0) {
+            return ResponseEntity.badRequest().body(
+                    ObjectResponse.<String>builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .message("upload fail")
+                            .data(null)
+                            .build()
+            );
+        }
+
+        if (file.getSize() > 10 * 1024 * 1024) {
+            return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                    .body(ObjectResponse.<String>builder()
+                            .status(HttpStatus.PAYLOAD_TOO_LARGE)
+                            .message("File is too large, Maximum is 10MB")
+                            .data(null)
+                            .build());
+        }
+
+        if (FileHelper.isImageFile(file)) {
+            return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                    .body(ObjectResponse.<String>builder()
+                            .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                            .message("File must be an image")
+                            .data(null)
+                            .build());
+        }
+
+        String publicId = companyServiceImpl.getPublicId(companyId);
+        if (!publicId.isEmpty()){
+            return ResponseEntity.ok().body(
+                    ObjectResponse.<Map>builder()
+                            .status(HttpStatus.OK)
+                            .message("update Image successfully")
+                            .data(cloudinaryServiceImpl.updateImage(publicId,file)).build()
+            );
+        }
+
         return ResponseEntity.ok(
-                ResponseObject.builder()
+                ObjectResponse.<Map>builder()
                         .status(HttpStatus.OK)
-                        .message("Lấy thông tin công ty thành công")
-                        .data(CompanyResponse.fromCompany(company)).build()
+                        .message("add Image successfully")
+                        .data(cloudinaryServiceImpl.upload(file))
+                        .build()
         );
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getCompany(
-            @Valid @PathVariable Long id
-    ){
-        try{
-            Company existingCompany = companyService.getCompanyById(id);
-            return ResponseEntity.ok().body(CompanyResponse.fromCompany(existingCompany));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @GetMapping("details")
+    public ResponseEntity<ObjectResponse<CompanyResponse>> getCompanyDetail(
+            @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        Company company = companyServiceImpl.getCompanyDetail(extractedToken);
+
+        return ResponseEntity.ok(
+                ObjectResponse.<CompanyResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("Lấy thông tin công ty thành công")
+                        .data(CompanyResponse.fromCompany(company))
+                        .build()
+        );
     }
 
-    @GetMapping("{companyId}/jobs")
-    public ResponseEntity<?> getJobs(
+    @GetMapping("{companyId}/searchJobs")
+    public ResponseEntity<ObjectResponse<List<JobResponse>>> getJobs(
             @Valid @PathVariable("companyId") Long companyId,
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "0", name="job_function_id") Long jobFunctionId
+            @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId
     ){
-        try{
-            List<Job> jobs = companyService.getJobs(companyId, keyword, jobFunctionId);
-            return ResponseEntity.ok().body(jobs.stream()
-                    .map(JobResponse::fromJob)
-                    .collect(Collectors.toList()));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        List<Job> jobs = companyServiceImpl.getJobs(companyId, keyword, jobFunctionId);
+        List<JobResponse> jobResponses = jobs.stream()
+                .map(JobResponse::fromJob)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(
+                ObjectResponse.<List<JobResponse>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Lấy danh sách việc làm thành công")
+                        .data(jobResponses)
+                        .build()
+        );
     }
 
-    @GetMapping("")
-    public ResponseEntity<CompanyListResponse> getCompany(
+    @GetMapping("page")
+    public ResponseEntity<ObjectResponse<CompanyListResponse>> getCompany(
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "0", name="industry_id") Long industryId,
-            @RequestParam(defaultValue = "0", name= "page")   int page,
-            @RequestParam(defaultValue = "20",name = "limit")  int limit
-    ){
-        //Tao Pageable tu thong tin trang va gioi han
-        PageRequest pageRequest = PageRequest.of(page, limit,
-                Sort.by("name").descending());
-        //Lay tong page
-        Page<CompanyResponse> companyPage = companyService.getAllCompanies(keyword, industryId, pageRequest);
-        int totalPages = companyPage.getTotalPages();
+            @RequestParam(defaultValue = "0", name = "industry_id") Long industryId,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "20", name = "limit") int limit
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("name").descending());
+        Page<CompanyResponse> companyPage = companyServiceImpl.getAllCompanies(keyword, industryId, pageRequest);
         List<CompanyResponse> companies = companyPage.getContent();
-        System.out.println(companies);
-        return ResponseEntity.ok(CompanyListResponse
-                .builder()
+
+        CompanyListResponse companyListResponse = CompanyListResponse.builder()
                 .companies(companies)
-                .totalPages(totalPages)
+                .totalPages(companyPage.getTotalPages())
                 .totalCompanies(companyPage.getTotalElements())
-                .build());
+                .build();
+
+        return ResponseEntity.ok(
+                ObjectResponse.<CompanyListResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("Lấy danh sách công ty thành công")
+                        .data(companyListResponse)
+                        .build()
+        );
     }
 
-    @PutMapping("/{id}")
-    @Transactional
-    public ResponseEntity<?> updateCompany(
-            @Valid @PathVariable Long id,
-            @Valid @RequestBody CompanyDTO companyDTO
-    ){
-        try{
-            Company newcompany = companyService.updateCompany(id, companyDTO);
-            return ResponseEntity.ok().body(CompanyResponse.fromCompany(newcompany));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    @Override
+    @PostMapping("")
+    public ResponseEntity<ObjectResponse<?>> create(CompanyDTO request, BindingResult result) throws Exception {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body(
+                    ObjectResponse.<Company>builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .message(ValidationHelper.extractDetailedErrorMessages(result))
+                            .data(null)
+                            .build()
+            );
         }
+
+        Company newCompany = companyServiceImpl.createCompany(request);
+        return ResponseEntity.ok(
+                ObjectResponse.<Company>builder()
+                        .status(HttpStatus.OK)
+                        .message("Tạo công ty thành công")
+                        .data(newCompany)
+                        .build()
+        );
     }
 
-    @DeleteMapping("/{id}")
-    @Transactional
-    //xoa cung
-    public ResponseEntity<String> deleteCompany(@Valid @PathVariable Long id){
-        companyService.deleteCompany(id);
-        return ResponseEntity.ok().body("delete Company successfully with id = "+id);
+    @Override
+    @PutMapping("{id}")
+    public ResponseEntity<ObjectResponse<?>> update(Long id, CompanyDTO request, BindingResult result) throws Exception {
+        Company updated = companyServiceImpl.updateCompany(id, request);
+        return ResponseEntity.ok(
+                ObjectResponse.<CompanyResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("Cập nhật công ty thành công")
+                        .data(CompanyResponse.fromCompany(updated))
+                        .build()
+        );
     }
 
-    @DeleteMapping("close/{id}")
-    @Transactional
-    //xoa mem is_active -> 0
-    public ResponseEntity<String> closeCompany(@Valid @PathVariable Long id){
-        companyService.closeCompany(id);
-        return ResponseEntity.ok().body("close Company successfully with id = "+id);
+    @Override
+    public ResponseEntity<ObjectResponse<?>> getAll() {
+        return null;
     }
 
-    //    @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<?> uploadImages(
-//            @PathVariable("id") Long companyId,
-//            @ModelAttribute("files") ArrayList<MultipartFile> files
-//    ){
-//        try{
-//            Company existingCompany = companyService.getCompanyById(companyId);
-//            if (files == null) {
-//                files = new ArrayList<>(); //truong hop khong tai file
-//            }
-//            if(files.size() > CompanyImages.MAXIMUM_IMAGES_PER_COMPANY){
-//                return ResponseEntity.badRequest().body("You can only upload maximum 10 images");
-//            }
-//            List<CompanyImages> companyImages = new ArrayList<>();
-//            for (MultipartFile file : files) {
-//                if (file.getSize() == 0) { //truong hop file rong
-//                    continue;
-//                }
-//                if (file.getSize() > 10 * 1024 * 1024) { //kiem tra kich thuoc file anh
-//                    return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).
-//                            body("File is too large, Maximum is 10MB");
-//                }
-//                String contentType = file.getContentType(); //kiem tra dinh dang file anh
-//                if (contentType == null || !contentType.startsWith("image/")) {
-//                    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).
-//                            body("File must be an image");
-//                }
-//                //Luu file va cap nhat duong dan trong DTO
-//                String filename = storeFile(file); //Thay the ham
-//                //Luu vao bang company_image
-//                CompanyImages companyImage = companyService.createCompanyImage(existingCompany.getId(),
-//                        CompanyImageDTO.builder()
-//                                .imageUrl(filename)
-//                                .build());
-//                companyImages.add(companyImage);
-////                existingCompany.setCompanyImages(companyImages);
-//                //build sau
-//            }
-//            return ResponseEntity.ok().body("load successfully:"+"\n"+companyImages);
-//        }catch (Exception e){
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
-//
-//    private String storeFile(MultipartFile file)throws IOException {
-//        if (!isImageFile(file) || file.getOriginalFilename() == null){
-//            throw new IOException("valid file format");
-//        }
-//        String filename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename())); //xoa ten file goc
-//        //Them UUID vao truoc ten file de dam bao ten file la duy nhat khong de nhau
-//        String uniqueFilename = UUID.randomUUID().toString()+"_"+filename;
-//        //Duong dan den thu muc chua file
-//        Path uploadDir = Paths.get("uploads");
-//        //kiem tra va tao thu muc neu no khong ton tai
-//        if(!Files.exists(uploadDir)){
-//            Files.createDirectories(uploadDir);
-//        }
-//        //Duong dan day du den file
-//        Path destination = Paths.get(uploadDir.toString(), uniqueFilename);
-//        //Sao chep file vao thu muc chinh
-//        Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING); //sao chep neu ton tai thi thay the
-//        return uniqueFilename;
-//    }
+    @Override
+    public ResponseEntity<ObjectResponse<?>> getById(Long id) throws Exception {
+        Company existingCompany = companyServiceImpl.getCompanyById(id);
+        return ResponseEntity.ok(
+                ObjectResponse.<CompanyResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("Lấy công ty thành công")
+                        .data(CompanyResponse.fromCompany(existingCompany))
+                        .build()
+        );
+    }
 
-//    @GetMapping("/images/{imageName}")
-//    public ResponseEntity<?> viewImage(@PathVariable String imageName) {
-//        try{
-//            java.nio.file.Path imagePath = Paths.get("Back-end/uploads/"+imageName);
-//            UrlResource resource = new UrlResource(imagePath.toUri());
-//            if(resource.exists()){
-//                return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
-//                        .body(resource);
-//            }else{
-//                return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG)
-//                        .body(new UrlResource(Paths.get("Back-end/uploads/notfound404.jpg").toUri()));
-//            }
-//        }catch (Exception e){
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
+    @Override
+    public ResponseEntity<ObjectResponse<?>> deleteById(Long id) throws Exception {
+        companyServiceImpl.deleteCompany(id);
+        return ResponseEntity.ok(
+                ObjectResponse.<String>builder()
+                        .status(HttpStatus.OK)
+                        .message("delete Company successfully with id = " + id)
+                        .data(null)
+                        .build()
+        );
+    }
+
+    @Override
+    public ResponseEntity<ObjectResponse<?>> deleteByListId(List<Long> listId) throws Exception {
+        return null;
+    }
 }

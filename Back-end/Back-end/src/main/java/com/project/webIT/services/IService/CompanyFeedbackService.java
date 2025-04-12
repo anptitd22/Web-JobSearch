@@ -1,6 +1,6 @@
 package com.project.webIT.services.IService;
 
-import com.project.webIT.dtos.companies.CompanyFeedbackDTO;
+import com.project.webIT.dtos.request.CompanyFeedbackDTO;
 import com.project.webIT.models.CompanyFeedback;
 
 import java.util.List;

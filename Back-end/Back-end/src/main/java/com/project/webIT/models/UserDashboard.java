@@ -2,8 +2,6 @@ package com.project.webIT.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Data;
-import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

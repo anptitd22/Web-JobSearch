@@ -35,4 +35,7 @@ public class CompanyFeedback {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    public static final String PASS = "PASS";
+    public static final String FAIL = "FAIL";
 }

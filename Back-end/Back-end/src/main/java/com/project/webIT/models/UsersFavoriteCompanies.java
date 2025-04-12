@@ -1,10 +1,7 @@
 package com.project.webIT.models;
 
-import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users_favorite_companies")

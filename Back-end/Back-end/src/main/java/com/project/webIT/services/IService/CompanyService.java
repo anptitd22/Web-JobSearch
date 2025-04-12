@@ -1,12 +1,12 @@
 package com.project.webIT.services.IService;
 
-import com.project.webIT.dtos.companies.CompanyDTO;
-import com.project.webIT.dtos.companies.CompanyImageDTO;
-import com.project.webIT.dtos.companies.CompanyLoginDTO;
+import com.project.webIT.dtos.request.CompanyDTO;
+import com.project.webIT.dtos.request.CompanyImageDTO;
+import com.project.webIT.dtos.request.CompanyLoginDTO;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.CompanyImage;
 import com.project.webIT.models.Job;
-import com.project.webIT.response.companies.CompanyResponse;
+import com.project.webIT.dtos.response.CompanyResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -31,8 +31,6 @@ public interface CompanyService {
     Company getCompanyDetail (String token) throws Exception;
 
     void deleteCompany(long id);
-
-    void closeCompany(long id);
 
     boolean existByName(String name);
 

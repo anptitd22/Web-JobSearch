@@ -1,7 +1,6 @@
 package com.project.webIT.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "applied_job")
-@Data
 @Getter
 @Setter
 @AllArgsConstructor
@@ -81,4 +79,8 @@ public class AppliedJob extends BaseEntity {
 
     @Column(name = "years_of_experience")
     private Long yearsOfExperience;
+
+    public static final String PENDING = "Pending";
+    public static final String PROCESSING = "Processing";
+    public static final String FINISHED = "Finished";
 }

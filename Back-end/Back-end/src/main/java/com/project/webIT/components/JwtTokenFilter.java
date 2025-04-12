@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @RequiredArgsConstructor
@@ -94,6 +96,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private boolean isBypassToken (@NonNull HttpServletRequest request){
         final List<Pair<String, String>> bypassTokens = Arrays.asList(
+                Pair.of(String.format("/%s/actuator/health", apiPrefix), "GET"),
+
                 Pair.of(String.format("%s/companies",apiPrefix),"GET"),
                 Pair.of(String.format("%s/companies/images",apiPrefix),"GET"),
                 Pair.of(String.format("%s/jobs/images",apiPrefix), "GET"),
@@ -110,13 +114,55 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/industries", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
-                Pair.of(String.format("%s/companies/login", apiPrefix), "POST")
+                Pair.of(String.format("%s/companies/login", apiPrefix), "POST"),
+
+                // Swagger
+                Pair.of("/api-docs", "GET"),
+                Pair.of("/api-docs/**", "GET"),
+                Pair.of("/swagger-resources", "GET"),
+                Pair.of("/swagger-resources/**", "GET"),
+                Pair.of("/configuration/ui", "GET"),
+                Pair.of("/configuration/security", "GET"),
+                Pair.of("/swagger-ui/**", "GET"),
+                Pair.of("/swagger-ui.html", "GET"),
+                Pair.of("/swagger-ui/index.html", "GET")
         );
+        String requestPath = request.getServletPath();
+        String requestMethod = request.getMethod();
         for (Pair<String, String > bypassToken : bypassTokens){
             if (request.getServletPath().contains(bypassToken.getLeft()) &&
                     request.getMethod().contains(bypassToken.getRight())){
                 return true;
             }
+//        for (Pair<String, String> bypassToken : bypassTokens) {
+//            String tokenPath = bypassToken.getLeft();
+//            String tokenMethod = bypassToken.getRight();
+//
+//            if (!requestMethod.equalsIgnoreCase(tokenMethod)) continue;
+//
+//            if (tokenPath.contains("**")) {
+//                // Convert wildcard to regex
+//                String regexPath = tokenPath.replace("**", ".*");
+//                if (requestPath.matches(regexPath)) {
+//                    return true;
+//                }
+//            } else if (requestPath.equals(tokenPath)) {
+//                return true;
+//            }
+
+//            String tokenPath = bypassToken.getLeft(); // Đường dẫn (có thể chứa **)
+//            String tokenMethod = bypassToken.getRight(); // GET, POST, etc.
+//            if (tokenPath.contains("**")) {
+//                // Chuyển thành regex pattern
+//                String regexPath = tokenPath.replace("**", ".*");
+//                Pattern pattern = Pattern.compile(regexPath);
+//                Matcher matcher = pattern.matcher(requestPath);
+//                if (matcher.matches() && requestMethod.equals(tokenMethod)) {
+//                    return true;
+//                }
+//            }else if (requestPath.equals(tokenPath) && requestMethod.equals(tokenMethod)) {
+//                return true;
+//            }
         }
         return false;
     }
