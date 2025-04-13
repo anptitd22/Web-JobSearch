@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface BaseController<T,ID>{
 
-    ResponseEntity<ObjectResponse<?>> create(@Valid T request, BindingResult result) throws Exception;
+    ResponseEntity<ObjectResponse<?>> create(@Valid @RequestBody T request, BindingResult result) throws Exception;
 
     @Transactional
     ResponseEntity<ObjectResponse<?>> update(@Valid @PathVariable("id") ID id, T request, BindingResult result) throws Exception;

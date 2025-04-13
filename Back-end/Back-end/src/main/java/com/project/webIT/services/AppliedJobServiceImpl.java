@@ -1,5 +1,6 @@
 package com.project.webIT.services;
 
+
 import com.project.webIT.dtos.request.AppliedJobDTO;
 import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.AppliedJob;
@@ -23,6 +24,34 @@ public class AppliedJobServiceImpl implements com.project.webIT.services.IServic
     private final AppliedJobRepository appliedJobRepository;
     private final JobRepository jobRepository;
     private final ModelMapper modelMapper;
+
+
+    @Override
+    public AppliedJob createAppliedJob(AppliedJobDTO appliedJobDTO) throws Exception {
+        User user = userRepository.findById(appliedJobDTO.getUserId())
+                .orElseThrow(() ->
+                        new DataNotFoundException("Cannot find user with id = "+appliedJobDTO.getUserId()));
+        Job job = jobRepository.findById(appliedJobDTO.getJobId())
+                .orElseThrow(() ->
+                        new DataNotFoundException("Cannot find job with id = "+appliedJobDTO.getJobId()));
+        //convert DTO-> model
+        modelMapper.getConfiguration().setAmbiguityIgnored(true); //tat anh xa tu dong tranh nham lan jobId voi userId
+        modelMapper.typeMap(AppliedJobDTO.class, AppliedJob.class)
+                .addMappings(mapper -> mapper.skip(AppliedJob::setId));
+        AppliedJob appliedJob = new AppliedJob();
+        modelMapper.map(appliedJobDTO, appliedJob);
+        appliedJob.setUser(user);
+        appliedJob.setJob(job);
+        appliedJob.setApplyDate(LocalDateTime.now());
+        appliedJob.setStatus(AppliedJob.PENDING);
+        LocalDateTime expectedDate = appliedJobDTO.getExpectedDate();
+        if (expectedDate != null && expectedDate.isBefore(LocalDateTime.now())){
+            throw new DataNotFoundException("Date must be least today!");
+        }
+        jobRepository.save(job);
+        appliedJob.setActive(true);
+        return appliedJobRepository.save(appliedJob);
+    }
 
     @Override
     public List<AppliedJob> checkAppliedJob(Long user_id, Long job_id){
@@ -75,57 +104,5 @@ public class AppliedJobServiceImpl implements com.project.webIT.services.IServic
                                     +appliedJobOptional.get().getJob().getId()));
             appliedJobRepository.deleteById(id);
         }
-    }
-
-    @Override
-    public AppliedJob create(AppliedJobDTO data) throws Exception{
-        User user = userRepository.findById(data.getUserId())
-                .orElseThrow(() ->
-                        new DataNotFoundException("Cannot find user with id = "+data.getUserId()));
-        Job job = jobRepository.findById(data.getJobId())
-                .orElseThrow(() ->
-                        new DataNotFoundException("Cannot find job with id = "+data.getJobId()));
-        //convert DTO-> model
-        modelMapper.getConfiguration().setAmbiguityIgnored(true); //tat anh xa tu dong tranh nham lan jobId voi userId
-        modelMapper.typeMap(AppliedJobDTO.class, AppliedJob.class)
-                .addMappings(mapper -> mapper.skip(AppliedJob::setId));
-        AppliedJob appliedJob = new AppliedJob();
-        modelMapper.map(data, appliedJob);
-        appliedJob.setUser(user);
-        appliedJob.setJob(job);
-        appliedJob.setApplyDate(LocalDateTime.now());
-        appliedJob.setStatus(AppliedJob.PENDING);
-        LocalDateTime expectedDate = data.getExpectedDate();
-        if (expectedDate != null && expectedDate.isBefore(LocalDateTime.now())){
-            throw new DataNotFoundException("Date must be least today!");
-        }
-        jobRepository.save(job);
-        appliedJob.setActive(true);
-        return appliedJobRepository.save(appliedJob);
-    }
-
-    @Override
-    public AppliedJob update(AppliedJobDTO data) {
-        return null;
-    }
-
-    @Override
-    public AppliedJob getAll() {
-        return null;
-    }
-
-    @Override
-    public AppliedJob getById(Long aLong) {
-        return null;
-    }
-
-    @Override
-    public String deleteById(Long aLong) {
-        return "";
-    }
-
-    @Override
-    public String deleteByListId(List<Long> listId) {
-        return "";
     }
 }

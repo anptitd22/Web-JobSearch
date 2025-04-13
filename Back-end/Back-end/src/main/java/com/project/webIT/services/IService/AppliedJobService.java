@@ -6,7 +6,9 @@ import com.project.webIT.models.AppliedJob;
 
 import java.util.List;
 
-public interface AppliedJobService extends BaseService<AppliedJobDTO, AppliedJob, Long>{
+public interface AppliedJobService{
+
+    AppliedJob createAppliedJob(AppliedJobDTO appliedJobDTO) throws Exception;
 
     List<AppliedJob> checkAppliedJob(Long userId, Long jobId);
 

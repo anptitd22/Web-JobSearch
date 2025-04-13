@@ -79,7 +79,6 @@ public class WebSecurityConfig {
                                     String.format("%s/jobs/**", apiPrefix), // GET
                                     String.format("%s/jobs/images/**", apiPrefix),
 
-                                    String.format("%s/applied/**", apiPrefix), // GET
                                     String.format("%s/feedback/**", apiPrefix), // GET
                                     String.format("%s/industries/**", apiPrefix), // GET
 
@@ -159,6 +158,7 @@ public class WebSecurityConfig {
                             //USER
                             .requestMatchers(HttpMethod.POST, String.format("%s/users/**", apiPrefix)).hasRole(Role.USER)
                             .requestMatchers(HttpMethod.PUT, String.format("%s/users/**", apiPrefix)).hasRole(Role.USER)
+                            .requestMatchers(HttpMethod.GET, String.format("%s/applied/**", apiPrefix)).hasRole(Role.USER)
 
                             .requestMatchers(HttpMethod.GET, String.format("%s/my-career-center/**", apiPrefix)).hasRole(Role.USER)
                             .requestMatchers(HttpMethod.POST, String.format("%s/my-career-center/**", apiPrefix)).hasRole(Role.USER)

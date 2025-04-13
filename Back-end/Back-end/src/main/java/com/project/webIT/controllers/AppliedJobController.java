@@ -26,7 +26,7 @@ public class AppliedJobController implements BaseController<AppliedJobDTO, Long>
     private final AppliedJobServiceImpl appliedJobService;
     private final UserServiceImpl userService;
 
-    @GetMapping("user/{userId}") //danh sach apply
+    @GetMapping("ok") //danh sach apply
     public ResponseEntity<ObjectResponse<List<AppliedJobResponse>>> getAppliedJobsFromUser(
             @Valid @RequestHeader("Authorization") String authorizationHeader
     )throws Exception{
@@ -59,7 +59,7 @@ public class AppliedJobController implements BaseController<AppliedJobDTO, Long>
             );
     }
 
-    @GetMapping("user/{job_id}")
+    @GetMapping("ok/{job_id}")
     public ResponseEntity<ObjectResponse<List<AppliedJobResponse>>> checkAppliedJob(
             @Valid @RequestHeader("Authorization") String authorizationHeader,
             @Valid @PathVariable("job_id") Long job_id
@@ -80,7 +80,10 @@ public class AppliedJobController implements BaseController<AppliedJobDTO, Long>
 
     @Override
     @PostMapping("")
-    public ResponseEntity<ObjectResponse<?>> create(AppliedJobDTO request, BindingResult result) throws Exception {
+    public ResponseEntity<ObjectResponse<?>> create(
+            @Valid @RequestBody AppliedJobDTO appliedJobDTO,
+            BindingResult result
+    ) throws Exception {
         if(result.hasErrors()){
             return ResponseEntity.badRequest().body(
                     ObjectResponse.<Void>builder()
@@ -89,7 +92,7 @@ public class AppliedJobController implements BaseController<AppliedJobDTO, Long>
                             .build()
             );
         }
-        AppliedJob appliedJob = appliedJobService.create(request);
+        AppliedJob appliedJob = appliedJobService.createAppliedJob(appliedJobDTO);
         return ResponseEntity.ok(
                 ObjectResponse.<AppliedJobResponse>builder()
                         .status(HttpStatus.OK)
