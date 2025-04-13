@@ -23,11 +23,11 @@ public class UserPaymentServiceImpl {
         User existingUser = userRepository.findById(userPaymentDTO.getUserId())
                 .orElseThrow(() -> new DataNotFoundException("not found user"));
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
-        modelMapper.typeMap(UserPaymentDTO.class,UserPayment.class)
+        modelMapper.typeMap(UserPaymentDTO.class, UserPayment.class)
                 .addMappings(mapper ->
                         mapper.skip(UserPayment::setId));
         UserPayment userPayment = new UserPayment();
-        modelMapper.map(userPaymentDTO,userPayment);
+        modelMapper.map(userPaymentDTO, userPayment);
         String vietnameseStatus = UserPayment.STATUS_MAP.getOrDefault(userPaymentDTO.getStatus(), "Không xác định");
         userPayment.setUser(existingUser);
         userPayment.setStatus(vietnameseStatus);

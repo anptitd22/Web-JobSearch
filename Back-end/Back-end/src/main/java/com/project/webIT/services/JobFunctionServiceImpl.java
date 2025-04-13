@@ -37,10 +37,10 @@ public class JobFunctionServiceImpl implements com.project.webIT.services.IServi
 
     @Override
     public JobFunction updateJobFunction(long jobFunctionId, JobFunctionDTO jobFunctionDTO) {
-        JobFunction existingJobFunctions = getJobFunctionById(jobFunctionId);
-        existingJobFunctions.setName(jobFunctionDTO.getName());
-        jobFunctionRepository.save(existingJobFunctions);
-        return existingJobFunctions;
+        JobFunction existingJobFunctionsEntity = getJobFunctionById(jobFunctionId);
+        existingJobFunctionsEntity.setName(jobFunctionDTO.getName());
+        jobFunctionRepository.save(existingJobFunctionsEntity);
+        return existingJobFunctionsEntity;
     }
 
     @Override

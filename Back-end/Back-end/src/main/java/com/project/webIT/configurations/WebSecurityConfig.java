@@ -2,9 +2,7 @@ package com.project.webIT.configurations;
 
 import com.project.webIT.components.JwtTokenFilter;
 import com.project.webIT.models.Role;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.internal.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -66,10 +63,6 @@ public class WebSecurityConfig {
                             .requestMatchers(
                                     HttpMethod.GET,
                                     String.format("/%s/actuator/health", apiPrefix),
-                                    String.format("%s/users/register", apiPrefix),
-                                    String.format("%s/users/login", apiPrefix),
-                                    String.format("%s/users/auth/**", apiPrefix),
-                                    String.format("%s/companies/login", apiPrefix),
 
                                     String.format("%s/users/**", apiPrefix), // GET
                                     String.format("%s/roles/**", apiPrefix), // GET

@@ -12,7 +12,7 @@ public interface UserService {
 
     User updateUser(Long userId, UpdateUserDTO updateUserDTO) throws Exception;
 
-    User updatePassword(Long userId, PasswordDTO passwordDTO) throws Exception;
+    User updatePassword(User existingUser, PasswordDTO passwordDTO) throws Exception;
 
     String updateEmail(Long userId, EmailDTO emailDTO) throws Exception;
 

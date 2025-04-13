@@ -66,7 +66,7 @@ public class AppliedJobServiceImpl implements com.project.webIT.services.IServic
         User existingUser = userRepository.findById(appliedJobDTO.getUserId())
                 .orElseThrow(() ->
                         new DataNotFoundException("Cannot find user with id = " + appliedJobDTO.getUserId()));
-        Job existingjob = jobRepository.findById(appliedJobDTO.getJobId())
+        Job existingJob = jobRepository.findById(appliedJobDTO.getJobId())
                 .orElseThrow(() ->
                         new DataNotFoundException("Cannot find job with id = "+appliedJobDTO.getJobId()));
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
@@ -74,7 +74,7 @@ public class AppliedJobServiceImpl implements com.project.webIT.services.IServic
                 .addMappings(mapper -> mapper.skip(AppliedJob::setId));
         modelMapper.map(appliedJobDTO, existingAppliedJob);
         existingAppliedJob.setUser(existingUser);
-        existingAppliedJob.setJob(existingjob);
+        existingAppliedJob.setJob(existingJob);
         return appliedJobRepository.save(existingAppliedJob);
     }
 

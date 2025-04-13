@@ -1,6 +1,6 @@
 package com.project.webIT.services;
 
-import com.project.webIT.components.JwtTokenUtils;
+import com.project.webIT.helper.JwtTokenHelper;
 import com.project.webIT.components.LocalizationUtils;
 import com.project.webIT.dtos.request.*;
 import com.project.webIT.exceptions.DataNotFoundException;
@@ -17,6 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenUtils jwtTokenUtils;
+    private final JwtTokenHelper jwtTokenHelper;
     private final AuthenticationManager authenticationManager;
     private final LocalizationUtils localizationUtils;
 
@@ -127,7 +128,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
                         .build();
 
                 userRepository.save(newUser);
-                return jwtTokenUtils.generateToken(newUser);
+                return jwtTokenHelper.generateTokenFromUser(newUser);
             }
         }
 
@@ -143,7 +144,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
         validateUserStatus(existingUser);
         validateUserRole(existingUser, role);
 
-        return jwtTokenUtils.generateToken(existingUser);
+        return jwtTokenHelper.generateTokenFromUser(existingUser);
     }
 
     // Xử lý đăng nhập Google
@@ -175,7 +176,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
                         .build();
 
                 userRepository.save(newUser);
-                return jwtTokenUtils.generateToken(newUser);
+                return jwtTokenHelper.generateTokenFromUser(newUser);
             }
         }
 
@@ -191,18 +192,19 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
         validateUserStatus(existingUser);
         validateUserRole(existingUser, role);
 
-        return jwtTokenUtils.generateToken(existingUser);
+        return jwtTokenHelper.generateTokenFromUser(existingUser);
     }
 
     // Xử lý đăng nhập thông thường
     private String handleNormalLogin(UserLoginDTO userLoginDTO, Role role) throws Exception {
-        Optional<User> optionalUser = userRepository.findByEmail(userLoginDTO.getEmail());
 
-        if (optionalUser.isEmpty()) {
-            throw new DataNotFoundException(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_EMAIL_PASS));
-        }
-
-        User existingUser = optionalUser.get();
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        userLoginDTO.getEmail(),
+                        userLoginDTO.getPassword()
+                )
+        );
+        User existingUser = (User) authentication.getPrincipal();
 
         // Nếu tài khoản đã đăng ký bằng mạng xã hội, thông báo đăng nhập bằng mạng xã hội
         if (!existingUser.getGoogleAccountId().isEmpty() ||
@@ -210,21 +212,10 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
             throw new BadCredentialsException("Please login with your social account");
         }
 
-        // Kiểm tra mật khẩu
-        if (!passwordEncoder.matches(userLoginDTO.getPassword(), existingUser.getPassword())) {
-            throw new BadCredentialsException(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_EMAIL_PASS));
-        }
-
-        // Xác thực với Spring Security
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                userLoginDTO.getEmail(), userLoginDTO.getPassword(), existingUser.getAuthorities()
-        );
-        authenticationManager.authenticate(authenticationToken);
-
         validateUserStatus(existingUser);
         validateUserRole(existingUser, role);
 
-        return jwtTokenUtils.generateToken(existingUser);
+        return jwtTokenHelper.generateTokenFromUser(existingUser);
     }
 
     private void validateUserStatus(User user) throws DataNotFoundException {
@@ -243,10 +234,10 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
     @Transactional
     @Override
     public User getUserDetailsFromToken(String extractedToken) throws Exception {
-        if(jwtTokenUtils.isTokenExpired(extractedToken)){
-            throw new Exception("Token is expired");
+        if(jwtTokenHelper.isTokenExpired(extractedToken)){
+            throw new Exception("ForgotToken is expired");
         }
-        String email = jwtTokenUtils.extractSubject(extractedToken);
+        String email = jwtTokenHelper.extractSubject(extractedToken);
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isPresent()){
             return userOptional.get();
@@ -341,11 +332,11 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
             existingUser.setPublicIdImages(updateUserDTO.getPublicIdImages());
         }
 
-        if (updateUserDTO.getFacebookAccountId() != null && updateUserDTO.getFacebookAccountId().isEmpty()) {
+        if (updateUserDTO.getFacebookAccountId() != null && !updateUserDTO.getFacebookAccountId().isEmpty()) {
             existingUser.setFacebookAccountId(updateUserDTO.getFacebookAccountId());
         }
 
-        if (updateUserDTO.getGoogleAccountId() != null && updateUserDTO.getGoogleAccountId().isEmpty()) {
+        if (updateUserDTO.getGoogleAccountId() != null && !updateUserDTO.getGoogleAccountId().isEmpty()) {
             existingUser.setGoogleAccountId(updateUserDTO.getGoogleAccountId());
         }
 
@@ -365,9 +356,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
     }
 
     @Override
-    public User updatePassword(Long userId, PasswordDTO passwordDTO) throws Exception {
-        User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException("User not found !"));
+    public User updatePassword(User existingUser, PasswordDTO passwordDTO) throws Exception {
         if(!existingUser.getGoogleAccountId().isEmpty() || !existingUser.getFacebookAccountId().isEmpty()){
             throw new DataNotFoundException("Cannot update mail in account facebook or google");
         }
@@ -402,7 +391,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
             existingUser.setEmail(emailDTO.getNewEmail());
         }
         userRepository.save(existingUser);
-        return jwtTokenUtils.generateToken(existingUser);
+        return jwtTokenHelper.generateTokenFromUser(existingUser);
     }
 
     @Override
@@ -419,10 +408,10 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
     public Boolean checkSizeCV(Long userId, Long size) throws Exception{
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(()->new DataNotFoundException("user not found"));
-        if(existingUser.getUserCVS().size()==5){
+        if(existingUser.getUserCVs().size()==5){
             return false;
         }
-        return (existingUser.getUserCVS().size()+size) <= 5;
+        return (existingUser.getUserCVs().size()+size) <= 5;
     }
 //    @Override
 //    public User createUserAvatar(Long userId, String url, String publicIdImages) throws Exception{

@@ -2,6 +2,7 @@ package com.project.webIT.controllers;
 
 import com.project.webIT.components.LocalizationUtils;
 import com.project.webIT.dtos.request.UserCVDTO;
+import com.project.webIT.models.User;
 import com.project.webIT.models.UserCV;
 import com.project.webIT.dtos.response.ObjectResponse;
 import com.project.webIT.dtos.response.UserCVResponse;
@@ -9,11 +10,11 @@ import com.project.webIT.services.CloudinaryServiceImpl;
 import com.project.webIT.services.FileServiceImpl;
 import com.project.webIT.services.UserCVServiceImpl;
 import com.project.webIT.services.UserServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,9 +35,11 @@ public class UserCVController{
 
     @PostMapping(value = "uploads/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ObjectResponse<List<Map>>> postCV(
-            @PathVariable("userId") Long userId,
-            @RequestPart("files") List<MultipartFile> files
+            @Valid @RequestHeader("Authorization") String authorizationHeader,
+            @Valid @RequestPart("files") List<MultipartFile> files
     ) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
         fileServiceImpl.validateCV(files);
         List<Map> uploadResults = new ArrayList<>();
         for (MultipartFile file : files) {
@@ -51,12 +54,14 @@ public class UserCVController{
         );
     }
 
-    @PostMapping(value = "{userId}")
+    @PostMapping("")
     public ResponseEntity<ObjectResponse<UserCVResponse>> addCV(
-            @PathVariable("userId") Long userId,
-            @RequestBody UserCVDTO userCVDTO
+            @RequestBody UserCVDTO userCVDTO,
+            @Valid @RequestHeader("Authorization") String authorizationHeader
     ) throws Exception {
-        UserCV userCV = userCVServiceImpl.createCV(userId, userCVDTO);
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
+        UserCV userCV = userCVServiceImpl.createCV(user.getId(), userCVDTO);
         return ResponseEntity.ok(
                 ObjectResponse.<UserCVResponse>builder()
                         .status(HttpStatus.OK)
@@ -66,11 +71,13 @@ public class UserCVController{
         );
     }
 
-    @GetMapping("users/{userId}")
+    @GetMapping("")
     public ResponseEntity<ObjectResponse<List<UserCVResponse>>> getUserCVs(
-            @PathVariable("userId") Long userId
-    ) {
-        List<UserCV> userCVList = userCVServiceImpl.getCVs(userId);
+            @Valid @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception{
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
+        List<UserCV> userCVList = userCVServiceImpl.getCVs(user.getId());
         List<UserCVResponse> responseList = userCVList.stream()
                 .map(UserCVResponse::fromUserCV)
                 .collect(Collectors.toList());

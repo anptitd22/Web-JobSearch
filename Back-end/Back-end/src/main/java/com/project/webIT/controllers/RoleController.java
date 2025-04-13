@@ -20,13 +20,13 @@ public class RoleController {
 
     @GetMapping("")
     public ResponseEntity<ObjectResponse<List<Role>>> getAllRoles() {
-        List<Role> roles = roleServiceImpl.getAllRoles();
+        List<Role> roleEntities = roleServiceImpl.getAllRoles();
 
         return ResponseEntity.ok(
                 ObjectResponse.<List<Role>>builder()
                         .status(HttpStatus.OK)
-                        .message("Successfully retrieved list of roles")
-                        .data(roles)
+                        .message("Successfully retrieved list of roleEntities")
+                        .data(roleEntities)
                         .build()
         );
     }

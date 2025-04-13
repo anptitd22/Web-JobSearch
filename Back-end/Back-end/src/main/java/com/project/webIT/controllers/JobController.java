@@ -15,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,10 +25,10 @@ import java.util.List;
 @RequestMapping("${api.prefix}/jobs")
 //@Validated
 @RequiredArgsConstructor
-public class JobController implements BaseController<JobDTO, Long>{
+public class JobController{
     private final JobServiceImpl jobService;
 
-    @GetMapping("page")
+    @GetMapping("get/page")
     public ResponseEntity<ObjectResponse<?>> getJobs(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId,
@@ -94,9 +93,11 @@ public class JobController implements BaseController<JobDTO, Long>{
         return ResponseEntity.ok().body("Fake Job created successfully");
     }
 
-    @Override
     @PostMapping("")
-    public ResponseEntity<ObjectResponse<?>> create(JobDTO request, BindingResult result) throws Exception {
+    public ResponseEntity<ObjectResponse<?>> create(
+            @Valid @RequestBody JobDTO request,
+            BindingResult result
+    ) throws Exception {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(
                     ObjectResponse.<Void>builder()
@@ -115,9 +116,12 @@ public class JobController implements BaseController<JobDTO, Long>{
         );
     }
 
-    @Override
     @PutMapping("{id}")
-    public ResponseEntity<ObjectResponse<?>> update(Long id, JobDTO request, BindingResult result) throws Exception {
+    public ResponseEntity<ObjectResponse<?>> update(
+            @Valid @PathVariable("id") Long id,
+            @Valid @RequestBody JobDTO request,
+            BindingResult result
+    ) throws Exception {
         Job updatedJob = jobService.updateJob(id, request);
         return ResponseEntity.ok(
                 ObjectResponse.<JobResponse>builder()
@@ -128,13 +132,13 @@ public class JobController implements BaseController<JobDTO, Long>{
         );
     }
 
-    @Override
+    @GetMapping("get")
     public ResponseEntity<ObjectResponse<?>> getAll() {
         return null;
     }
 
-    @Override
-    public ResponseEntity<ObjectResponse<?>> getById(Long id) throws Exception {
+    @GetMapping("get/{id}")
+    public ResponseEntity<ObjectResponse<?>> getById(@PathVariable("id") Long id) throws Exception {
         Job existingJob = jobService.getJobById(id);
         return ResponseEntity.ok(
                 ObjectResponse.<JobResponse>builder()
@@ -145,8 +149,8 @@ public class JobController implements BaseController<JobDTO, Long>{
         );
     }
 
-    @Override
-    public ResponseEntity<ObjectResponse<?>> deleteById(Long id) throws Exception {
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<ObjectResponse<?>> deleteById(@PathVariable("id") Long id) throws Exception {
         jobService.overJob(id);
         return ResponseEntity.ok(
                 ObjectResponse.<Void>builder()
@@ -157,7 +161,7 @@ public class JobController implements BaseController<JobDTO, Long>{
         );
     }
 
-    @Override
+    @DeleteMapping("delete")
     public ResponseEntity<ObjectResponse<?>> deleteByListId(List<Long> listId) throws Exception {
         return null;
     }

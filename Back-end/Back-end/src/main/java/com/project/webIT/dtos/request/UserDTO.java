@@ -1,6 +1,7 @@
 package com.project.webIT.dtos.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -36,6 +37,7 @@ public class UserDTO {
     private String phoneNumber;
 
     @NotBlank(message = "Email is required")
+    @Email(message = "invalid email")
     private String email;
 
     private String address;

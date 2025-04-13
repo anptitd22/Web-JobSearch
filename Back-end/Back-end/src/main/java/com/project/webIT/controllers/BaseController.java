@@ -14,7 +14,7 @@ public interface BaseController<T,ID>{
     ResponseEntity<ObjectResponse<?>> create(@Valid @RequestBody T request, BindingResult result) throws Exception;
 
     @Transactional
-    ResponseEntity<ObjectResponse<?>> update(@Valid @PathVariable("id") ID id, T request, BindingResult result) throws Exception;
+    ResponseEntity<ObjectResponse<?>> update(@Valid @PathVariable("id") ID id, @RequestBody T request, BindingResult result) throws Exception;
 
     @GetMapping("/get")
     ResponseEntity<ObjectResponse<?>> getAll();

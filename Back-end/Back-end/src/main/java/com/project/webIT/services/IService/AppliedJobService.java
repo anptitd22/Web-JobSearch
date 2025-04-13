@@ -12,7 +12,7 @@ public interface AppliedJobService{
 
     List<AppliedJob> checkAppliedJob(Long userId, Long jobId);
 
-    AppliedJob updateAppliedJob(Long id,AppliedJobDTO appliedJobDTO) throws Exception;
+    AppliedJob updateAppliedJob(Long id, AppliedJobDTO appliedJobDTO) throws Exception;
 
     List<AppliedJob> getAppliedJobFromUser(Long userId);
 

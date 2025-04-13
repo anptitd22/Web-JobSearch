@@ -1,9 +1,12 @@
 package com.project.webIT.controllers;
 
-import com.project.webIT.models.UsersFavoriteCompanies;
+import com.project.webIT.models.User;
+import com.project.webIT.models.UserFavoriteCompany;
 import com.project.webIT.dtos.response.ObjectResponse;
 import com.project.webIT.dtos.response.UsersFavoriteCompaniesResponse;
+import com.project.webIT.services.UserServiceImpl;
 import com.project.webIT.services.UsersFavoriteCompaniesServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,31 +18,37 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("${api.prefix}/my-companies")
 @RequiredArgsConstructor
-public class UsersFavoriteCompaniesController {
+public class UserFavoriteCompanyController {
     private final UsersFavoriteCompaniesServiceImpl usersFavoriteCompaniesServiceImpl;
+    private final UserServiceImpl userService;
 
-    @PostMapping("{userId}/{companyId}")
-    public ResponseEntity<ObjectResponse<UsersFavoriteCompanies>> saveFavorite(
-            @PathVariable("userId") Long userId,
-            @PathVariable("companyId") Long companyId
+    @PostMapping("{companyId}")
+    public ResponseEntity<ObjectResponse<UserFavoriteCompany>> saveFavorite(
+            @PathVariable("companyId") Long companyId,
+            @Valid  @RequestHeader("Authorization") String authorizationHeader
     ) throws Exception {
-        UsersFavoriteCompanies usersFavoriteCompanies = usersFavoriteCompaniesServiceImpl.saveFavoriteCompany(userId, companyId);
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userService.getUserDetailsFromToken(extractedToken);
+        UserFavoriteCompany userFavoriteCompany =
+                usersFavoriteCompaniesServiceImpl.saveFavoriteCompany(user, companyId);
 
         return ResponseEntity.ok(
-                ObjectResponse.<UsersFavoriteCompanies>builder()
+                ObjectResponse.<UserFavoriteCompany>builder()
                         .status(HttpStatus.OK)
                         .message("Thêm/xóa danh sách công ty yêu thích")
-                        .data(usersFavoriteCompanies)
+                        .data(userFavoriteCompany)
                         .build()
         );
     }
 
-    @GetMapping("{userId}")
+    @GetMapping("")
     public ResponseEntity<ObjectResponse<List<UsersFavoriteCompaniesResponse>>> getFavorites(
-            @PathVariable("userId") Long userId
-    ) {
-        List<UsersFavoriteCompanies> usersFavoriteCompanies = usersFavoriteCompaniesServiceImpl.getUserFavorites(userId);
-        List<UsersFavoriteCompaniesResponse> responseList = usersFavoriteCompanies.stream()
+            @Valid  @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception{
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userService.getUserDetailsFromToken(extractedToken);
+        List<UserFavoriteCompany> userFavoriteCompanies = usersFavoriteCompaniesServiceImpl.getUserFavorites(user.getId());
+        List<UsersFavoriteCompaniesResponse> responseList = userFavoriteCompanies.stream()
                 .map(UsersFavoriteCompaniesResponse::fromUserFavoriteCompanies)
                 .collect(Collectors.toList());
 

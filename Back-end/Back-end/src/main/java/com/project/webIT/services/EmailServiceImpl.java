@@ -97,7 +97,7 @@ public class EmailServiceImpl {
             if(resetToken.getExpiryDate().isBefore(LocalDateTime.now())){
                 resetToken.setActive(false);
             }
-            throw new DataNotFoundException("Token không hợp lệ hoặc đã hết hạn");
+            throw new DataNotFoundException("ForgotToken không hợp lệ hoặc đã hết hạn");
         }
 
         User user = resetToken.getUser();

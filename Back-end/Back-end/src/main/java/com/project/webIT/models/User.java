@@ -104,7 +104,7 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     @Where(clause = "is_active = true")
-    private List<UserCV> userCVS = new ArrayList<>();
+    private List<UserCV> userCVs = new ArrayList<>();
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("createdAt DESC")

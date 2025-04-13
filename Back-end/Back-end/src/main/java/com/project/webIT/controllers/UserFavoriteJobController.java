@@ -1,9 +1,12 @@
 package com.project.webIT.controllers;
 
-import com.project.webIT.models.UsersFavoriteJobs;
+import com.project.webIT.models.User;
+import com.project.webIT.models.UserFavoriteJob;
 import com.project.webIT.dtos.response.ObjectResponse;
 import com.project.webIT.dtos.response.UsersFavoriteJobsResponse;
+import com.project.webIT.services.UserServiceImpl;
 import com.project.webIT.services.UsersFavoriteJobsServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,31 +18,36 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("${api.prefix}/my-career-center")
 @RequiredArgsConstructor
-public class UsersFavoriteJobsController {
+public class UserFavoriteJobController {
     private final UsersFavoriteJobsServiceImpl favoriteJobService;
+    private final UserServiceImpl userService;
 
-    @PostMapping("{userId}/{jobId}")
+    @PostMapping("{jobId}")
     public ResponseEntity<ObjectResponse<UsersFavoriteJobsResponse>> saveFavorite(
-            @PathVariable("userId") Long userId,
+            @Valid @RequestHeader("Authorization") String authorizationHeader,
             @PathVariable("jobId") Long jobId
     ) throws Exception {
-        UsersFavoriteJobs usersFavoriteJobs = favoriteJobService.saveFavoriteJob(userId, jobId);
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userService.getUserDetailsFromToken(extractedToken);
+        UserFavoriteJob userFavoriteJob = favoriteJobService.saveFavoriteJob(user, jobId);
 
         return ResponseEntity.ok(
                 ObjectResponse.<UsersFavoriteJobsResponse>builder()
                         .status(HttpStatus.OK)
                         .message("Thêm danh sách công việc yêu thích")
-                        .data(UsersFavoriteJobsResponse.fromUserFavoriteJobs(usersFavoriteJobs))
+                        .data(UsersFavoriteJobsResponse.fromUserFavoriteJobs(userFavoriteJob))
                         .build()
         );
     }
 
-    @GetMapping("my-jobs/{userId}")
+    @GetMapping("my-jobs")
     public ResponseEntity<ObjectResponse<List<UsersFavoriteJobsResponse>>> getFavorites(
-            @PathVariable("userId") Long userId
-    ) {
-        List<UsersFavoriteJobs> usersFavoriteJobsList = favoriteJobService.getUserFavorites(userId);
-        List<UsersFavoriteJobsResponse> responseList = usersFavoriteJobsList.stream()
+            @Valid @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception{
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userService.getUserDetailsFromToken(extractedToken);
+        List<UserFavoriteJob> userFavoriteJobList = favoriteJobService.getUserFavorites(user.getId());
+        List<UsersFavoriteJobsResponse> responseList = userFavoriteJobList.stream()
                 .map(UsersFavoriteJobsResponse::fromUserFavoriteJobs)
                 .collect(Collectors.toList());
 
@@ -52,12 +60,14 @@ public class UsersFavoriteJobsController {
         );
     }
 
-    @GetMapping("my-jobs/default/{userId}")
+    @GetMapping("my-jobs/default")
     public ResponseEntity<ObjectResponse<List<UsersFavoriteJobsResponse>>> getFavoritesDefault(
-            @PathVariable("userId") Long userId
-    ) {
-        List<UsersFavoriteJobs> usersFavoriteJobsList = favoriteJobService.getUserFavoritesDefault(userId);
-        List<UsersFavoriteJobsResponse> responseList = usersFavoriteJobsList.stream()
+            @Valid @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception{
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userService.getUserDetailsFromToken(extractedToken);
+        List<UserFavoriteJob> userFavoriteJobList = favoriteJobService.getUserFavoritesDefault(user.getId());
+        List<UsersFavoriteJobsResponse> responseList = userFavoriteJobList.stream()
                 .map(UsersFavoriteJobsResponse::fromUserFavoriteJobs)
                 .collect(Collectors.toList());
 

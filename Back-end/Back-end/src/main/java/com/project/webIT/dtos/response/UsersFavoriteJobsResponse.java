@@ -1,7 +1,7 @@
 package com.project.webIT.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.project.webIT.models.UsersFavoriteJobs;
+import com.project.webIT.models.UserFavoriteJob;
 import lombok.*;
 
 @Data
@@ -19,11 +19,11 @@ public class UsersFavoriteJobsResponse {
     @JsonProperty("is_active")
     private boolean isActive;
 
-    public static UsersFavoriteJobsResponse fromUserFavoriteJobs(UsersFavoriteJobs usersFavoriteJobs){
+    public static UsersFavoriteJobsResponse fromUserFavoriteJobs(UserFavoriteJob userFavoriteJob){
         return UsersFavoriteJobsResponse.builder()
-                .id(usersFavoriteJobs.getId())
-                .jobResponse(JobResponse.fromJob(usersFavoriteJobs.getJob()))
-                .isActive(usersFavoriteJobs.isActive())
+                .id(userFavoriteJob.getId())
+                .jobResponse(JobResponse.fromJob(userFavoriteJob.getJob()))
+                .isActive(userFavoriteJob.isActive())
                 .build();
     }
 }

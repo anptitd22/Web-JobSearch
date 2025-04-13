@@ -23,7 +23,7 @@ public class JobViewHistoryServiceImpl implements com.project.webIT.services.ISe
 
     @Override
     public List<JobViewHistory> jobViewHistories(Long userId) {
-        return jobViewHistoryRepository.findByUserIdOrderByViewedAtDesc(userId);
+        return jobViewHistoryRepository.findByUserIdOrderByUpdatedAtDesc(userId);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class JobViewHistoryServiceImpl implements com.project.webIT.services.ISe
         if (jobViewHistoryOptional.isPresent()){
             JobViewHistory jobViewHistory = jobViewHistoryOptional.get();
             jobViewHistory.setViewCount(jobViewHistory.getViewCount()+1);
-            jobViewHistory.setViewedAt(LocalDateTime.now());
+            jobViewHistory.setUpdatedAt(LocalDateTime.now());
             return jobViewHistoryRepository.save(jobViewHistory);
         }else{
             JobViewHistory jobViewHistory = new JobViewHistory();

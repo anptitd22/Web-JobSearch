@@ -3,7 +3,7 @@ package com.project.webIT.services;
 import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.Job;
 import com.project.webIT.models.User;
-import com.project.webIT.models.UsersFavoriteJobs;
+import com.project.webIT.models.UserFavoriteJob;
 import com.project.webIT.repositories.JobRepository;
 import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.repositories.UsersFavoriteJobsRepository;
@@ -23,22 +23,19 @@ public class UsersFavoriteJobsServiceImpl implements com.project.webIT.services.
     private final JobRepository jobRepository;
 
     @Override
-    public UsersFavoriteJobs saveFavoriteJob(Long userId, Long jobId) throws Exception {
-        Optional<UsersFavoriteJobs> existingJob = usersFavoriteJobsRepository.findByUserIdAndJobId(userId, jobId);
-
-        User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException("user not found"));
+    public UserFavoriteJob saveFavoriteJob(User user, Long jobId) throws Exception {
+        Optional<UserFavoriteJob> existingJob = usersFavoriteJobsRepository.findByUserIdAndJobId(user.getId(), jobId);
 
         Job exisJob = jobRepository.findById(jobId)
                 .orElseThrow(() -> new DataNotFoundException("job not found"));
 
         if (existingJob.isPresent()) {
-            UsersFavoriteJobs job = existingJob.get();
+            var job = existingJob.get();
             job.setActive(!job.isActive()); // Đảo trạng thái isDeleted
             return usersFavoriteJobsRepository.save(job);
         } else {
-            UsersFavoriteJobs newJob = new UsersFavoriteJobs();
-            newJob.setUser(existingUser);
+            var newJob = new UserFavoriteJob();
+            newJob.setUser(user);
             newJob.setJob(exisJob);
             newJob.setActive(true);
             newJob.setUpdatedAt(LocalDateTime.now());
@@ -47,12 +44,12 @@ public class UsersFavoriteJobsServiceImpl implements com.project.webIT.services.
     }
 
     @Override
-    public List<UsersFavoriteJobs> getUserFavorites(Long userId) {
+    public List<UserFavoriteJob> getUserFavorites(Long userId) {
         return usersFavoriteJobsRepository.findByUserIdOrderByUpdatedAtDesc(userId);
     }
 
     @Override
-    public List<UsersFavoriteJobs> getUserFavoritesDefault(Long userId) {
+    public List<UserFavoriteJob> getUserFavoritesDefault(Long userId) {
         return usersFavoriteJobsRepository.findByUserId(userId);
     }
 }

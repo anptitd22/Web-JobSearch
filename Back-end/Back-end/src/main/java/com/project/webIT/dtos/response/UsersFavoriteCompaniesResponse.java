@@ -1,7 +1,7 @@
 package com.project.webIT.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.project.webIT.models.UsersFavoriteCompanies;
+import com.project.webIT.models.UserFavoriteCompany;
 import lombok.*;
 
 @Data
@@ -19,11 +19,11 @@ public class UsersFavoriteCompaniesResponse {
     @JsonProperty("is_active")
     private boolean isActive;
 
-    public static UsersFavoriteCompaniesResponse fromUserFavoriteCompanies(UsersFavoriteCompanies usersFavoriteCompanies){
+    public static UsersFavoriteCompaniesResponse fromUserFavoriteCompanies(UserFavoriteCompany userFavoriteCompany){
         return UsersFavoriteCompaniesResponse.builder()
-                .id(usersFavoriteCompanies.getId())
-                .companyResponse(CompanyResponse.fromCompany(usersFavoriteCompanies.getCompany()))
-                .isActive(usersFavoriteCompanies.isActive())
+                .id(userFavoriteCompany.getId())
+                .companyResponse(CompanyResponse.fromCompany(userFavoriteCompany.getCompany()))
+                .isActive(userFavoriteCompany.isActive())
                 .build();
     }
 }

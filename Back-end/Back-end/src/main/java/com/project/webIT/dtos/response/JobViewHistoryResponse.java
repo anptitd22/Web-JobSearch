@@ -2,17 +2,14 @@ package com.project.webIT.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.webIT.models.JobViewHistory;
-import com.project.webIT.models.ViewEntity;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JobViewHistoryResponse extends ViewEntity {
+public class JobViewHistoryResponse{
 
     @JsonProperty("is_active")
     private boolean isActive;
@@ -30,9 +27,6 @@ public class JobViewHistoryResponse extends ViewEntity {
 
     @JsonProperty("salary_numeric")
     private Float salaryNumeric;
-
-    @JsonProperty("updated_at")
-    private LocalDateTime updatedAt;
 
     @JsonProperty("job_locations")
     private String jobLocations;
@@ -53,11 +47,10 @@ public class JobViewHistoryResponse extends ViewEntity {
     private String companyLogo;
 
     public static JobViewHistoryResponse fromJobViewHistoryResponse(JobViewHistory jobViewHistory){
-        JobViewHistoryResponse jobViewHistoryResponse = JobViewHistoryResponse.builder()
+        return JobViewHistoryResponse.builder()
                 .name(jobViewHistory.getJob().getName())
                 .salary(jobViewHistory.getJob().getSalary())
                 .salaryNumeric(jobViewHistory.getJob().getSalaryNumeric())
-                .updatedAt(jobViewHistory.getJob().getUpdatedAt())
                 .jobLocations(jobViewHistory.getJob().getJobLocations())
                 .description(jobViewHistory.getJob().getDescription())
                 .jobFunctionId(jobViewHistory.getJob().getJobFunction().getId())
@@ -68,7 +61,5 @@ public class JobViewHistoryResponse extends ViewEntity {
                 .viewCount(jobViewHistory.getViewCount())
                 .jobId(jobViewHistory.getJob().getId())
                 .build();
-        jobViewHistoryResponse.setViewedAt(jobViewHistory.getViewedAt());
-        return jobViewHistoryResponse;
     }
 }

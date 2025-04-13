@@ -1,5 +1,6 @@
 package com.project.webIT.components;
 
+import com.project.webIT.helper.JwtTokenHelper;
 import com.project.webIT.services.CompanyDetailServiceImpl;
 import com.project.webIT.services.UserDetailServiceImpl;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -25,8 +26,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Component
 @RequiredArgsConstructor
@@ -34,7 +33,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Value("${api.prefix}") //annotation bean - not lombok
     private String apiPrefix;
 
-    private final JwtTokenUtils jwtTokenUtil;
+    private final JwtTokenHelper jwtTokenUtil;
     private final UserDetailServiceImpl userDetailService;
     private final CompanyDetailServiceImpl companyDetailService;
 
@@ -86,7 +85,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response); //enable bypass
         } catch (ExpiredJwtException e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "ForgotToken expired");
         } catch (JwtException e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
         } catch (Exception e) {
@@ -102,7 +101,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/companies/images",apiPrefix),"GET"),
                 Pair.of(String.format("%s/jobs/images",apiPrefix), "GET"),
                 Pair.of(String.format("%s/roles",apiPrefix), "GET"),
-                Pair.of(String.format("%s/jobs", apiPrefix), "GET"),
+                Pair.of(String.format("%s/jobs/get", apiPrefix), "GET"),
                 Pair.of(String.format("%s/functions", apiPrefix), "GET"),
                 Pair.of(String.format("%s/locations/provinces",apiPrefix), "GET"),
                 Pair.of(String.format("%s/questions", apiPrefix), "GET"),

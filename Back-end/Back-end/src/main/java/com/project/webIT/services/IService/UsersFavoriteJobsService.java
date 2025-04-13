@@ -1,13 +1,14 @@
 package com.project.webIT.services.IService;
 
-import com.project.webIT.models.UsersFavoriteJobs;
+import com.project.webIT.models.User;
+import com.project.webIT.models.UserFavoriteJob;
 
 import java.util.List;
 
 public interface UsersFavoriteJobsService {
-    UsersFavoriteJobs saveFavoriteJob(Long userId, Long jobId) throws Exception;
+    UserFavoriteJob saveFavoriteJob(User user, Long jobId) throws Exception;
 
-    List<UsersFavoriteJobs> getUserFavorites(Long userId);
+    List<UserFavoriteJob> getUserFavorites(Long userId);
 
-    List<UsersFavoriteJobs> getUserFavoritesDefault(Long userId);
+    List<UserFavoriteJob> getUserFavoritesDefault(Long userId);
 }

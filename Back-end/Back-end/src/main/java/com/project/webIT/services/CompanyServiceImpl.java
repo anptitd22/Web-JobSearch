@@ -1,6 +1,6 @@
 package com.project.webIT.services;
 
-import com.project.webIT.components.JwtTokenUtils;
+import com.project.webIT.helper.JwtTokenHelper;
 import com.project.webIT.dtos.request.CompanyDTO;
 import com.project.webIT.dtos.request.CompanyImageDTO;
 import com.project.webIT.dtos.request.CompanyLoginDTO;
@@ -34,7 +34,7 @@ public class CompanyServiceImpl implements com.project.webIT.services.IService.C
     private final JobRepository jobRepository;
     private final AuthenticationManager authenticationManager;
     private final ModelMapper modelMapper;
-    private final JwtTokenUtils jwtTokenUtils;
+    private final JwtTokenHelper jwtTokenHelper;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -55,7 +55,7 @@ public class CompanyServiceImpl implements com.project.webIT.services.IService.C
         Company company = (Company) authentication.getPrincipal();
 
         // Tạo và trả về token
-        return jwtTokenUtils.generateTokenFromCompany(company);
+        return jwtTokenHelper.generateTokenFromCompany(company);
     }
 
     @Override
@@ -109,10 +109,10 @@ public class CompanyServiceImpl implements com.project.webIT.services.IService.C
 
     @Override
     public Company getCompanyDetail(String token) throws Exception {
-        if(jwtTokenUtils.isTokenExpired(token)){
-            throw new Exception("Token is expired");
+        if(jwtTokenHelper.isTokenExpired(token)){
+            throw new Exception("ForgotToken is expired");
         }
-        String account = jwtTokenUtils.extractSubject(token);
+        String account = jwtTokenHelper.extractSubject(token);
         Optional<Company> company = companyRepository.findByAccount(account);
         if (company.isEmpty()) {
             throw new DataNotFoundException("Company not found");

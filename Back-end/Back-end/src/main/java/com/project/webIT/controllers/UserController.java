@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,7 +83,7 @@ public class UserController{
         );
     }
 
-    @PostMapping("/details")
+    @GetMapping("/details")
     public ResponseEntity<ObjectResponse<UserResponse>> getUserDetails(
             @RequestHeader("Authorization") String authorizationHeader
     ) throws Exception {
@@ -96,14 +98,15 @@ public class UserController{
         );
     }
 
-    @PostMapping(value = "uploads/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<Map>> postImage(
-            @PathVariable("userId") Long userId,
-            @RequestPart("files") List<MultipartFile> files
+            @RequestPart("files") List<MultipartFile> files,
+            @AuthenticationPrincipal User user
     ) throws Exception {
         fileServiceImpl.validateImageAvatar(files);
         MultipartFile file = files.get(0);
-        String publicId = userServiceImpl.getPublicId(userId);
+        String publicId = userServiceImpl.getPublicId(user.getId());
         if (!publicId.isEmpty()) {
             return ResponseEntity.ok(
                     ObjectResponse.<Map>builder()
@@ -122,9 +125,8 @@ public class UserController{
         );
     }
 
-    @PutMapping("details/{userId}")
+    @PutMapping("details")
     public ResponseEntity<ObjectResponse<UserResponse>> updateUser(
-            @PathVariable("userId") Long userId,
             @RequestBody UpdateUserDTO updateUserDTO,
             @RequestHeader("Authorization") String authorizationHeader
     ) throws Exception {
@@ -140,15 +142,14 @@ public class UserController{
         );
     }
 
-    @PutMapping("password/{userId}")
+    @PutMapping("password")
     public ResponseEntity<ObjectResponse<UserResponse>> updatePassword(
-            @PathVariable("userId") Long userId,
             @RequestBody PasswordDTO passwordDTO,
             @RequestHeader("Authorization") String authorizationHeader
     ) throws Exception {
         String extractedToken = authorizationHeader.substring(7);
         User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
-        User updateUser = userServiceImpl.updatePassword(user.getId(), passwordDTO);
+        User updateUser = userServiceImpl.updatePassword(user, passwordDTO);
         return ResponseEntity.ok(
                 ObjectResponse.<UserResponse>builder()
                         .status(HttpStatus.OK)
@@ -158,9 +159,8 @@ public class UserController{
         );
     }
 
-    @PutMapping("email/{userId}")
+    @PutMapping("email")
     public ResponseEntity<ObjectResponse<String>> updateEmail(
-            @PathVariable("userId") Long userId,
             @RequestBody EmailDTO emailDTO,
             @RequestHeader("Authorization") String authorizationHeader
     ) throws Exception {

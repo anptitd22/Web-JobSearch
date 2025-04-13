@@ -5,50 +5,56 @@ import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.AppliedJob;
 import com.project.webIT.dtos.response.ObjectResponse;
 import com.project.webIT.dtos.response.AppliedJobResponse;
+import com.project.webIT.models.Company;
 import com.project.webIT.models.User;
 import com.project.webIT.services.AppliedJobServiceImpl;
 import com.project.webIT.services.UserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("${api.prefix}/applied")
 @RequiredArgsConstructor
-public class AppliedJobController implements BaseController<AppliedJobDTO, Long>{
+@Slf4j
+public class AppliedJobController{
     private final AppliedJobServiceImpl appliedJobService;
     private final UserServiceImpl userService;
 
-    @GetMapping("ok") //danh sach apply
+    @GetMapping("user") //danh sach apply
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<List<AppliedJobResponse>>> getAppliedJobsFromUser(
-            @Valid @RequestHeader("Authorization") String authorizationHeader
-    )throws Exception{
-        String extractedToken = authorizationHeader.substring(7);
-        User user = userService.getUserDetailsFromToken(extractedToken);
-        List<AppliedJob> appliedJobs = appliedJobService.getAppliedJobFromUser(user.getId());
+            @AuthenticationPrincipal User user
+    ){
+        List<AppliedJob> appliedJobEntities = appliedJobService.getAppliedJobFromUser(user.getId());
         return ResponseEntity.ok().body(
                 ObjectResponse.<List<AppliedJobResponse>>builder()
                         .status(HttpStatus.OK)
                         .message("get appliedJob successfully")
-                        .data(appliedJobs.stream()
+                        .data(appliedJobEntities.stream()
                                 .map(AppliedJobResponse::fromAppliedJob)
                                 .collect(Collectors.toList())).build()
         );
     }
 
     @GetMapping("job/{job_id}") //danh sach apply
+    @PreAuthorize("hasRole('COMPANY')")
     public ResponseEntity<ObjectResponse<List<AppliedJobResponse>>> getAppliedJobsFromJob(
-            @Valid @PathVariable("job_id") Long jobId
+            @Valid @PathVariable("job_id") Long jobId,
+            @AuthenticationPrincipal Company company
     ){
-            List<AppliedJob> appliedJobs = appliedJobService.findByJobId(jobId);
-            List<AppliedJobResponse> appliedJobResponses = appliedJobs.stream()
+            List<AppliedJob> appliedJobEntities = appliedJobService.findByJobId(jobId);
+            List<AppliedJobResponse> appliedJobResponses = appliedJobEntities.stream()
                     .map(AppliedJobResponse::fromAppliedJob)
                     .collect(Collectors.toList());
             return ResponseEntity.ok().body(
@@ -59,15 +65,14 @@ public class AppliedJobController implements BaseController<AppliedJobDTO, Long>
             );
     }
 
-    @GetMapping("ok/{job_id}")
+    @GetMapping("user/{job_id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<List<AppliedJobResponse>>> checkAppliedJob(
-            @Valid @RequestHeader("Authorization") String authorizationHeader,
-            @Valid @PathVariable("job_id") Long job_id
-    ) throws Exception {
-        String extractedToken = authorizationHeader.substring(7);
-        User user = userService.getUserDetailsFromToken(extractedToken);
-        List<AppliedJob>appliedJobs = appliedJobService.checkAppliedJob(user.getId(), job_id);
-        List<AppliedJobResponse> appliedJobResponses = appliedJobs.stream()
+            @Valid @PathVariable("job_id") Long job_id,
+            @AuthenticationPrincipal User user
+    ){
+        List<AppliedJob> appliedJobEntities = appliedJobService.checkAppliedJob(user.getId(), job_id);
+        List<AppliedJobResponse> appliedJobResponses = appliedJobEntities.stream()
                 .map(AppliedJobResponse::fromAppliedJob)
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(
@@ -78,8 +83,8 @@ public class AppliedJobController implements BaseController<AppliedJobDTO, Long>
         );
     }
 
-    @Override
     @PostMapping("")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<?>> create(
             @Valid @RequestBody AppliedJobDTO appliedJobDTO,
             BindingResult result
@@ -101,9 +106,13 @@ public class AppliedJobController implements BaseController<AppliedJobDTO, Long>
         );
     }
 
-    @Override
     @PutMapping("{id}")
-    public ResponseEntity<ObjectResponse<?>> update(Long id, AppliedJobDTO request, BindingResult result) throws Exception{
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ObjectResponse<?>> update(
+            @Valid @PathVariable("id")Long id,
+            @Valid @RequestBody AppliedJobDTO request,
+            BindingResult result
+    ) throws Exception{
         if (result.hasErrors()){
             return ResponseEntity.badRequest().body(
                     ObjectResponse.builder()
@@ -121,13 +130,13 @@ public class AppliedJobController implements BaseController<AppliedJobDTO, Long>
         );
     }
 
-    @Override
+    @GetMapping("get")
     public ResponseEntity<ObjectResponse<?>> getAll() {
         return null;
     }
 
-    @Override
-    public ResponseEntity<ObjectResponse<?>> getById(Long id) throws Exception{
+    @GetMapping("get/{id}")
+    public ResponseEntity<ObjectResponse<?>> getById(@Valid @PathVariable("id") Long id) throws Exception{
         AppliedJob appliedJob = appliedJobService.getAppliedJob(id);
         return ResponseEntity.ok().body(
                 ObjectResponse.<AppliedJobResponse>builder()
@@ -137,8 +146,8 @@ public class AppliedJobController implements BaseController<AppliedJobDTO, Long>
         );
     }
 
-    @Override
-    public ResponseEntity<ObjectResponse<?>> deleteById(Long id) throws Exception{
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<ObjectResponse<?>> deleteById(@Valid @PathVariable("id") Long id) throws Exception{
         appliedJobService.deleteApplied(id);
         return ResponseEntity.ok().body(
                 ObjectResponse.<Void>builder()
@@ -148,7 +157,7 @@ public class AppliedJobController implements BaseController<AppliedJobDTO, Long>
         );
     }
 
-    @Override
+    @DeleteMapping("delete")
     public ResponseEntity<ObjectResponse<?>> deleteByListId(List<Long> listId) throws Exception{
         return null;
     }

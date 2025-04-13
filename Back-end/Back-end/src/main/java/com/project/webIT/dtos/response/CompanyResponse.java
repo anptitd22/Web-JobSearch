@@ -56,7 +56,7 @@ public class CompanyResponse {
                 .contact(company.getContact())
                 .size(company.getSize())
                 .publicIdImages(company.getPublicIdImages())
-                .totalJobs((long)company.getTotal_jobs())
+                .totalJobs((long) company.getTotal_jobs())
                 .roleId(company.getRole().getId())
 //                .companyImages(company.getCompanyImages())
                 .build();

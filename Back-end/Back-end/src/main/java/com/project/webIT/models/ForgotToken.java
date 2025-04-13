@@ -6,14 +6,14 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tokens")
+@Table(name = "forgot_tokens")
 @Data
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Token {
+public class ForgotToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @Column(name = "id") //khong can thiet vi id giong mysql

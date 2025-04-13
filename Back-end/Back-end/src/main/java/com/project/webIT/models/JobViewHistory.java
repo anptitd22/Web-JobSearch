@@ -10,10 +10,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JobViewHistory extends ViewEntity {
+public class JobViewHistory extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "id") //khong can thiet vi id giong mysql
     private Long id;
 
     @ManyToOne

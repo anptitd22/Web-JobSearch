@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 public class AppliedJob extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "id") //khong can thiet vi id giong mysql
     private Long id;
 
     @ManyToOne

@@ -2,8 +2,8 @@ package com.project.webIT.services;
 
 import com.project.webIT.dtos.request.UserCVDTO;
 import com.project.webIT.exceptions.DataNotFoundException;
-import com.project.webIT.models.User;
 import com.project.webIT.models.UserCV;
+import com.project.webIT.models.User;
 import com.project.webIT.repositories.UserCvRepository;
 import com.project.webIT.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;

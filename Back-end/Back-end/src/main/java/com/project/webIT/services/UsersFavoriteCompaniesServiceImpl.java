@@ -1,9 +1,8 @@
 package com.project.webIT.services;
 
 import com.project.webIT.exceptions.DataNotFoundException;
-import com.project.webIT.models.Company;
 import com.project.webIT.models.User;
-import com.project.webIT.models.UsersFavoriteCompanies;
+import com.project.webIT.models.UserFavoriteCompany;
 import com.project.webIT.repositories.CompanyRepository;
 import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.repositories.UsersFavoriteCompaniesRepository;
@@ -23,31 +22,28 @@ public class UsersFavoriteCompaniesServiceImpl implements com.project.webIT.serv
     private final CompanyRepository companyRepository;
 
     @Override
-    public UsersFavoriteCompanies saveFavoriteCompany(Long userId, Long companyId) throws Exception {
-        Optional<UsersFavoriteCompanies> favoriteCompanies = usersFavoriteCompaniesRepository.findByUserIdAndCompanyId(userId, companyId);
+    public UserFavoriteCompany saveFavoriteCompany(User user, Long companyId) throws Exception {
+        Optional<UserFavoriteCompany> favoriteCompanies = usersFavoriteCompaniesRepository.findByUserIdAndCompanyId(user.getId(), companyId);
 
-        User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException("user not found"));
-
-        Company existingCompany = companyRepository.findById(companyId)
+        var existingCompanyEntity = companyRepository.findById(companyId)
                 .orElseThrow(() -> new DataNotFoundException("company not found"));
 
         if(favoriteCompanies.isPresent()){
-            UsersFavoriteCompanies usersFavoriteCompanies = favoriteCompanies.get();
-            usersFavoriteCompanies.setActive(!usersFavoriteCompanies.isActive());
-            usersFavoriteCompanies.setUpdatedAt(LocalDateTime.now());
-            return usersFavoriteCompaniesRepository.save(usersFavoriteCompanies);
+            UserFavoriteCompany userFavoriteCompany = favoriteCompanies.get();
+            userFavoriteCompany.setActive(!userFavoriteCompany.isActive());
+            userFavoriteCompany.setUpdatedAt(LocalDateTime.now());
+            return usersFavoriteCompaniesRepository.save(userFavoriteCompany);
         }else{
-            UsersFavoriteCompanies newUsersFavoriteCompanies = new UsersFavoriteCompanies();
-            newUsersFavoriteCompanies.setUser(existingUser);
-            newUsersFavoriteCompanies.setCompany(existingCompany);
-            newUsersFavoriteCompanies.setActive(true);
-            return usersFavoriteCompaniesRepository.save(newUsersFavoriteCompanies);
+            var newUserFavoriteCompanyEntity = new UserFavoriteCompany();
+            newUserFavoriteCompanyEntity.setUser(user);
+            newUserFavoriteCompanyEntity.setCompany(existingCompanyEntity);
+            newUserFavoriteCompanyEntity.setActive(true);
+            return usersFavoriteCompaniesRepository.save(newUserFavoriteCompanyEntity);
         }
     }
 
     @Override
-    public List<UsersFavoriteCompanies> getUserFavorites(Long userId) {
+    public List<UserFavoriteCompany> getUserFavorites(Long userId) {
         return usersFavoriteCompaniesRepository.findByUserId(userId);
     }
 }

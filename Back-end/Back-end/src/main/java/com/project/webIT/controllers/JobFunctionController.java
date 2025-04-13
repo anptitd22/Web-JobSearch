@@ -5,11 +5,10 @@ import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.JobFunction;
 import com.project.webIT.dtos.response.ObjectResponse;
 import com.project.webIT.services.JobFunctionServiceImpl;
-import jakarta.validation.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +25,9 @@ public class JobFunctionController implements BaseController<JobFunctionDTO, Lon
 
     @PostMapping("")
     @Override
-    public ResponseEntity<ObjectResponse<?>> create(JobFunctionDTO request, BindingResult result) throws Exception {
+    public ResponseEntity<ObjectResponse<?>> create(
+            @RequestBody JobFunctionDTO request,
+            BindingResult result) throws Exception {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(
                     ObjectResponse.<Void>builder()
@@ -50,7 +51,11 @@ public class JobFunctionController implements BaseController<JobFunctionDTO, Lon
 
     @PutMapping("{id}")
     @Override
-    public ResponseEntity<ObjectResponse<?>> update(Long id, JobFunctionDTO request, BindingResult result) throws Exception {
+    public ResponseEntity<ObjectResponse<?>> update(
+            @Valid @PathVariable("id") Long id,
+            @Valid @RequestBody JobFunctionDTO request,
+            BindingResult result
+    ) throws Exception {
         JobFunction updatedJobFunction = jobFunctionService.updateJobFunction(id, request);
 
         return ResponseEntity.ok(
@@ -64,24 +69,24 @@ public class JobFunctionController implements BaseController<JobFunctionDTO, Lon
 
     @Override
     public ResponseEntity<ObjectResponse<?>> getAll() {
-        List<JobFunction> jobFunctions = jobFunctionService.getAllJobFunctions();
+        List<JobFunction> jobFunctionEntities = jobFunctionService.getAllJobFunctions();
 
         return ResponseEntity.ok(
                 ObjectResponse.<List<JobFunction>>builder()
                         .status(HttpStatus.OK)
                         .message("Job functions retrieved successfully")
-                        .data(jobFunctions)
+                        .data(jobFunctionEntities)
                         .build()
         );
     }
 
     @Override
-    public ResponseEntity<ObjectResponse<?>> getById(Long id) throws Exception {
+    public ResponseEntity<ObjectResponse<?>> getById(@PathVariable("id") Long id) throws Exception {
         return null;
     }
 
     @Override
-    public ResponseEntity<ObjectResponse<?>> deleteById(Long id) throws Exception {
+    public ResponseEntity<ObjectResponse<?>> deleteById(@PathVariable("id") Long id) throws Exception {
         jobFunctionService.deleteJobFunction(id);
 
         return ResponseEntity.ok(

@@ -1,6 +1,5 @@
-package com.project.webIT.components;
+package com.project.webIT.helper;
 
-import com.project.webIT.exceptions.InvalidParamException;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.User;
 import io.jsonwebtoken.Claims;
@@ -21,7 +20,7 @@ import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
-public class JwtTokenUtils {
+public class JwtTokenHelper {
 
     @Value("${jwt.expiration}") //no lombok
     private long expiration;//save to an environment variable
@@ -29,7 +28,7 @@ public class JwtTokenUtils {
     @Value("${jwt.secretKey}")
     private String secretKey;
 
-    public String generateToken(User user){
+    public String generateTokenFromUser(User user){
         //properties -> claims
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", user.getEmail());

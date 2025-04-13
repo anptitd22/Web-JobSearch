@@ -104,7 +104,7 @@ public class UserDashboardController {
 //
 //            // Lấy danh sách 12 tháng gần nhất
 //            List<String> months = new ArrayList<>();
-//            List<Integer> appliedJobs = new ArrayList<>();
+//            List<Integer> appliedJobEntities = new ArrayList<>();
 //            List<Integer> jobViews = new ArrayList<>();
 //            List<Integer> jobSearches = new ArrayList<>();
 //
@@ -116,7 +116,7 @@ public class UserDashboardController {
 //                months.add(month.format(formatter));
 //
 //                // Giả lập dữ liệu theo user
-//                appliedJobs.add((int) (Math.random() * 10));  // Số công việc đã ứng tuyển
+//                appliedJobEntities.add((int) (Math.random() * 10));  // Số công việc đã ứng tuyển
 //                jobViews.add((int) (Math.random() * 50));     // Số lần xem công việc
 //                jobSearches.add((int) (Math.random() * 40));  // Số lần tìm kiếm
 //            }
@@ -124,7 +124,7 @@ public class UserDashboardController {
 //            Map<String, Object> response = new HashMap<>();
 //            response.put("username", user.getLastName());
 //            response.put("months", months);
-//            response.put("appliedJobs", appliedJobs);
+//            response.put("appliedJobEntities", appliedJobEntities);
 //            response.put("jobViews", jobViews);
 //            response.put("jobSearches", jobSearches);
 //

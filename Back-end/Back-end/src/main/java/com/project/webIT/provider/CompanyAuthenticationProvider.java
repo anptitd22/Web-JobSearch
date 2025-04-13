@@ -1,5 +1,6 @@
-package com.project.webIT.services;
+package com.project.webIT.provider;
 
+import com.project.webIT.services.CompanyDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;

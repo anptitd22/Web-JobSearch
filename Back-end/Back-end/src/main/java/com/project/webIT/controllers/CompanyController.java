@@ -20,7 +20,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("${api.prefix}/companies")
 @RequiredArgsConstructor
-public class CompanyController implements BaseController<CompanyDTO, Long>{
+public class CompanyController{
     private final CompanyServiceImpl companyServiceImpl;
     private final CloudinaryServiceImpl cloudinaryServiceImpl;
 
@@ -126,12 +127,10 @@ public class CompanyController implements BaseController<CompanyDTO, Long>{
     }
 
     @GetMapping("details")
+    @PreAuthorize("hasRole('COMPANY')")
     public ResponseEntity<ObjectResponse<CompanyResponse>> getCompanyDetail(
-            @RequestHeader("Authorization") String authorizationHeader
+            @AuthenticationPrincipal Company company
     ) throws Exception {
-        String extractedToken = authorizationHeader.substring(7);
-        Company company = companyServiceImpl.getCompanyDetail(extractedToken);
-
         return ResponseEntity.ok(
                 ObjectResponse.<CompanyResponse>builder()
                         .status(HttpStatus.OK)
@@ -141,14 +140,14 @@ public class CompanyController implements BaseController<CompanyDTO, Long>{
         );
     }
 
-    @GetMapping("{companyId}/searchJobs")
+    @GetMapping("{companyId}/get/jobs")
     public ResponseEntity<ObjectResponse<List<JobResponse>>> getJobs(
             @Valid @PathVariable("companyId") Long companyId,
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId
     ){
-        List<Job> jobs = companyServiceImpl.getJobs(companyId, keyword, jobFunctionId);
-        List<JobResponse> jobResponses = jobs.stream()
+        List<Job> jobEntities = companyServiceImpl.getJobs(companyId, keyword, jobFunctionId);
+        List<JobResponse> jobResponses = jobEntities.stream()
                 .map(JobResponse::fromJob)
                 .collect(Collectors.toList());
 
@@ -161,7 +160,7 @@ public class CompanyController implements BaseController<CompanyDTO, Long>{
         );
     }
 
-    @GetMapping("page")
+    @GetMapping("get/page")
     public ResponseEntity<ObjectResponse<CompanyListResponse>> getCompany(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "industry_id") Long industryId,
@@ -187,7 +186,6 @@ public class CompanyController implements BaseController<CompanyDTO, Long>{
         );
     }
 
-    @Override
     @PostMapping("")
     public ResponseEntity<ObjectResponse<?>> create(CompanyDTO request, BindingResult result) throws Exception {
         if (result.hasErrors()) {
@@ -210,7 +208,6 @@ public class CompanyController implements BaseController<CompanyDTO, Long>{
         );
     }
 
-    @Override
     @PutMapping("{id}")
     public ResponseEntity<ObjectResponse<?>> update(Long id, CompanyDTO request, BindingResult result) throws Exception {
         Company updated = companyServiceImpl.updateCompany(id, request);
@@ -223,12 +220,12 @@ public class CompanyController implements BaseController<CompanyDTO, Long>{
         );
     }
 
-    @Override
+    @GetMapping("get")
     public ResponseEntity<ObjectResponse<?>> getAll() {
         return null;
     }
 
-    @Override
+    @GetMapping("get/{id}")
     public ResponseEntity<ObjectResponse<?>> getById(Long id) throws Exception {
         Company existingCompany = companyServiceImpl.getCompanyById(id);
         return ResponseEntity.ok(
@@ -240,7 +237,7 @@ public class CompanyController implements BaseController<CompanyDTO, Long>{
         );
     }
 
-    @Override
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<ObjectResponse<?>> deleteById(Long id) throws Exception {
         companyServiceImpl.deleteCompany(id);
         return ResponseEntity.ok(
@@ -252,7 +249,7 @@ public class CompanyController implements BaseController<CompanyDTO, Long>{
         );
     }
 
-    @Override
+    @DeleteMapping("delete")
     public ResponseEntity<ObjectResponse<?>> deleteByListId(List<Long> listId) throws Exception {
         return null;
     }
