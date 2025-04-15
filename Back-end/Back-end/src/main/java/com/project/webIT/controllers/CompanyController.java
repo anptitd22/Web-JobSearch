@@ -130,7 +130,7 @@ public class CompanyController{
     @PreAuthorize("hasRole('COMPANY')")
     public ResponseEntity<ObjectResponse<CompanyResponse>> getCompanyDetail(
             @AuthenticationPrincipal Company company
-    ) throws Exception {
+    ){
         return ResponseEntity.ok(
                 ObjectResponse.<CompanyResponse>builder()
                         .status(HttpStatus.OK)
@@ -140,8 +140,8 @@ public class CompanyController{
         );
     }
 
-    @GetMapping("{companyId}/get/jobs")
-    public ResponseEntity<ObjectResponse<List<JobResponse>>> getJobs(
+    @GetMapping("public/{companyId}/get/jobs")
+    public ResponseEntity<ObjectResponse<List<JobResponse>>> getJobsFromCompanyPublic(
             @Valid @PathVariable("companyId") Long companyId,
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId
@@ -160,7 +160,28 @@ public class CompanyController{
         );
     }
 
-    @GetMapping("get/page")
+    @GetMapping("private/get/jobs")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<ObjectResponse<List<JobResponse>>> getJobsFromCompanyPrivate(
+            @AuthenticationPrincipal Company company,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId
+    ){
+        List<Job> jobEntities = companyServiceImpl.getJobs(company.getId(), keyword, jobFunctionId);
+        List<JobResponse> jobResponses = jobEntities.stream()
+                .map(JobResponse::fromJob)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(
+                ObjectResponse.<List<JobResponse>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Lấy danh sách việc làm thành công")
+                        .data(jobResponses)
+                        .build()
+        );
+    }
+
+    @GetMapping("public/get/page")
     public ResponseEntity<ObjectResponse<CompanyListResponse>> getCompany(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "industry_id") Long industryId,
@@ -187,7 +208,9 @@ public class CompanyController{
     }
 
     @PostMapping("")
-    public ResponseEntity<ObjectResponse<?>> create(CompanyDTO request, BindingResult result) throws Exception {
+    public ResponseEntity<ObjectResponse<?>> createCompany(
+            @Valid @RequestBody CompanyDTO request,
+            BindingResult result) throws Exception {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(
                     ObjectResponse.<Company>builder()
@@ -209,7 +232,11 @@ public class CompanyController{
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<ObjectResponse<?>> update(Long id, CompanyDTO request, BindingResult result) throws Exception {
+    public ResponseEntity<ObjectResponse<?>> update(
+            @Valid @PathVariable("id") Long id,
+            @Valid @RequestBody CompanyDTO request,
+            BindingResult result
+    ) throws Exception {
         Company updated = companyServiceImpl.updateCompany(id, request);
         return ResponseEntity.ok(
                 ObjectResponse.<CompanyResponse>builder()
@@ -226,7 +253,9 @@ public class CompanyController{
     }
 
     @GetMapping("get/{id}")
-    public ResponseEntity<ObjectResponse<?>> getById(Long id) throws Exception {
+    public ResponseEntity<ObjectResponse<CompanyResponse>> getById(
+            @Valid @PathVariable("id") Long id
+    ) throws Exception {
         Company existingCompany = companyServiceImpl.getCompanyById(id);
         return ResponseEntity.ok(
                 ObjectResponse.<CompanyResponse>builder()
@@ -238,7 +267,7 @@ public class CompanyController{
     }
 
     @DeleteMapping("delete/{id}")
-    public ResponseEntity<ObjectResponse<?>> deleteById(Long id) throws Exception {
+    public ResponseEntity<ObjectResponse<?>> deleteById(@Valid @PathVariable("id") Long id) throws Exception {
         companyServiceImpl.deleteCompany(id);
         return ResponseEntity.ok(
                 ObjectResponse.<String>builder()

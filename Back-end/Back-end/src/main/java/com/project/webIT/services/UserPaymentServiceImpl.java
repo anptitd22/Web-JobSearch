@@ -11,10 +11,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class UserPaymentServiceImpl {
+
     private final UserRepository userRepository;
     private final UserPaymentRepository userPaymentRepository;
     private final ModelMapper modelMapper;
@@ -31,7 +33,10 @@ public class UserPaymentServiceImpl {
         String vietnameseStatus = UserPayment.STATUS_MAP.getOrDefault(userPaymentDTO.getStatus(), "Không xác định");
         userPayment.setUser(existingUser);
         userPayment.setStatus(vietnameseStatus);
-        userPayment.setCreatedAt(LocalDateTime.now());
         return userPaymentRepository.save(userPayment);
+    }
+
+    public List<UserPayment> findByUserId (Long userId){
+        return userPaymentRepository.findByUserIdOrderByUpdatedAt(userId);
     }
 }

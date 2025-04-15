@@ -9,6 +9,8 @@ import com.project.webIT.services.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +24,12 @@ public class JobViewHistoryController {
     private final UserServiceImpl userService;
 
     @GetMapping("")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<List<JobViewHistoryResponse>>> getJobViewHistories(
-            @RequestHeader("Authorization") String authorizationHeader
-    ) throws Exception {
-        String extractedToken = authorizationHeader.substring(7);
-        User user = userService.getUserDetailsFromToken(extractedToken);
+            @AuthenticationPrincipal User user
+    ){
+//        String extractedToken = authorizationHeader.substring(7);
+//        User user = userService.getUserDetailsFromToken(extractedToken);
         List<JobViewHistory> jobViewHistories = jobViewHistoryServiceImpl.jobViewHistories(user.getId());
         List<JobViewHistoryResponse> responses = jobViewHistories.stream()
                 .map(JobViewHistoryResponse::fromJobViewHistoryResponse)
@@ -42,12 +45,14 @@ public class JobViewHistoryController {
     }
 
     @PostMapping("user/{jobId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<JobViewHistoryResponse>> saveJobViewHistory(
-            @RequestHeader("Authorization") String authorizationHeader,
+//            @RequestHeader("Authorization") String authorizationHeader,
+            @AuthenticationPrincipal User user,
             @PathVariable("jobId") Long jobId
     ) throws Exception {
-        String extractedToken = authorizationHeader.substring(7);
-        User user = userService.getUserDetailsFromToken(extractedToken);
+//        String extractedToken = authorizationHeader.substring(7);
+//        User user = userService.getUserDetailsFromToken(extractedToken);
         JobViewHistory jobViewHistory = jobViewHistoryServiceImpl.saveJobViewHistory(user.getId(), jobId);
 
         return ResponseEntity.ok(

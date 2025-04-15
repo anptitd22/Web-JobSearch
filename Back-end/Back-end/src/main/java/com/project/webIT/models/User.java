@@ -97,25 +97,12 @@ public class User extends BaseEntity implements UserDetails {
     private String maritalStatus;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @OrderBy("updatedAt DESC")
-    @JsonManagedReference
-    private List<AppliedJob> appliedJobs = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     @Where(clause = "is_active = true")
     private List<UserCV> userCVs = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @OrderBy("createdAt DESC")
-    @JsonManagedReference
-    private List<UserPayment> userPayments = new ArrayList<>();
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-//        authorityList.add(new SimpleGrantedAuthority("ROLE_"+getRole().getName().toUpperCase()));
-//        authorityList.add(new SimpleGrantedAuthority("ROLE_USER"));
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.getName().toUpperCase()));
     }
 

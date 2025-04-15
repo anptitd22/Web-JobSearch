@@ -14,6 +14,7 @@ import com.project.webIT.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("${api.prefix}/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController{
     private final UserServiceImpl userServiceImpl;
     private final LocalizationUtils localizationUtils;
@@ -84,11 +86,12 @@ public class UserController{
     }
 
     @GetMapping("/details")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<UserResponse>> getUserDetails(
-            @RequestHeader("Authorization") String authorizationHeader
+            @AuthenticationPrincipal User user
     ) throws Exception {
-        String extractedToken = authorizationHeader.substring(7);
-        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
+//        String extractedToken = authorizationHeader.substring(7);
+//        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
         return ResponseEntity.ok(
                 ObjectResponse.<UserResponse>builder()
                         .status(HttpStatus.OK)
@@ -126,12 +129,15 @@ public class UserController{
     }
 
     @PutMapping("details")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<UserResponse>> updateUser(
             @RequestBody UpdateUserDTO updateUserDTO,
-            @RequestHeader("Authorization") String authorizationHeader
+//            @RequestHeader("Authorization") String authorizationHeader
+            @AuthenticationPrincipal User user
     ) throws Exception {
-        String extractedToken = authorizationHeader.substring(7);
-        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
+//        String extractedToken = authorizationHeader.substring(7);
+//        log.info(extractedToken);
+//        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
         User updateUser = userServiceImpl.updateUser(user.getId(), updateUserDTO);
         return ResponseEntity.ok(
                 ObjectResponse.<UserResponse>builder()

@@ -73,6 +73,7 @@ public class WebSecurityConfig {
                                     String.format("%s/jobs/images/**", apiPrefix),
 
                                     String.format("%s/feedback/**", apiPrefix), // GET
+
                                     String.format("%s/industries/**", apiPrefix), // GET
 
                                     String.format("%s/companies/**", apiPrefix), // POST/PUT/GET
@@ -89,6 +90,7 @@ public class WebSecurityConfig {
                             ).permitAll()
 
                             .requestMatchers(
+                                    "/auth/**",
                                     "/api-docs",
                                     "/api-docs/**",
                                     "/swagger-resources",
@@ -153,13 +155,15 @@ public class WebSecurityConfig {
                             .requestMatchers(HttpMethod.PUT, String.format("%s/users/**", apiPrefix)).hasRole(Role.USER)
                             .requestMatchers(HttpMethod.GET, String.format("%s/applied/**", apiPrefix)).hasRole(Role.USER)
 
-                            .requestMatchers(HttpMethod.GET, String.format("%s/my-career-center/**", apiPrefix)).hasRole(Role.USER)
-                            .requestMatchers(HttpMethod.POST, String.format("%s/my-career-center/**", apiPrefix)).hasRole(Role.USER)
+                            .requestMatchers(HttpMethod.GET, String.format("%s/my-career-center/my-jobs/**", apiPrefix)).permitAll()
+                            .requestMatchers(HttpMethod.POST, String.format("%s/my-career-center/save/**", apiPrefix)).permitAll()
 
                             .requestMatchers(HttpMethod.GET, String.format("%s/history/**", apiPrefix)).hasRole(Role.USER)
                             .requestMatchers(HttpMethod.POST, String.format("%s/history/**", apiPrefix)).hasRole(Role.USER)
 
                             .requestMatchers(HttpMethod.POST, String.format("%s/applied/**", apiPrefix)).hasRole(Role.USER)
+
+                            .requestMatchers(HttpMethod.GET, String.format("%s/payments/**", apiPrefix)).hasRole(Role.USER)
 
                             //COMPANY
                             .requestMatchers(HttpMethod.PUT, String.format("%s/jobs/**", apiPrefix)).hasAnyRole(Role.COMPANY, Role.ADMIN)

@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.internal.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +30,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtTokenFilter extends OncePerRequestFilter {
     @Value("${api.prefix}") //annotation bean - not lombok
     private String apiPrefix;
@@ -57,6 +59,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 return;
             }
             final String token = authHeader.substring(7);
+            log.info(token);
             final String subject = jwtTokenUtil.extractSubject(token);
             final String role = jwtTokenUtil.extractRole(token);
 
@@ -68,6 +71,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 } else {
                     userDetails = userDetailService.loadUserByUsername(subject);
                 }
+                System.out.println(userDetails);
 
                 if (jwtTokenUtil.validateToken(token, userDetails)){
                     List<GrantedAuthority> authorities = Collections.singletonList(
@@ -97,23 +101,28 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         final List<Pair<String, String>> bypassTokens = Arrays.asList(
                 Pair.of(String.format("/%s/actuator/health", apiPrefix), "GET"),
 
-                Pair.of(String.format("%s/companies",apiPrefix),"GET"),
+//                Pair.of(String.format("%s/companies",apiPrefix),"GET"),
                 Pair.of(String.format("%s/companies/images",apiPrefix),"GET"),
                 Pair.of(String.format("%s/jobs/images",apiPrefix), "GET"),
                 Pair.of(String.format("%s/roles",apiPrefix), "GET"),
-                Pair.of(String.format("%s/jobs/get", apiPrefix), "GET"),
-                Pair.of(String.format("%s/functions", apiPrefix), "GET"),
+                Pair.of(String.format("%s/jobs/get/**", apiPrefix), "GET"),
+                Pair.of(String.format("%s/functions/get", apiPrefix), "GET"),
                 Pair.of(String.format("%s/locations/provinces",apiPrefix), "GET"),
                 Pair.of(String.format("%s/questions", apiPrefix), "GET"),
-                Pair.of(String.format("%s/users/auth/social-login", apiPrefix),"GET"),
-                Pair.of(String.format("%s/users/auth/social/callback", apiPrefix),"GET"),
-                Pair.of(String.format("%s/users/auth/social/**", apiPrefix),"GET"),
+//                Pair.of(String.format("%s/users/auth/social-login", apiPrefix),"GET"),
+//                Pair.of(String.format("%s/users/auth/social/callback", apiPrefix),"GET"),
+                Pair.of(String.format("%s/users/auth/**", apiPrefix),"GET"),
+                Pair.of("/auth/**","GET"),
+
                 Pair.of(String.format("%s/mail/auth/reset-password", apiPrefix),"POST"),
                 Pair.of(String.format("%s/mail/auth/forgot-password", apiPrefix),"POST"),
                 Pair.of(String.format("%s/industries", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
                 Pair.of(String.format("%s/companies/login", apiPrefix), "POST"),
+
+                Pair.of(String.format("%s/companies/get/**", apiPrefix), "GET"),
+                Pair.of(String.format("%s/companies/public/**", apiPrefix), "GET"),
 
                 // Swagger
                 Pair.of("/api-docs", "GET"),
@@ -129,25 +138,25 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String requestPath = request.getServletPath();
         String requestMethod = request.getMethod();
         for (Pair<String, String > bypassToken : bypassTokens){
-            if (request.getServletPath().contains(bypassToken.getLeft()) &&
-                    request.getMethod().contains(bypassToken.getRight())){
-                return true;
-            }
-//        for (Pair<String, String> bypassToken : bypassTokens) {
-//            String tokenPath = bypassToken.getLeft();
-//            String tokenMethod = bypassToken.getRight();
-//
-//            if (!requestMethod.equalsIgnoreCase(tokenMethod)) continue;
-//
-//            if (tokenPath.contains("**")) {
-//                // Convert wildcard to regex
-//                String regexPath = tokenPath.replace("**", ".*");
-//                if (requestPath.matches(regexPath)) {
-//                    return true;
-//                }
-//            } else if (requestPath.equals(tokenPath)) {
+//            if (request.getServletPath().contains(bypassToken.getLeft()) &&
+//                    request.getMethod().contains(bypassToken.getRight())){
 //                return true;
 //            }
+//        for (Pair<String, String> bypassToken : bypassTokens) {
+            String tokenPath = bypassToken.getLeft();
+            String tokenMethod = bypassToken.getRight();
+
+            if (!requestMethod.equalsIgnoreCase(tokenMethod)) continue;
+
+            if (tokenPath.contains("**")) {
+                // Convert wildcard to regex
+                String regexPath = tokenPath.replace("**", ".*");
+                if (requestPath.matches(regexPath)) {
+                    return true;
+                }
+            } else if (requestPath.equals(tokenPath)) {
+                return true;
+            }
 
 //            String tokenPath = bypassToken.getLeft(); // Đường dẫn (có thể chứa **)
 //            String tokenMethod = bypassToken.getRight(); // GET, POST, etc.

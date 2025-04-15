@@ -56,7 +56,7 @@ public class FileServiceImpl {
             if (file.getSize() > 10 * 1024 * 1024) { //kiem tra kich thuoc file anh
                 throw new InvalidParamException("File is too large, Maximum is 10MB");
             }
-            if (FileHelper.isValidDocument(file)) {
+            if (!FileHelper.isValidDocument(file)) {
                 throw new InvalidParamException("Invalid file type detected. Only .doc, .docx, and .pdf are allowed");
             };
         }

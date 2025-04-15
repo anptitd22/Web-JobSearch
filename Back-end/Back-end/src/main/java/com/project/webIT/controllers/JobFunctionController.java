@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,12 +20,12 @@ import java.util.List;
 //@Validated
 //Dependency Injection
 @RequiredArgsConstructor
-public class JobFunctionController implements BaseController<JobFunctionDTO, Long>{
+public class JobFunctionController{
 
     private final JobFunctionServiceImpl jobFunctionService;
 
     @PostMapping("")
-    @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ObjectResponse<?>> create(
             @RequestBody JobFunctionDTO request,
             BindingResult result) throws Exception {
@@ -50,7 +51,7 @@ public class JobFunctionController implements BaseController<JobFunctionDTO, Lon
     }
 
     @PutMapping("{id}")
-    @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ObjectResponse<?>> update(
             @Valid @PathVariable("id") Long id,
             @Valid @RequestBody JobFunctionDTO request,
@@ -67,7 +68,7 @@ public class JobFunctionController implements BaseController<JobFunctionDTO, Lon
         );
     }
 
-    @Override
+    @GetMapping("get")
     public ResponseEntity<ObjectResponse<?>> getAll() {
         List<JobFunction> jobFunctionEntities = jobFunctionService.getAllJobFunctions();
 
@@ -80,12 +81,13 @@ public class JobFunctionController implements BaseController<JobFunctionDTO, Lon
         );
     }
 
-    @Override
+    @GetMapping("get/{id}")
     public ResponseEntity<ObjectResponse<?>> getById(@PathVariable("id") Long id) throws Exception {
         return null;
     }
 
-    @Override
+    @DeleteMapping("delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ObjectResponse<?>> deleteById(@PathVariable("id") Long id) throws Exception {
         jobFunctionService.deleteJobFunction(id);
 
@@ -98,7 +100,8 @@ public class JobFunctionController implements BaseController<JobFunctionDTO, Lon
         );
     }
 
-    @Override
+    @DeleteMapping("delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ObjectResponse<?>> deleteByListId(List<Long> listId) throws Exception {
         return null;
     }

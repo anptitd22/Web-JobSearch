@@ -8,8 +8,11 @@ import com.project.webIT.services.UserServiceImpl;
 import com.project.webIT.services.UsersFavoriteJobsServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,19 +21,20 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("${api.prefix}/my-career-center")
 @RequiredArgsConstructor
+@Slf4j
 public class UserFavoriteJobController {
     private final UsersFavoriteJobsServiceImpl favoriteJobService;
     private final UserServiceImpl userService;
 
-    @PostMapping("{jobId}")
+    @PostMapping("save/{jobId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<UsersFavoriteJobsResponse>> saveFavorite(
-            @Valid @RequestHeader("Authorization") String authorizationHeader,
-            @PathVariable("jobId") Long jobId
+            @AuthenticationPrincipal User user,
+            @Valid @PathVariable("jobId") Long jobId
     ) throws Exception {
-        String extractedToken = authorizationHeader.substring(7);
-        User user = userService.getUserDetailsFromToken(extractedToken);
+//        String extractedToken = authorizationHeader.substring(7);
+//        User user = userService.getUserDetailsFromToken(extractedToken);
         UserFavoriteJob userFavoriteJob = favoriteJobService.saveFavoriteJob(user, jobId);
-
         return ResponseEntity.ok(
                 ObjectResponse.<UsersFavoriteJobsResponse>builder()
                         .status(HttpStatus.OK)
@@ -41,6 +45,7 @@ public class UserFavoriteJobController {
     }
 
     @GetMapping("my-jobs")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<List<UsersFavoriteJobsResponse>>> getFavorites(
             @Valid @RequestHeader("Authorization") String authorizationHeader
     ) throws Exception{
@@ -50,6 +55,7 @@ public class UserFavoriteJobController {
         List<UsersFavoriteJobsResponse> responseList = userFavoriteJobList.stream()
                 .map(UsersFavoriteJobsResponse::fromUserFavoriteJobs)
                 .collect(Collectors.toList());
+        log.info(extractedToken);
 
         return ResponseEntity.ok(
                 ObjectResponse.<List<UsersFavoriteJobsResponse>>builder()

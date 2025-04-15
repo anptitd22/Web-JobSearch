@@ -31,6 +31,9 @@ public class UserPaymentResponse {
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
 
+    @JsonProperty("updated_at")
+    private LocalDateTime updatedAt;
+
     public static UserPaymentResponse fromUserPayment(UserPayment userPayment){
         return UserPaymentResponse.builder()
                 .orderId(userPayment.getOrderId())
@@ -39,6 +42,7 @@ public class UserPaymentResponse {
                 .currency(userPayment.getCurrency())
                 .status(userPayment.getStatus())
                 .createdAt(userPayment.getCreatedAt())
+                .updatedAt(userPayment.getUpdatedAt())
                 .build();
     }
 }

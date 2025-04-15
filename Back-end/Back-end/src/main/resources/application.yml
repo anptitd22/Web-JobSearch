@@ -71,7 +71,7 @@ spring:
           writetimeout: 5000
 #api
 api:
-  prefix: api/v1
+  prefix: /api/v1
 
 #cloudinary
 cloudinary:

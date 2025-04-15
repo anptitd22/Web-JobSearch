@@ -84,10 +84,6 @@ public class UserResponse {
     @JsonProperty("marital_status")
     private String maritalStatus;
 
-    private List<AppliedJob> appliedJobs;
-
-    private List<UserPayment> userPayments;
-
     public static UserResponse fromUser(User user){
         return UserResponse.builder()
                 .avatar(user.getAvatar())
@@ -101,7 +97,6 @@ public class UserResponse {
                 .facebookAccountId(user.getFacebookAccountId())
                 .googleAccountId(user.getGoogleAccountId())
                 .isActive(user.isActive())
-                .appliedJobs(user.getAppliedJobs())
                 .highestEducation(user.getHighestEducation())
                 .currentIndustry(user.getCurrentIndustry())
                 .currentJobFunction(user.getCurrentJobFunction())
@@ -114,7 +109,6 @@ public class UserResponse {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .currentJobLevel(user.getCurrentJobLevel())
-                .userPayments(user.getUserPayments())
                 .roleID(user.getRole().getId())
                 .build();
     }
