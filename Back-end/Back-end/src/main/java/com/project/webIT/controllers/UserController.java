@@ -132,12 +132,8 @@ public class UserController{
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<UserResponse>> updateUser(
             @RequestBody UpdateUserDTO updateUserDTO,
-//            @RequestHeader("Authorization") String authorizationHeader
             @AuthenticationPrincipal User user
     ) throws Exception {
-//        String extractedToken = authorizationHeader.substring(7);
-//        log.info(extractedToken);
-//        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
         User updateUser = userServiceImpl.updateUser(user.getId(), updateUserDTO);
         return ResponseEntity.ok(
                 ObjectResponse.<UserResponse>builder()
