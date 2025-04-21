@@ -37,7 +37,8 @@ public class WebSecurityConfig {
             @Override
             public void customize(CorsConfigurer<HttpSecurity> httpSecurityCorsConfigurer) {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(List.of("*"));
+                configuration.setAllowedOriginPatterns(List.of("http://localhost:4200"));
+                configuration.setAllowCredentials(true); // Bắt buộc nếu dùng credentials
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList(
                         "authorization",
@@ -68,6 +69,7 @@ public class WebSecurityConfig {
                                     String.format("%s/roles/**", apiPrefix), // GET
                                     String.format("%s/functions/**", apiPrefix), // GET
                                     String.format("%s/functions**", apiPrefix), // GET
+                                    String.format("%s/notification/**", apiPrefix),
 
                                     String.format("%s/jobs/**", apiPrefix), // GET
                                     String.format("%s/jobs/images/**", apiPrefix),
@@ -86,7 +88,13 @@ public class WebSecurityConfig {
 
                                     String.format("%s/locations/**", apiPrefix), // GET
 
-                                    String.format("%s/cv/**", apiPrefix) // GET/PUT/DELETE
+                                    String.format("%s/cv/**", apiPrefix), // GET/PUT/DELETE
+
+                                    String.format("%s/applied-cv/**", apiPrefix), // GET/PUT/DELETE
+
+                                    String.format("%s/ws/**", apiPrefix), // GET/PUT/DELETE
+
+                                    String.format("%s/applied/**", apiPrefix)
                             ).permitAll()
 
                             .requestMatchers(
@@ -100,7 +108,8 @@ public class WebSecurityConfig {
                                     "/swagger-ui/**",
                                     "/swagger-ui.html",
                                     "/webjars/swagger-ui/**",
-                                    "/swagger-ui/index.html"
+                                    "/swagger-ui/index.html",
+                                    "/api/v1/ws/**"
                             ).permitAll()
 
                             .requestMatchers(
@@ -123,13 +132,15 @@ public class WebSecurityConfig {
 
                                     String.format("%s/my-companies/**", apiPrefix), // POST/PUT/GET
 
-                                    String.format("%s/cv/**", apiPrefix), // GET/PUT/DELETE
+                                    String.format("%s/cv/**", apiPrefix), //POST/ GET/PUT/DELETE
 
                                     String.format("%s/payments/**", apiPrefix), // POST
 
                                     String.format("%s/mail/**", apiPrefix), // POST
 
-                                    String.format("%s/functions/**", apiPrefix) // POST
+                                    String.format("%s/functions/**", apiPrefix), // POST
+
+                                    String.format("%s/applied-cv/**", apiPrefix) //POST/ GET/PUT/DELETE
                             ).permitAll()
 
                             .requestMatchers(
@@ -140,20 +151,25 @@ public class WebSecurityConfig {
 
                                     String.format("%s/my-companies/**", apiPrefix), // POST/PUT/GET
 
-                                    String.format("%s/cv/**", apiPrefix) // GET/PUT/DELETE
+                                    String.format("%s/cv/**", apiPrefix), // GET/PUT/DELETE
+
+                                    String.format("%s/applied-cv/**", apiPrefix), //POST/ GET/PUT/DELETE
+
+                                    String.format("%s/notification/**", apiPrefix)
                             ).permitAll()
 
                             .requestMatchers(
                                     HttpMethod.DELETE,
                                     String.format("%s/questions/**", apiPrefix), // GET/POST/PUT/DELETE
 
-                                    String.format("%s/cv/**", apiPrefix) // GET/PUT/DELETE
+                                    String.format("%s/cv/**", apiPrefix), // GET/PUT/DELETE
+
+                                    String.format("%s/applied-cv/**", apiPrefix) //POST/ GET/PUT/DELETE
                             ).permitAll()
 
                             //USER
                             .requestMatchers(HttpMethod.POST, String.format("%s/users/**", apiPrefix)).hasRole(Role.USER)
                             .requestMatchers(HttpMethod.PUT, String.format("%s/users/**", apiPrefix)).hasRole(Role.USER)
-                            .requestMatchers(HttpMethod.GET, String.format("%s/applied/**", apiPrefix)).hasRole(Role.USER)
 
                             .requestMatchers(HttpMethod.GET, String.format("%s/my-career-center/my-jobs/**", apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.POST, String.format("%s/my-career-center/save/**", apiPrefix)).permitAll()
@@ -166,6 +182,7 @@ public class WebSecurityConfig {
                             .requestMatchers(HttpMethod.GET, String.format("%s/payments/**", apiPrefix)).hasRole(Role.USER)
 
                             //COMPANY
+                            .requestMatchers(HttpMethod.POST, String.format("%s/jobs/**", apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.PUT, String.format("%s/jobs/**", apiPrefix)).hasAnyRole(Role.COMPANY, Role.ADMIN)
                             .requestMatchers(HttpMethod.POST, String.format("%s/feedback/**", apiPrefix)).hasAnyRole(Role.COMPANY, Role.ADMIN)
 

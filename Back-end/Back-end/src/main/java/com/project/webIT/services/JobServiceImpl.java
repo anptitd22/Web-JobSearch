@@ -1,17 +1,14 @@
 package com.project.webIT.services;
 
+import com.project.webIT.constant.NotificationStatus;
+import com.project.webIT.constant.UserNotificationStatus;
 import com.project.webIT.dtos.request.JobDTO;
 import com.project.webIT.dtos.request.JobImageDTO;
 import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.exceptions.InvalidParamException;
-import com.project.webIT.models.Company;
-import com.project.webIT.models.Job;
-import com.project.webIT.models.JobFunction;
-import com.project.webIT.models.JobImage;
-import com.project.webIT.repositories.CompanyRepository;
-import com.project.webIT.repositories.JobFunctionRepository;
-import com.project.webIT.repositories.JobImageRepository;
-import com.project.webIT.repositories.JobRepository;
+import com.project.webIT.models.*;
+import com.project.webIT.notification.Notification;
+import com.project.webIT.repositories.*;
 import com.project.webIT.dtos.response.JobResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -20,8 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +29,10 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
     private final ModelMapper modelMapper;
     private final CompanyRepository companyRepository;
     private final JobImageRepository jobImageRepository;
+    private final NotificationService notificationService;
+    private final UsersFavoriteCompaniesRepository usersFavoriteCompaniesRepository;
+    private final UserNotificationRepository userNotificationRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Job createJob(JobDTO jobDTO) throws Exception {
@@ -51,7 +53,50 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
         newJob.setCompany(existingCompany);
         newJob.setActive(true);
         newJob.setView((long)0);
-        return jobRepository.save(newJob);
+
+
+//        notificationService.sendNotification(
+//                LocalDateTime.now().toString(),
+//                Notification.builder()
+//                        .status(NotificationStatus.BORROWED)
+//                        .message("has new job")
+//                        .jobTitle(newJob.getName())
+//                        .build()
+//        );
+        var saved = jobRepository.save(newJob);
+        List<UserFavoriteCompany> followers = usersFavoriteCompaniesRepository.findByCompanyId(jobDTO.getCompanyId());
+        if(!followers.isEmpty()){
+            Notification notification = Notification.builder()
+                    .status(NotificationStatus.CREATED)
+                    .message(existingCompany.getName() + " đã đăng việc mới: "+ newJob.getName())
+                    .jobTitle(newJob.getName())
+                    .jobId(saved.getId())
+                    .build();
+
+            for(UserFavoriteCompany user : followers){
+                User existingUser = userRepository.findById(user.getUser().getId())
+                        .orElseThrow(() -> new DataNotFoundException("user id not found"));
+
+                UserNotification userNotification = new UserNotification();
+                userNotification.setUser(existingUser);
+                userNotification.setIsActive(true);
+                userNotification.setJob(newJob);
+                userNotification.setUserNotificationStatus(UserNotificationStatus.Unread);
+                userNotificationRepository.save(userNotification);
+            }
+
+            List<String> userIds = followers.stream()
+                    .map(follower -> follower.getUser().getId().toString())
+                    .collect(Collectors.toList());
+            notificationService.sendNotificationToUsers(userIds, notification);
+        }
+//        notificationService.broadcastNotification(
+//                Notification.builder()
+//                        .status(NotificationStatus.CREATED)
+//                        .message("has new job")
+//                        .jobTitle(newJob.getName()).build()
+//        );
+        return saved;
     }
 
     @Override
@@ -64,10 +109,22 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
     }
 
     @Override
+    public Job getJobByIdFromCompany(Long id) throws Exception {
+        return jobRepository.findById(id)
+                .orElseThrow(() ->
+                        new DataNotFoundException("Cannot find Job with id = "+id));
+    }
+
+    @Override
     public Page<JobResponse> getAllJobs(String keyword, Long jobFunctionId, PageRequest pageRequest) { //page va limit
         //lay danh sach cong viec theo trang(page) va gioi han(limit)
         Page<Job> jobPage = jobRepository.searchJobs(jobFunctionId, keyword, pageRequest);
         return jobPage.map(JobResponse::fromJob);
+    }
+
+    @Override
+    public List<Job> getAllJobsNotPage() {
+        return jobRepository.findAll();
     }
 
     @Override
@@ -88,7 +145,7 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
             modelMapper.map(jobDTO, existingJob);
             existingJob.setJobFunction(existingJobFunction);
             existingJob.setCompany(existingCompany);
-            existingJob.setUpdatedAt(LocalDateTime.now());
+//            existingJob.setUpdatedAt(LocalDateTime.now());
             return jobRepository.save(existingJob);
         }
         return null;

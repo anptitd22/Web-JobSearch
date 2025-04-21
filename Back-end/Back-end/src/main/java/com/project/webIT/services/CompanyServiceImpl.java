@@ -1,5 +1,6 @@
 package com.project.webIT.services;
 
+import com.project.webIT.dtos.response.JobResponse;
 import com.project.webIT.helper.JwtTokenHelper;
 import com.project.webIT.dtos.request.CompanyDTO;
 import com.project.webIT.dtos.request.CompanyImageDTO;
@@ -76,8 +77,9 @@ public class CompanyServiceImpl implements com.project.webIT.services.IService.C
     }
 
     @Override
-    public List<Job> getJobs(Long companyId, String keyword, Long jobFunctionId) {
-        return jobRepository.searchJobs(companyId, keyword, jobFunctionId);
+    public Page<JobResponse> getJobs(Long companyId, String keyword, Long jobFunctionId, PageRequest pageRequest) {
+        var jobPage = jobRepository.searchJobsFromCompany(companyId, keyword, jobFunctionId, pageRequest);
+        return jobPage.map(JobResponse::fromJob);
     }
 
     @Override

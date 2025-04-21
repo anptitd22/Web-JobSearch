@@ -10,7 +10,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 #    driver-class-name: org.postgresql.Driver
   jpa:
-    show-sql: true # Hiển thị câu SQL trong console
+    show-sql: false # Hiển thị câu SQL trong console
     hibernate:
       ddl-auto: none # Tùy chọn: validate, update, create, create-drop #de none de khong cap ngat database
     properties:

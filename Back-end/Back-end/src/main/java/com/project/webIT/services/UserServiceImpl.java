@@ -11,6 +11,7 @@ import com.project.webIT.repositories.RoleRepository;
 import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -26,6 +27,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements com.project.webIT.services.IService.UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -127,6 +129,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
                         .password("")
                         .build();
 
+                log.info("sbcegfregre {}, {}",newUser.getGoogleAccountId(),newUser.getFacebookAccountId());
                 userRepository.save(newUser);
                 return jwtTokenHelper.generateTokenFromUser(newUser);
             }
@@ -175,6 +178,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
                         .password("")
                         .build();
 
+                log.info("sbcegfregre {}, {}",newUser.getGoogleAccountId(),newUser.getFacebookAccountId());
                 userRepository.save(newUser);
                 return jwtTokenHelper.generateTokenFromUser(newUser);
             }
@@ -215,6 +219,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
         validateUserStatus(existingUser);
         validateUserRole(existingUser, role);
 
+        log.info("sbcegfregre {}, {}",existingUser.getGoogleAccountId(),existingUser.getFacebookAccountId());
         return jwtTokenHelper.generateTokenFromUser(existingUser);
     }
 

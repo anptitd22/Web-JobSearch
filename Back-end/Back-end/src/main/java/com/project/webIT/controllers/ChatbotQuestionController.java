@@ -28,7 +28,9 @@ public class ChatbotQuestionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ObjectResponse<ChatbotQuestion>> getQuestionById(@PathVariable Long id) throws Exception {
+    public ResponseEntity<ObjectResponse<ChatbotQuestion>> getQuestionById(
+            @PathVariable("id") Long id
+    ) throws Exception {
         ChatbotQuestion question = questionServiceImpl.getQuestionById(id);
         ObjectResponse<ChatbotQuestion> response = ObjectResponse.<ChatbotQuestion>builder()
                 .message("Bạn đã chọn câu hỏi " + id)

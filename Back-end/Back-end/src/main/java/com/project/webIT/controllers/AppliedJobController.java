@@ -1,6 +1,7 @@
 package com.project.webIT.controllers;
 
 import com.project.webIT.dtos.request.AppliedJobDTO;
+import com.project.webIT.dtos.response.AppliedJobListResponse;
 import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.AppliedJob;
 import com.project.webIT.dtos.response.ObjectResponse;
@@ -8,18 +9,27 @@ import com.project.webIT.dtos.response.AppliedJobResponse;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.User;
 import com.project.webIT.services.AppliedJobServiceImpl;
+import com.project.webIT.services.CloudinaryServiceImpl;
+import com.project.webIT.services.FileServiceImpl;
 import com.project.webIT.services.UserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -30,6 +40,8 @@ import java.util.stream.Collectors;
 public class AppliedJobController{
     private final AppliedJobServiceImpl appliedJobService;
     private final UserServiceImpl userService;
+    private final CloudinaryServiceImpl cloudinaryService;
+    private final FileServiceImpl fileService;
 
     @GetMapping("user") //danh sach apply
     @PreAuthorize("hasRole('USER')")
@@ -106,6 +118,25 @@ public class AppliedJobController{
         );
     }
 
+    @PostMapping(value = "uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ObjectResponse<?>> uploadFile (
+            @RequestPart("files") List<MultipartFile> files,
+            @AuthenticationPrincipal User user
+    )throws Exception{
+        fileService.validateCV(files);
+        MultipartFile file = files.get(0);
+        return ResponseEntity.ok().body(
+                ObjectResponse.<Map>builder()
+                        .message("upload file CV successfully")
+                        .status(HttpStatus.OK)
+                        .data(cloudinaryService.uploadCV(file))
+                        .build()
+        );
+    }
+
+
+
     @PutMapping("{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<?>> update(
@@ -131,8 +162,29 @@ public class AppliedJobController{
     }
 
     @GetMapping("get")
-    public ResponseEntity<ObjectResponse<?>> getAll() {
-        return null;
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<ObjectResponse<AppliedJobListResponse>> getAll(
+            @AuthenticationPrincipal Company company,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0", name = "job_id") Long jobId,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "20", name = "limit") int limit,
+            @RequestParam(defaultValue = "date_desc", name = "sort_by") String sortBy
+    ){
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("updatedAt").descending());
+        Page<AppliedJobResponse> appliedJobResponses = appliedJobService.getAllAppliedJob(keyword, jobId, company.getId(), pageRequest);
+        AppliedJobListResponse appliedJobListResponse = AppliedJobListResponse.builder()
+                .appliedJobResponses(appliedJobResponses.getContent())
+                .totalAppliedJob(appliedJobResponses.getTotalElements())
+                .totalPages(appliedJobResponses.getTotalPages())
+                .build();
+        return ResponseEntity.ok().body(
+                ObjectResponse.<AppliedJobListResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("get all applied job successfully")
+                        .data(appliedJobListResponse)
+                        .build()
+        );
     }
 
     @GetMapping("get/{id}")

@@ -94,6 +94,10 @@ public class AuthServiceImpl {
         // Gson gson = new Gson();
         switch (loginType.toLowerCase()) {
             case "google":
+                System.out.println("Redirect URI: " + googleRedirectUri);
+                System.out.println("Code: " + code);
+                System.out.println("Client ID: " + googleClientId);
+                System.out.println("Client Secret: " + googleClientSecret);
                 accessToken = new GoogleAuthorizationCodeTokenRequest(
                         new NetHttpTransport(), new GsonFactory(),
                         googleClientId,

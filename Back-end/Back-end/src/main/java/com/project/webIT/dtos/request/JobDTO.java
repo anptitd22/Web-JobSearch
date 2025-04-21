@@ -1,6 +1,8 @@
 package com.project.webIT.dtos.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -31,16 +33,26 @@ public class JobDTO {
     private String typeOfWork;
 
     @JsonProperty("job_locations")
+    @NotBlank(message = "location is required")
     private String jobLocations;
 
+    @JsonProperty("description")
     private String description;
 
     @JsonProperty("job_function_id")
+    @NotNull(message = "job function is required")
     private Long jobFunctionId;
 
     @JsonProperty("end_at")
+    @NotNull(message = "end at is required")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endAt;
 
+    @NotBlank(message = "job_level is required")
+    @JsonProperty("job_level")
+    private String jobLevel;
+
     @JsonProperty("company_id")
+    @NotNull(message = "company id is required")
     private Long companyId;
 }

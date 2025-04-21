@@ -2,6 +2,7 @@ package com.project.webIT.services;
 
 
 import com.project.webIT.dtos.request.AppliedJobDTO;
+import com.project.webIT.dtos.response.AppliedJobResponse;
 import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.AppliedJob;
 import com.project.webIT.models.Job;
@@ -9,8 +10,11 @@ import com.project.webIT.models.User;
 import com.project.webIT.repositories.AppliedJobRepository;
 import com.project.webIT.repositories.JobRepository;
 import com.project.webIT.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,7 +28,6 @@ public class AppliedJobServiceImpl implements com.project.webIT.services.IServic
     private final AppliedJobRepository appliedJobRepository;
     private final JobRepository jobRepository;
     private final ModelMapper modelMapper;
-
 
     @Override
     public AppliedJob createAppliedJob(AppliedJobDTO appliedJobDTO) throws Exception {
@@ -45,11 +48,14 @@ public class AppliedJobServiceImpl implements com.project.webIT.services.IServic
         appliedJob.setApplyDate(LocalDateTime.now());
         appliedJob.setStatus(AppliedJob.PENDING);
         LocalDateTime expectedDate = appliedJobDTO.getExpectedDate();
+
         if (expectedDate != null && expectedDate.isBefore(LocalDateTime.now())){
             throw new DataNotFoundException("Date must be least today!");
         }
-        jobRepository.save(job);
+
         appliedJob.setActive(true);
+        job.setApplicationCount(job.getApplicationCount()+1);
+        jobRepository.save(job);
         return appliedJobRepository.save(appliedJob);
     }
 
@@ -81,6 +87,12 @@ public class AppliedJobServiceImpl implements com.project.webIT.services.IServic
     @Override
     public List<AppliedJob> getAppliedJobFromUser(Long userId) {
         return appliedJobRepository.findByUserId(userId);
+    }
+
+    @Override
+    public Page<AppliedJobResponse> getAllAppliedJob(String keyword, Long jobId, Long companyId, PageRequest pageRequest) {
+        var appliedJobPage = appliedJobRepository.searchAppliedJobs(jobId,companyId, keyword, pageRequest);
+        return appliedJobPage.map(AppliedJobResponse::fromAppliedJob);
     }
 
     @Override

@@ -9,12 +9,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 
+import java.util.List;
+
 public interface JobService {
     Job createJob(JobDTO jobDTO) throws Exception;
 
     Job getJobById(long id) throws Exception;
 
+    Job getJobByIdFromCompany(Long id) throws Exception;
+
     Page<JobResponse> getAllJobs(String keyword,Long jobFunctionId, PageRequest pageRequest);
+
+    List<Job> getAllJobsNotPage();
 
     Job updateJob(long id, JobDTO jobDTO) throws Exception;
 

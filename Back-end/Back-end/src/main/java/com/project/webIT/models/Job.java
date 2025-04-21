@@ -43,8 +43,14 @@ public class Job extends BaseEntity {
     @Column(name = "end_at")
     private LocalDateTime endAt;
 
+    @Column(name = "job_level")
+    private String jobLevel;
+
     @Column(name = "is_active")
     private boolean isActive;
+
+    @Column(name = "application_count")
+    private Long applicationCount;
 
     @Column(name = "view")
     private Long view;

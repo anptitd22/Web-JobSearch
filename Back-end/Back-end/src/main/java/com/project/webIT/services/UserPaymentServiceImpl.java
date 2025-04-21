@@ -37,6 +37,6 @@ public class UserPaymentServiceImpl {
     }
 
     public List<UserPayment> findByUserId (Long userId){
-        return userPaymentRepository.findByUserIdOrderByUpdatedAt(userId);
+        return userPaymentRepository.findByUserIdOrderByUpdatedAtDesc(userId);
     }
 }

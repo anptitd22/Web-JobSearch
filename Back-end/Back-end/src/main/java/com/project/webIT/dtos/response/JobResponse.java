@@ -1,10 +1,7 @@
 package com.project.webIT.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.project.webIT.models.Company;
-import com.project.webIT.models.Job;
-import com.project.webIT.models.JobImage;
-import com.project.webIT.models.BaseEntity;
+import com.project.webIT.models.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -19,7 +16,9 @@ import java.util.List;
 public class JobResponse extends BaseEntity {
 
     private Long id;
+
     private String name;
+
     private String salary;
 
     @JsonProperty("salary_numeric")
@@ -27,11 +26,17 @@ public class JobResponse extends BaseEntity {
 
     @JsonProperty("updated_at")
     private LocalDateTime updatedAt;
+    @JsonProperty("end_at")
+    private LocalDateTime endAt;
 
     @JsonProperty("job_locations")
     private String jobLocations;
 
+    @JsonProperty("job_description")
     private String description;
+
+    @JsonProperty("job_function_name")
+    private String jobFunctionName;
 
     @JsonProperty("job_function_id")
     private Long jobFunctionId;
@@ -48,6 +53,12 @@ public class JobResponse extends BaseEntity {
     @JsonProperty("view")
     private Long view;
 
+    @JsonProperty("job_level")
+    private String jobLevel;
+
+    @JsonProperty("type_of_work")
+    private String typeOfWork;
+
     public static JobResponse fromJob(Job job){
         JobResponse jobResponse = JobResponse.builder()
                 .id(job.getId())
@@ -55,13 +66,17 @@ public class JobResponse extends BaseEntity {
                 .salary(job.getSalary())
                 .jobLocations(job.getJobLocations())
                 .description(job.getDescription())
-                .jobFunctionId(job.getJobFunction().getId())
+                .jobFunctionName(job.getJobFunction().getName())
                 .isActive(job.isActive())
                 .jobImages(job.getJobImages())
                 .company(job.getCompany())
                 .view(job.getView())
                 .salaryNumeric(job.getSalaryNumeric())
                 .updatedAt(job.getUpdatedAt())
+                .endAt(job.getEndAt())
+                .jobFunctionId(job.getJobFunction().getId())
+                .jobLevel(job.getJobLevel())
+                .typeOfWork(job.getTypeOfWork())
                 .build();
         jobResponse.setCreatedAt(job.getCreatedAt());
         jobResponse.setUpdatedAt(job.getUpdatedAt());

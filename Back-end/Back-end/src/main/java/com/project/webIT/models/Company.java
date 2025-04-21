@@ -77,7 +77,8 @@ public class Company implements UserDetails {
     @Formula("(SELECT COUNT(*) FROM jobs j WHERE j.company_id = id)")
     private Long total_jobs;
 
-
+//    @Formula("(SELECT COUNT(*) FROM applied_job a JOIN jobs j ON a.job_id = j.id JOIN companies c ON j.company_id = c.id")
+//    private Long total_applied_jobs;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.getName().toUpperCase()));

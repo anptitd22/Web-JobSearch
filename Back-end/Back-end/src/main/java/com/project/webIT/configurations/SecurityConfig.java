@@ -1,5 +1,6 @@
 package com.project.webIT.configurations;
 
+import com.project.webIT.provider.AdminAuthenticationProvider;
 import com.project.webIT.provider.CompanyAuthenticationProvider;
 import com.project.webIT.provider.UserAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +21,15 @@ public class SecurityConfig {
 
     private final UserAuthenticationProvider userAuthProvider;
     private final CompanyAuthenticationProvider companyAuthProvider;
+    private final AdminAuthenticationProvider adminAuthenticationProvider;
 
     //tai khoan
     @Bean
     public AuthenticationManager authenticationManager() {
         List<AuthenticationProvider> providers = Arrays.asList(
                 userAuthProvider,
-                companyAuthProvider
+                companyAuthProvider,
+                adminAuthenticationProvider
         );
         return new ProviderManager(providers);
     }

@@ -2,10 +2,13 @@ package com.project.webIT.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.webIT.models.AppliedJob;
+import com.project.webIT.models.AppliedJobCV;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Getter
@@ -28,6 +31,9 @@ public class AppliedJobResponse {
     String nationality;
 
     String email;
+
+    @JsonProperty("cv_list")
+    List<AppliedJobCVResponse> appliedJobCVS;
 
     @JsonProperty("phone_number")
     String phoneNumber;
@@ -54,6 +60,9 @@ public class AppliedJobResponse {
 
     @JsonProperty("years_of_experience")
     Long yearsOfExperience;
+
+    @JsonProperty("job_end_at")
+    LocalDateTime jobEndAt;
 
     String note;
 
@@ -92,6 +101,9 @@ public class AppliedJobResponse {
     @JsonProperty("company_logo")
     String companyLogo;
 
+    @JsonProperty("company_location")
+    String companyLocation;
+
     public static AppliedJobResponse fromAppliedJob (AppliedJob appliedJob){
         AppliedJobResponse appliedJobResponse = AppliedJobResponse.builder()
                 .id(appliedJob.getId())
@@ -118,6 +130,11 @@ public class AppliedJobResponse {
                 .jobIsActive(appliedJob.getJob().isActive())
                 .companyName(appliedJob.getJob().getCompany().getName())
                 .companyLogo(appliedJob.getJob().getCompany().getLogo())
+                .companyLocation(appliedJob.getJob().getCompany().getLocation())
+                .jobEndAt(appliedJob.getJob().getEndAt())
+                .appliedJobCVS(appliedJob.getAppliedJobCVList().stream()
+                        .map(AppliedJobCVResponse::fromAppliedJobCV)
+                        .collect(Collectors.toList()))
                 .build();
         appliedJobResponse.setApplyDate(appliedJob.getApplyDate());
         return appliedJobResponse;

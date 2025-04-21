@@ -1,10 +1,14 @@
 package com.project.webIT.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
+import java.util.List;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "applied_job")
@@ -78,6 +82,11 @@ public class AppliedJob extends BaseEntity {
 
     @Column(name = "years_of_experience")
     private Long yearsOfExperience;
+
+    @OneToMany (mappedBy = "appliedJob", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Where(clause = "is_active = true")
+    @JsonManagedReference
+    private List<AppliedJobCV> appliedJobCVList = new ArrayList<>();
 
     public static final String PENDING = "Pending";
     public static final String PROCESSING = "Processing";

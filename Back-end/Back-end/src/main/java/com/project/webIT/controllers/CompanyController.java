@@ -2,14 +2,11 @@ package com.project.webIT.controllers;
 
 import com.project.webIT.dtos.request.CompanyDTO;
 import com.project.webIT.dtos.request.CompanyLoginDTO;
+import com.project.webIT.dtos.response.*;
 import com.project.webIT.helper.FileHelper;
 import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.Job;
-import com.project.webIT.dtos.response.ObjectResponse;
-import com.project.webIT.dtos.response.CompanyListResponse;
-import com.project.webIT.dtos.response.CompanyResponse;
-import com.project.webIT.dtos.response.JobResponse;
 import com.project.webIT.services.CloudinaryServiceImpl;
 import com.project.webIT.services.CompanyServiceImpl;
 import jakarta.validation.Valid;
@@ -141,42 +138,56 @@ public class CompanyController{
     }
 
     @GetMapping("public/{companyId}/get/jobs")
-    public ResponseEntity<ObjectResponse<List<JobResponse>>> getJobsFromCompanyPublic(
+    public ResponseEntity<ObjectResponse<JobListResponse>> getJobsFromCompanyPublic(
             @Valid @PathVariable("companyId") Long companyId,
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId
+            @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "20", name = "limit") int limit,
+            @RequestParam(defaultValue = "date_desc", name = "sort_by") String sortBy
     ){
-        List<Job> jobEntities = companyServiceImpl.getJobs(companyId, keyword, jobFunctionId);
-        List<JobResponse> jobResponses = jobEntities.stream()
-                .map(JobResponse::fromJob)
-                .collect(Collectors.toList());
+        Sort sort = Sort.by("updatedAt").descending();
+        PageRequest pageRequest = PageRequest.of(page, limit, sort);
+        Page<JobResponse> jobPage = companyServiceImpl.getJobs(companyId, keyword, jobFunctionId, pageRequest);
+        JobListResponse jobListResponse = JobListResponse.builder()
+                .jobs(jobPage.getContent())
+                .totalPages(jobPage.getTotalPages())
+                .totalJob(jobPage.getTotalElements())
+                .build();
 
         return ResponseEntity.ok(
-                ObjectResponse.<List<JobResponse>>builder()
+                ObjectResponse.<JobListResponse>builder()
                         .status(HttpStatus.OK)
                         .message("Lấy danh sách việc làm thành công")
-                        .data(jobResponses)
+                        .data(jobListResponse)
                         .build()
         );
     }
 
     @GetMapping("private/get/jobs")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<ObjectResponse<List<JobResponse>>> getJobsFromCompanyPrivate(
+    public ResponseEntity<ObjectResponse<JobListResponse>> getJobsFromCompanyPrivate(
             @AuthenticationPrincipal Company company,
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId
+            @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "20", name = "limit") int limit,
+            @RequestParam(defaultValue = "date_desc", name = "sort_by") String sortBy
     ){
-        List<Job> jobEntities = companyServiceImpl.getJobs(company.getId(), keyword, jobFunctionId);
-        List<JobResponse> jobResponses = jobEntities.stream()
-                .map(JobResponse::fromJob)
-                .collect(Collectors.toList());
+        Sort sort = Sort.by("updatedAt").descending();
+        PageRequest pageRequest = PageRequest.of(page, limit, sort);
+        Page<JobResponse> jobPage = companyServiceImpl.getJobs(company.getId(), keyword, jobFunctionId, pageRequest);
+        JobListResponse jobListResponse = JobListResponse.builder()
+                .jobs(jobPage.getContent())
+                .totalPages(jobPage.getTotalPages())
+                .totalJob(jobPage.getTotalElements())
+                .build();
 
         return ResponseEntity.ok(
-                ObjectResponse.<List<JobResponse>>builder()
+                ObjectResponse.<JobListResponse>builder()
                         .status(HttpStatus.OK)
                         .message("Lấy danh sách việc làm thành công")
-                        .data(jobResponses)
+                        .data(jobListResponse)
                         .build()
         );
     }

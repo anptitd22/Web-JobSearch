@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,12 +25,13 @@ public class UserFavoriteCompanyController {
     private final UserServiceImpl userService;
 
     @PostMapping("{companyId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<UserFavoriteCompany>> saveFavorite(
             @PathVariable("companyId") Long companyId,
-            @Valid  @RequestHeader("Authorization") String authorizationHeader
+            @AuthenticationPrincipal User user
     ) throws Exception {
-        String extractedToken = authorizationHeader.substring(7);
-        User user = userService.getUserDetailsFromToken(extractedToken);
+//        String extractedToken = authorizationHeader.substring(7);
+//        User user = userService.getUserDetailsFromToken(extractedToken);
         UserFavoriteCompany userFavoriteCompany =
                 usersFavoriteCompaniesServiceImpl.saveFavoriteCompany(user, companyId);
 
@@ -42,11 +45,12 @@ public class UserFavoriteCompanyController {
     }
 
     @GetMapping("")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<List<UsersFavoriteCompaniesResponse>>> getFavorites(
-            @Valid  @RequestHeader("Authorization") String authorizationHeader
+            @AuthenticationPrincipal User user
     ) throws Exception{
-        String extractedToken = authorizationHeader.substring(7);
-        User user = userService.getUserDetailsFromToken(extractedToken);
+//        String extractedToken = authorizationHeader.substring(7);
+//        User user = userService.getUserDetailsFromToken(extractedToken);
         List<UserFavoriteCompany> userFavoriteCompanies = usersFavoriteCompaniesServiceImpl.getUserFavorites(user.getId());
         List<UsersFavoriteCompaniesResponse> responseList = userFavoriteCompanies.stream()
                 .map(UsersFavoriteCompaniesResponse::fromUserFavoriteCompanies)

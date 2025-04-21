@@ -1,5 +1,6 @@
 package com.project.webIT.helper;
 
+import com.project.webIT.models.Admin;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.User;
 import io.jsonwebtoken.Claims;
@@ -42,6 +43,13 @@ public class JwtTokenHelper {
         claims.put("companyId", company.getId());
         claims.put("role", company.getRole().getName());
         return createToken(claims, company.getAccount());
+    }
+    public String generateTokenFromAdmin(Admin admin){
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("account", admin.getAccount());
+        claims.put("companyId", admin.getId());
+        claims.put("role", admin.getRole().getName());
+        return createToken(claims, admin.getAccount());
     }
     private String createToken(Map<String, Object> claims, String subject){
         return Jwts.builder()

@@ -2,6 +2,7 @@ package com.project.webIT.dtos.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -24,6 +25,6 @@ public class CompanyLoginDTO {
     private String password;
 
     @JsonProperty("role_id")
-    @NotBlank(message = "role is required")
+    @NotNull(message = "role is required")
     private Long roleID;
 }

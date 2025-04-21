@@ -3,6 +3,7 @@ package com.project.webIT.services.IService;
 import com.project.webIT.dtos.request.CompanyDTO;
 import com.project.webIT.dtos.request.CompanyImageDTO;
 import com.project.webIT.dtos.request.CompanyLoginDTO;
+import com.project.webIT.dtos.response.JobResponse;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.CompanyImage;
 import com.project.webIT.models.Job;
@@ -20,7 +21,7 @@ public interface CompanyService {
 
     Company getCompanyById(long id) throws Exception;
 
-    List<Job> getJobs (Long id, String keyword, Long jobFunctionId);
+    Page<JobResponse> getJobs (Long id, String keyword, Long jobFunctionId, PageRequest pageRequest);
 
     Page<CompanyResponse> getAllCompanies(String keyword, Long industryId, PageRequest pageRequest);
 

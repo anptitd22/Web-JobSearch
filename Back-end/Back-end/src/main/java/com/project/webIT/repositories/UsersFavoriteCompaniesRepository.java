@@ -9,5 +9,7 @@ import java.util.Optional;
 public interface UsersFavoriteCompaniesRepository extends JpaRepository<UserFavoriteCompany, Long> {
     List<UserFavoriteCompany> findByUserId(Long userId);
 
+    List<UserFavoriteCompany> findByCompanyId(Long companyId);
+
     Optional<UserFavoriteCompany> findByUserIdAndCompanyId(Long userId, Long companyId);
 }
