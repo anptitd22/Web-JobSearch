@@ -15,7 +15,6 @@ public class CompanyImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "id") //khong can thiet vi id giong mysql
     private Long id;
 
     @ManyToOne

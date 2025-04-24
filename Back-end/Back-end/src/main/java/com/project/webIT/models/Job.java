@@ -2,12 +2,14 @@ package com.project.webIT.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.project.webIT.constant.JobStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "jobs")
@@ -55,6 +57,10 @@ public class Job extends BaseEntity {
     @Column(name = "view")
     private Long view;
 
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private JobStatus jobStatus;
+
     @ManyToOne
     @JoinColumn(name = "job_function_id")
     private JobFunction jobFunction;
@@ -67,4 +73,10 @@ public class Job extends BaseEntity {
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<JobImage> jobImages = new ArrayList<>();
+
+    public static final Map<String, String> STATUS_MAP = Map.of(
+            "Open", "Đang mở",
+            "Close", "Đang đóng",
+            "Draft", "Bản nháp"
+    );
 }

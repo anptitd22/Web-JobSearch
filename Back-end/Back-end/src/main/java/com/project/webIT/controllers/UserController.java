@@ -5,13 +5,11 @@ import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.User;
 import com.project.webIT.dtos.response.ObjectResponse;
 import com.project.webIT.dtos.response.UserResponse;
-import com.project.webIT.services.AuthServiceImpl;
-import com.project.webIT.services.CloudinaryServiceImpl;
-import com.project.webIT.services.FileServiceImpl;
-import com.project.webIT.services.UserServiceImpl;
+import com.project.webIT.services.*;
 import com.project.webIT.components.LocalizationUtils;
 import com.project.webIT.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +21,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
@@ -38,10 +35,11 @@ public class UserController{
     private final CloudinaryServiceImpl cloudinaryServiceImpl;
     private final AuthServiceImpl authServiceImpl;
     private final FileServiceImpl fileServiceImpl;
+    private final OAuthCodeManager codeManager;
 
     @PostMapping("register")
     public ResponseEntity<ObjectResponse<?>> createUser(
-            @Valid UserDTO userDTO,
+            @Valid @RequestBody UserDTO userDTO,
             BindingResult result
     ) throws Exception {
         if (result.hasErrors()) {
@@ -89,6 +87,7 @@ public class UserController{
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ObjectResponse<UserResponse>> getUserDetails(
             @AuthenticationPrincipal User user
+//            @RequestHeader("Authorization") String authorizationHeader
     ) throws Exception {
 //        String extractedToken = authorizationHeader.substring(7);
 //        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
@@ -199,6 +198,20 @@ public class UserController{
             @RequestParam(name = "login_type", required = false) String loginType,
             HttpServletRequest request
     ) throws Exception {
+//        if (codeManager.isCodeUsed(code)) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                    ObjectResponse.<String>builder()
+//                            .status(HttpStatus.BAD_REQUEST)
+//                            .message("Mã ủy quyền đã được sử dụng")
+//                            .data(null)
+//                            .build()
+//            );
+//        }
+//
+//        // Đánh dấu mã đã được sử dụng
+//        codeManager.markCodeAsUsed(code);
+
+        // Phần còn lại của mã của bạn...
         Map<String, Object> userInfo = authServiceImpl.authenticateAndFetchProfile(code, loginType);
 
         String accountId = "";

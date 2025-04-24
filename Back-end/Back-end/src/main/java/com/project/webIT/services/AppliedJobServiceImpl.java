@@ -1,15 +1,15 @@
 package com.project.webIT.services;
 
 
+import com.project.webIT.constant.AppliedJobStatus;
 import com.project.webIT.dtos.request.AppliedJobDTO;
 import com.project.webIT.dtos.response.AppliedJobResponse;
 import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.AppliedJob;
+import com.project.webIT.models.CompanyDashBoard;
 import com.project.webIT.models.Job;
 import com.project.webIT.models.User;
-import com.project.webIT.repositories.AppliedJobRepository;
-import com.project.webIT.repositories.JobRepository;
-import com.project.webIT.repositories.UserRepository;
+import com.project.webIT.repositories.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -17,14 +17,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AppliedJobServiceImpl implements com.project.webIT.services.IService.AppliedJobService {
     private final UserRepository userRepository;
+    private final CompanyDashBoardRepository companyDashBoardRepository;
+    private final CompanyRepository companyRepository;
     private final AppliedJobRepository appliedJobRepository;
     private final JobRepository jobRepository;
     private final ModelMapper modelMapper;
@@ -46,17 +52,50 @@ public class AppliedJobServiceImpl implements com.project.webIT.services.IServic
         appliedJob.setUser(user);
         appliedJob.setJob(job);
         appliedJob.setApplyDate(LocalDateTime.now());
-        appliedJob.setStatus(AppliedJob.PENDING);
+        appliedJob.setAppliedJobStatus(AppliedJobStatus.Pending);
         LocalDateTime expectedDate = appliedJobDTO.getExpectedDate();
 
         if (expectedDate != null && expectedDate.isBefore(LocalDateTime.now())){
             throw new DataNotFoundException("Date must be least today!");
         }
+        updateAppliedJob(job.getCompany().getId());
 
         appliedJob.setActive(true);
+
+        if(job.getApplicationCount() == null){
+            job.setApplicationCount(0L);
+        }
         job.setApplicationCount(job.getApplicationCount()+1);
+
         jobRepository.save(job);
+
+
+
         return appliedJobRepository.save(appliedJob);
+    }
+
+    public void updateAppliedJob(Long companyId) throws Exception {
+        var existingCompany = companyRepository.findById(companyId)
+                .orElseThrow(() -> new DataNotFoundException("company not found"));
+
+        String currentMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("MMM-yyyy"));
+        Optional<CompanyDashBoard> existingRecord = companyDashBoardRepository.findByCompanyIdAndMonth(companyId, currentMonth);
+
+        if (existingRecord.isPresent()) {
+            // Nếu bản ghi đã tồn tại, cập nhật số lượng total_jobs
+            CompanyDashBoard record = existingRecord.get();
+            record.setAppliedJobs(record.getAppliedJobs() + 1);
+            companyDashBoardRepository.save(record);
+        } else {
+            // Nếu bản ghi chưa tồn tại, tạo bản ghi mới
+            CompanyDashBoard newRecord = new CompanyDashBoard();
+            newRecord.setCompany(existingCompany);
+            newRecord.setMonth(currentMonth);
+            newRecord.setTotalJobs(0L);
+            newRecord.setAppliedJobs(1L);
+            newRecord.setAppliedJobAccept(0L);
+            companyDashBoardRepository.save(newRecord);
+        }
     }
 
     @Override
@@ -90,8 +129,8 @@ public class AppliedJobServiceImpl implements com.project.webIT.services.IServic
     }
 
     @Override
-    public Page<AppliedJobResponse> getAllAppliedJob(String keyword, Long jobId, Long companyId, PageRequest pageRequest) {
-        var appliedJobPage = appliedJobRepository.searchAppliedJobs(jobId,companyId, keyword, pageRequest);
+    public Page<AppliedJobResponse> getAllAppliedJob(String keyword, Long jobId, Long companyId, PageRequest pageRequest, AppliedJobStatus status) {
+        var appliedJobPage = appliedJobRepository.searchAppliedJobs(jobId,companyId, keyword, pageRequest, status);
         return appliedJobPage.map(AppliedJobResponse::fromAppliedJob);
     }
 
@@ -116,5 +155,16 @@ public class AppliedJobServiceImpl implements com.project.webIT.services.IServic
                                     +appliedJobOptional.get().getJob().getId()));
             appliedJobRepository.deleteById(id);
         }
+    }
+
+    public Map<String, Long> getCompanyStatsMap(Long companyId) {
+        Long totalApplied = appliedJobRepository.countTotalAppliedJobByCompanyId(companyId);
+        Long totalAccepted = appliedJobRepository.countTotalAcceptedAppliedJobByCompanyId(companyId);
+
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("totalAppliedJob", totalApplied);
+        stats.put("totalAcceptedAppliedJob", totalAccepted);
+
+        return stats;
     }
 }

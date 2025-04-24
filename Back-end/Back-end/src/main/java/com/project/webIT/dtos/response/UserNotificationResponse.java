@@ -34,6 +34,9 @@ public class UserNotificationResponse {
     @JsonProperty("job")
     private JobResponse jobResponse;
 
+    @JsonProperty("content")
+    private String content;
+
     public static UserNotificationResponse fromUserNotification(UserNotification userNotification){
         return UserNotificationResponse.builder()
                 .id(userNotification.getId())
@@ -42,6 +45,7 @@ public class UserNotificationResponse {
                 .userNotificationStatus(userNotification.getUserNotificationStatus())
                 .createdAt(userNotification.getCreatedAt())
                 .jobResponse(JobResponse.fromJob(userNotification.getJob()))
+                .content(userNotification.getContent())
                 .build();
     }
 }

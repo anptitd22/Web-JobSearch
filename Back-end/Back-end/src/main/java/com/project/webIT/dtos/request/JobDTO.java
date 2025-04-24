@@ -2,6 +2,7 @@ package com.project.webIT.dtos.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.webIT.constant.JobStatus;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -42,6 +43,9 @@ public class JobDTO {
     @JsonProperty("job_function_id")
     @NotNull(message = "job function is required")
     private Long jobFunctionId;
+
+    @JsonProperty("status")
+    private JobStatus jobStatus;
 
     @JsonProperty("end_at")
     @NotNull(message = "end at is required")

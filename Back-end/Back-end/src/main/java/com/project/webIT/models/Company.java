@@ -74,7 +74,7 @@ public class Company implements UserDetails {
 //    @JsonManagedReference
 //    private List<Job> jobs = new ArrayList<>();
 
-    @Formula("(SELECT COUNT(*) FROM jobs j WHERE j.company_id = id)")
+    @Formula("(SELECT COUNT(*) FROM jobs j WHERE j.company_id = id AND j.is_active = 1)")
     private Long total_jobs;
 
 //    @Formula("(SELECT COUNT(*) FROM applied_job a JOIN jobs j ON a.job_id = j.id JOIN companies c ON j.company_id = c.id")

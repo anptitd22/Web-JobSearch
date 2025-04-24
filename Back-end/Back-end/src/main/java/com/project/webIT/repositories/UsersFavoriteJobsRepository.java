@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UsersFavoriteJobsRepository extends JpaRepository<UserFavoriteJob, Long> {
-    List<UserFavoriteJob> findByUserIdOrderByUpdatedAtDesc(Long userId);
+    List<UserFavoriteJob> findByUserIdAndJobIsActiveTrueOrderByUpdatedAtDesc(Long userId);
 
     List<UserFavoriteJob> findByUserId(Long userId);
+
+    List<UserFavoriteJob> findByJobId(Long jobId);
 
     Optional<UserFavoriteJob> findByUserIdAndJobId(Long userId, Long jobId);
 }

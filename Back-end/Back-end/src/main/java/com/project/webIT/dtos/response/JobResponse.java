@@ -1,6 +1,7 @@
 package com.project.webIT.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.webIT.constant.JobStatus;
 import com.project.webIT.models.*;
 import lombok.*;
 
@@ -41,7 +42,7 @@ public class JobResponse extends BaseEntity {
     @JsonProperty("job_function_id")
     private Long jobFunctionId;
 
-    @JsonProperty("is_active")
+    @JsonProperty("job_is_active")
     private boolean isActive;
 
     @JsonProperty("job_images")
@@ -58,6 +59,9 @@ public class JobResponse extends BaseEntity {
 
     @JsonProperty("type_of_work")
     private String typeOfWork;
+
+    @JsonProperty("status")
+    private JobStatus jobStatus;
 
     public static JobResponse fromJob(Job job){
         JobResponse jobResponse = JobResponse.builder()
@@ -77,6 +81,7 @@ public class JobResponse extends BaseEntity {
                 .jobFunctionId(job.getJobFunction().getId())
                 .jobLevel(job.getJobLevel())
                 .typeOfWork(job.getTypeOfWork())
+                .jobStatus(job.getJobStatus())
                 .build();
         jobResponse.setCreatedAt(job.getCreatedAt());
         jobResponse.setUpdatedAt(job.getUpdatedAt());

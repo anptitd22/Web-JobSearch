@@ -45,7 +45,7 @@ public class UsersFavoriteJobsServiceImpl implements com.project.webIT.services.
 
     @Override
     public List<UserFavoriteJob> getUserFavorites(Long userId) {
-        return usersFavoriteJobsRepository.findByUserIdOrderByUpdatedAtDesc(userId);
+        return usersFavoriteJobsRepository.findByUserIdAndJobIsActiveTrueOrderByUpdatedAtDesc(userId);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.project.webIT.services;
 
+import com.project.webIT.constant.JobStatus;
 import com.project.webIT.constant.NotificationStatus;
 import com.project.webIT.constant.UserNotificationStatus;
 import com.project.webIT.dtos.request.JobDTO;
@@ -11,18 +12,25 @@ import com.project.webIT.notification.Notification;
 import com.project.webIT.repositories.*;
 import com.project.webIT.dtos.response.JobResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class JobServiceImpl implements com.project.webIT.services.IService.JobService {
     private final JobRepository jobRepository;
     private final JobFunctionRepository jobFunctionRepository;
@@ -31,8 +39,10 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
     private final JobImageRepository jobImageRepository;
     private final NotificationService notificationService;
     private final UsersFavoriteCompaniesRepository usersFavoriteCompaniesRepository;
+    private final UsersFavoriteJobsRepository usersFavoriteJobsRepository;
     private final UserNotificationRepository userNotificationRepository;
     private final UserRepository userRepository;
+    private final CompanyDashBoardRepository companyDashBoardRepository;
 
     @Override
     public Job createJob(JobDTO jobDTO) throws Exception {
@@ -51,19 +61,17 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
         modelMapper.map(jobDTO, newJob);
         newJob.setJobFunction(existingJobFunction);
         newJob.setCompany(existingCompany);
-        newJob.setActive(true);
+        newJob.setActive(newJob.getJobStatus().equals(JobStatus.Open));
         newJob.setView((long)0);
 
-
-//        notificationService.sendNotification(
-//                LocalDateTime.now().toString(),
-//                Notification.builder()
-//                        .status(NotificationStatus.BORROWED)
-//                        .message("has new job")
-//                        .jobTitle(newJob.getName())
-//                        .build()
-//        );
         var saved = jobRepository.save(newJob);
+
+        if(!jobDTO.getJobStatus().equals(JobStatus.Open)){
+            return saved;
+        }
+
+        updateTotalJob(jobDTO.getCompanyId());
+
         List<UserFavoriteCompany> followers = usersFavoriteCompaniesRepository.findByCompanyId(jobDTO.getCompanyId());
         if(!followers.isEmpty()){
             Notification notification = Notification.builder()
@@ -74,13 +82,16 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
                     .build();
 
             for(UserFavoriteCompany user : followers){
-                User existingUser = userRepository.findById(user.getUser().getId())
-                        .orElseThrow(() -> new DataNotFoundException("user id not found"));
-
+                Optional<User> existingUser = userRepository.findById(user.getUser().getId());
+//                        .orElseThrow(() -> new DataNotFoundException("user id not found"));
+                if(existingUser.isEmpty()){
+                    continue;
+                }
                 UserNotification userNotification = new UserNotification();
-                userNotification.setUser(existingUser);
+                userNotification.setUser(existingUser.get());
                 userNotification.setIsActive(true);
                 userNotification.setJob(newJob);
+                userNotification.setContent(existingCompany.getName() + " đã đăng việc mới: "+ newJob.getName());
                 userNotification.setUserNotificationStatus(UserNotificationStatus.Unread);
                 userNotificationRepository.save(userNotification);
             }
@@ -90,14 +101,33 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
                     .collect(Collectors.toList());
             notificationService.sendNotificationToUsers(userIds, notification);
         }
-//        notificationService.broadcastNotification(
-//                Notification.builder()
-//                        .status(NotificationStatus.CREATED)
-//                        .message("has new job")
-//                        .jobTitle(newJob.getName()).build()
-//        );
         return saved;
     }
+
+    public void updateTotalJob(Long companyId) throws Exception {
+        var existingCompany = companyRepository.findById(companyId)
+                .orElseThrow(() -> new DataNotFoundException("company not found"));
+
+        String currentMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("MMM-yyyy"));
+        Optional<CompanyDashBoard> existingRecord = companyDashBoardRepository.findByCompanyIdAndMonth(companyId, currentMonth);
+
+        if (existingRecord.isPresent()) {
+            // Nếu bản ghi đã tồn tại, cập nhật số lượng total_jobs
+            CompanyDashBoard record = existingRecord.get();
+            record.setTotalJobs(record.getTotalJobs() + 1);
+            companyDashBoardRepository.save(record);
+        } else {
+            // Nếu bản ghi chưa tồn tại, tạo bản ghi mới
+            CompanyDashBoard newRecord = new CompanyDashBoard();
+            newRecord.setCompany(existingCompany);
+            newRecord.setMonth(currentMonth);
+            newRecord.setTotalJobs(1L);
+            newRecord.setAppliedJobs(0L);
+            newRecord.setAppliedJobAccept(0L);
+            companyDashBoardRepository.save(newRecord);
+        }
+    }
+
 
     @Override
     public Job getJobById(long id) throws Exception {
@@ -129,34 +159,105 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
 
     @Override
     public Job updateJob(long id, JobDTO jobDTO) throws Exception {
-        Job existingJob = getJobById(id);
-        if(existingJob != null){
-            JobFunction existingJobFunction = jobFunctionRepository.findById(jobDTO.getJobFunctionId())
-                    .orElseThrow(() ->
-                            new DataNotFoundException("Cannot find Job Function with id = "
-                                    +jobDTO.getJobFunctionId()));
-            Company existingCompany = companyRepository.findById(jobDTO.getCompanyId())
-                    .orElseThrow(() ->
-                            new DataNotFoundException("Cannot find Company with id = "
-                                    +jobDTO.getCompanyId()));
-            modelMapper.typeMap(JobDTO.class, Job.class)
-                    .addMappings(mapper ->
-                            mapper.skip(Job::setId));
-            modelMapper.map(jobDTO, existingJob);
-            existingJob.setJobFunction(existingJobFunction);
-            existingJob.setCompany(existingCompany);
-//            existingJob.setUpdatedAt(LocalDateTime.now());
-            return jobRepository.save(existingJob);
+        boolean ok = false;
+        Job existingJob = jobRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("job is not found"));
+        JobFunction existingJobFunction = jobFunctionRepository.findById(jobDTO.getJobFunctionId())
+                .orElseThrow(() ->
+                        new DataNotFoundException("Cannot find Job Function with id = "
+                                +jobDTO.getJobFunctionId()));
+        Company existingCompany = companyRepository.findById(jobDTO.getCompanyId())
+                .orElseThrow(() ->
+                        new DataNotFoundException("Cannot find Company with id = "
+                                +jobDTO.getCompanyId()));
+        ModelMapper localModelMapper = new ModelMapper();
+        if(!existingJob.getJobStatus().equals(JobStatus.Open) && !jobDTO.getJobStatus().equals(JobStatus.Open)){
+            ok = true;
         }
-        return null;
+        // Cấu hình mapper để bỏ qua các thuộc tính lồng nhau
+        localModelMapper.getConfiguration()
+                .setPropertyCondition(context -> {
+                    if (context.getMapping().getLastDestinationProperty() != null) {
+                        String path = context.getMapping().getPath();
+                        return !path.startsWith("id") &&
+                                !path.startsWith("jobFunction") &&
+                                !path.startsWith("company");
+                    }
+                    return true;
+                });
+
+        localModelMapper.map(jobDTO, existingJob);
+        existingJob.setActive(existingJob.getJobStatus().equals(JobStatus.Open));
+        existingJob.setJobFunction(existingJobFunction);
+        existingJob.setCompany(existingCompany);
+//            existingJob.setUpdatedAt(LocalDateTime.now());
+
+        var saved = jobRepository.save(existingJob);
+        if(ok){
+            return saved;
+        }
+        List<UserFavoriteCompany> followers = usersFavoriteCompaniesRepository.findByCompanyId(jobDTO.getCompanyId());
+        if(!followers.isEmpty()){
+            Notification notification = Notification.builder()
+                    .status(NotificationStatus.UPDATED)
+                    .message(existingCompany.getName() + " đã cập nhật công việc: "+ existingJob.getName())
+                    .jobTitle(existingJob.getName())
+                    .jobId(saved.getId())
+                    .build();
+
+            for(UserFavoriteCompany user : followers){
+                Optional<User> existingUser = userRepository.findById(user.getUser().getId());
+//                        .orElseThrow(() -> new DataNotFoundException("user id not found"));
+                if(existingUser.isEmpty()){
+                    continue;
+                }
+                UserNotification userNotification = new UserNotification();
+                userNotification.setUser(existingUser.get());
+                userNotification.setIsActive(true);
+                userNotification.setJob(existingJob);
+                userNotification.setContent(existingCompany.getName() + " đã cập nhật công việc: "+ existingJob.getName());
+                userNotification.setUserNotificationStatus(UserNotificationStatus.Unread);
+                userNotificationRepository.save(userNotification);
+            }
+
+            List<String> userIds = followers.stream()
+                    .map(follower -> follower.getUser().getId().toString())
+                    .collect(Collectors.toList());
+            notificationService.sendNotificationToUsers(userIds, notification);
+        }
+        return saved;
     }
 
     @Override
     public void overJob(long id) throws Exception {
         Job existingJob = jobRepository.findById(id).orElse(null);
         if (existingJob != null){
-            boolean active = existingJob.isActive();
-            existingJob.setActive(!active);
+            existingJob.setActive(false);
+            existingJob.setJobStatus(JobStatus.Close);
+            List<UserFavoriteJob> userFavoriteJobs = usersFavoriteJobsRepository.findByJobId(id);
+            for (UserFavoriteJob userFavoriteJob: userFavoriteJobs){
+                Notification notification = Notification.builder()
+                        .status(NotificationStatus.END)
+                        .message(userFavoriteJob.getJob().getName() + " đã bị kết thúc sớm vào " + LocalDateTime.now())
+                        .jobTitle(userFavoriteJob.getJob().getName())
+                        .jobId(userFavoriteJob.getJob().getId())
+                        .build();
+
+                Optional<User> existingUser = userRepository.findById(userFavoriteJob.getUser().getId());
+//                        .orElseThrow(() -> new DataNotFoundException("user id not found"));
+                if(existingUser.isEmpty()){
+                    continue;
+                }
+                UserNotification userNotification = new UserNotification();
+                userNotification.setUser(existingUser.get());
+                userNotification.setIsActive(true);
+                userNotification.setJob(existingJob);
+                userNotification.setContent(userFavoriteJob.getJob().getName() + " đã bị kết thúc sớm vào " + LocalDateTime.now());
+                userNotification.setUserNotificationStatus(UserNotificationStatus.Unread);
+                userNotificationRepository.save(userNotification);
+
+                notificationService.sendNotificationToUser(userFavoriteJob.getUser().getId().toString(),notification);
+            }
             jobRepository.save(existingJob);
         }
     }
@@ -191,6 +292,42 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
                     JobImage.MAXIMUM_IMAGES_PER_JOB);
         }
         return jobImageRepository.save(newJobImage);
+    }
+
+    @Scheduled(cron = "0 */5 * * * *") // "giờ phút giây ngày tháng thứ"
+    public void deactivateExpiredJobs() {
+        List<Job> expiredJobs = jobRepository.findByEndAtBeforeAndIsActiveTrue(LocalDateTime.now());
+        if (!expiredJobs.isEmpty()) {
+            log.info("Tự động tắt {} job hết hạn", expiredJobs.size());
+            for(Job job: expiredJobs){
+                List<UserFavoriteJob> userFavoriteJobs = usersFavoriteJobsRepository.findByJobId(job.getId());
+                for (UserFavoriteJob userFavoriteJob: userFavoriteJobs){
+                    Notification notification = Notification.builder()
+                            .status(NotificationStatus.END)
+                            .message(userFavoriteJob.getJob().getName() + " đã kết thúc vào " + userFavoriteJob.getJob().getEndAt())
+                            .jobTitle(userFavoriteJob.getJob().getName())
+                            .jobId(userFavoriteJob.getJob().getId())
+                            .build();
+
+                    Optional<User> existingUser = userRepository.findById(userFavoriteJob.getUser().getId());
+//                        .orElseThrow(() -> new DataNotFoundException("user id not found"));
+                    if(existingUser.isEmpty()){
+                        continue;
+                    }
+                    UserNotification userNotification = new UserNotification();
+                    userNotification.setUser(existingUser.get());
+                    userNotification.setIsActive(true);
+                    userNotification.setJob(job);
+                    userNotification.setContent(userFavoriteJob.getJob().getName() + " đã bị kết thúc sớm vào " + LocalDateTime.now());
+                    userNotification.setUserNotificationStatus(UserNotificationStatus.Unread);
+                    userNotificationRepository.save(userNotification);
+                    notificationService.sendNotificationToUser(existingUser.get().getId().toString(),notification);
+                }
+                job.setJobStatus(JobStatus.Close);
+                job.setActive(false);
+            }
+            jobRepository.saveAll(expiredJobs);
+        }
     }
 
     @Override

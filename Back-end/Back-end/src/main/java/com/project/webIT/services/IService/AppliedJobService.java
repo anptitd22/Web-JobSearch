@@ -1,5 +1,6 @@
 package com.project.webIT.services.IService;
 
+import com.project.webIT.constant.AppliedJobStatus;
 import com.project.webIT.dtos.request.AppliedJobDTO;
 import com.project.webIT.dtos.response.AppliedJobResponse;
 import com.project.webIT.exceptions.DataNotFoundException;
@@ -19,7 +20,7 @@ public interface AppliedJobService{
 
     List<AppliedJob> getAppliedJobFromUser(Long userId);
 
-    Page<AppliedJobResponse> getAllAppliedJob(String keyword, Long jobId, Long companyId, PageRequest pageRequest);
+    Page<AppliedJobResponse> getAllAppliedJob(String keyword, Long jobId, Long companyId, PageRequest pageRequest, AppliedJobStatus status);
 
     List<AppliedJob> findByJobId(Long jobId);
 

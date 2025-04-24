@@ -94,7 +94,9 @@ public class WebSecurityConfig {
 
                                     String.format("%s/ws/**", apiPrefix), // GET/PUT/DELETE
 
-                                    String.format("%s/applied/**", apiPrefix)
+                                    String.format("%s/applied/**", apiPrefix),
+
+                                    String.format("%s/feedback/**", apiPrefix)
                             ).permitAll()
 
                             .requestMatchers(
@@ -190,7 +192,7 @@ public class WebSecurityConfig {
                             .requestMatchers(HttpMethod.PUT, String.format("%s/functions/**", apiPrefix)).hasRole(Role.ADMIN)
                             .requestMatchers(HttpMethod.DELETE, String.format("%s/functions/**", apiPrefix)).hasRole(Role.ADMIN)
 
-                            .requestMatchers(HttpMethod.DELETE, String.format("%s/jobs/**", apiPrefix)).hasRole(Role.ADMIN)
+                            .requestMatchers(HttpMethod.DELETE, String.format("%s/jobs/**", apiPrefix)).hasRole(Role.COMPANY)
 
                             .requestMatchers(HttpMethod.PUT, String.format("%s/applied/**", apiPrefix)).hasRole(Role.ADMIN)
                             .requestMatchers(HttpMethod.DELETE, String.format("%s/applied/**", apiPrefix)).hasRole(Role.ADMIN)

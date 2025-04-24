@@ -2,6 +2,7 @@ package com.project.webIT.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.project.webIT.constant.AppliedJobStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
@@ -9,6 +10,7 @@ import org.hibernate.annotations.Where;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Map;
 
 @Entity
 @Table(name = "applied_job")
@@ -66,7 +68,8 @@ public class AppliedJob extends BaseEntity {
     private LocalDateTime feedBackDate;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private AppliedJobStatus appliedJobStatus;
 
     @Column(name = "is_active")
     private boolean isActive;
@@ -88,7 +91,10 @@ public class AppliedJob extends BaseEntity {
     @JsonManagedReference
     private List<AppliedJobCV> appliedJobCVList = new ArrayList<>();
 
-    public static final String PENDING = "Pending";
-    public static final String PROCESSING = "Processing";
-    public static final String FINISHED = "Finished";
+    public static final Map<String, String> STATUS_MAP = Map.of(
+            "Pending", "Đang duyệt",
+            "Accept", "Chấp nhận",
+            "Refuse", "Từ chối",
+            "Interview", "Đã phỏng vấn"
+    );
 }

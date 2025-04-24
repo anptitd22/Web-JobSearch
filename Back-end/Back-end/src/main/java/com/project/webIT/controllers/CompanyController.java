@@ -1,5 +1,6 @@
 package com.project.webIT.controllers;
 
+import com.project.webIT.constant.JobStatus;
 import com.project.webIT.dtos.request.CompanyDTO;
 import com.project.webIT.dtos.request.CompanyLoginDTO;
 import com.project.webIT.dtos.response.*;
@@ -7,6 +8,8 @@ import com.project.webIT.helper.FileHelper;
 import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.Job;
+import com.project.webIT.models.User;
+import com.project.webIT.services.AppliedJobServiceImpl;
 import com.project.webIT.services.CloudinaryServiceImpl;
 import com.project.webIT.services.CompanyServiceImpl;
 import jakarta.validation.Valid;
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
 public class CompanyController{
     private final CompanyServiceImpl companyServiceImpl;
     private final CloudinaryServiceImpl cloudinaryServiceImpl;
+    private final AppliedJobServiceImpl appliedJobService;
 
     @PostMapping("login")
     public ResponseEntity<ObjectResponse<String>> loginCompany(
@@ -142,13 +146,14 @@ public class CompanyController{
             @Valid @PathVariable("companyId") Long companyId,
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId,
+            @RequestParam(required = false, name = "job_status") JobStatus jobStatus,
             @RequestParam(defaultValue = "0", name = "page") int page,
             @RequestParam(defaultValue = "20", name = "limit") int limit,
             @RequestParam(defaultValue = "date_desc", name = "sort_by") String sortBy
     ){
-        Sort sort = Sort.by("updatedAt").descending();
+        Sort sort = Sort.by("createdAt").descending();
         PageRequest pageRequest = PageRequest.of(page, limit, sort);
-        Page<JobResponse> jobPage = companyServiceImpl.getJobs(companyId, keyword, jobFunctionId, pageRequest);
+        Page<JobResponse> jobPage = companyServiceImpl.getJobs(companyId, keyword, jobFunctionId, pageRequest, jobStatus);
         JobListResponse jobListResponse = JobListResponse.builder()
                 .jobs(jobPage.getContent())
                 .totalPages(jobPage.getTotalPages())
@@ -170,13 +175,14 @@ public class CompanyController{
             @AuthenticationPrincipal Company company,
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId,
+            @RequestParam(required = false, name = "job_status") JobStatus jobStatus,
             @RequestParam(defaultValue = "0", name = "page") int page,
             @RequestParam(defaultValue = "20", name = "limit") int limit,
             @RequestParam(defaultValue = "date_desc", name = "sort_by") String sortBy
     ){
-        Sort sort = Sort.by("updatedAt").descending();
+        Sort sort = Sort.by("createdAt").descending();
         PageRequest pageRequest = PageRequest.of(page, limit, sort);
-        Page<JobResponse> jobPage = companyServiceImpl.getJobs(company.getId(), keyword, jobFunctionId, pageRequest);
+        Page<JobResponse> jobPage = companyServiceImpl.getJobs(company.getId(), keyword, jobFunctionId, pageRequest ,jobStatus);
         JobListResponse jobListResponse = JobListResponse.builder()
                 .jobs(jobPage.getContent())
                 .totalPages(jobPage.getTotalPages())
@@ -285,6 +291,34 @@ public class CompanyController{
                         .status(HttpStatus.OK)
                         .message("delete Company successfully with id = " + id)
                         .data(null)
+                        .build()
+        );
+    }
+
+    @GetMapping("stats")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<ObjectResponse<Map<String,Long>>> getCompanyStatsMap(
+            @AuthenticationPrincipal Company company
+    ) {
+        return ResponseEntity.ok().body(
+                ObjectResponse.<Map<String,Long>>builder()
+                        .data(appliedJobService.getCompanyStatsMap(company.getId()))
+                        .status(HttpStatus.OK)
+                        .message("successfully").build()
+        );
+    }
+
+    @GetMapping("dashboard")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<ObjectResponse<Map<String, Object>>> getDashboardData(
+            @AuthenticationPrincipal Company company
+    ) throws Exception {
+        Map<String, Object> dashboardData = companyServiceImpl.getLast12MonthsData(company.getId());
+        return ResponseEntity.ok(
+                ObjectResponse.<Map<String, Object>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Fetched user dashboard data successfully")
+                        .data(dashboardData)
                         .build()
         );
     }

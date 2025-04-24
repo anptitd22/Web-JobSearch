@@ -17,8 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("${api.prefix}/functions")
-//@Validated
-//Dependency Injection
 @RequiredArgsConstructor
 public class JobFunctionController{
 

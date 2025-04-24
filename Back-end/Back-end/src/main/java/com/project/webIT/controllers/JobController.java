@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -126,6 +127,14 @@ public class JobController{
             @Valid @RequestBody JobDTO request,
             BindingResult result
     ) throws Exception {
+        if(result.hasErrors()){
+            return ResponseEntity.badRequest().body(
+                    ObjectResponse.<Void>builder()
+                            .message(ValidationHelper.extractDetailedErrorMessages(result))
+                            .status(HttpStatus.BAD_REQUEST)
+                            .build()
+            );
+        }
         Job updatedJob = jobService.updateJob(id, request);
         return ResponseEntity.ok(
                 ObjectResponse.<JobResponse>builder()
@@ -178,7 +187,10 @@ public class JobController{
     }
 
     @DeleteMapping("delete/{id}")
-    public ResponseEntity<ObjectResponse<?>> deleteById(@PathVariable("id") Long id) throws Exception {
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<ObjectResponse<?>> deleteById(
+            @PathVariable("id") Long id
+    ) throws Exception {
         jobService.overJob(id);
         return ResponseEntity.ok(
                 ObjectResponse.<Void>builder()

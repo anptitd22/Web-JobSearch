@@ -1,5 +1,6 @@
 package com.project.webIT.controllers;
 
+import com.project.webIT.constant.AppliedJobStatus;
 import com.project.webIT.dtos.request.AppliedJobDTO;
 import com.project.webIT.dtos.response.AppliedJobListResponse;
 import com.project.webIT.helper.ValidationHelper;
@@ -167,12 +168,13 @@ public class AppliedJobController{
             @AuthenticationPrincipal Company company,
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "0", name = "job_id") Long jobId,
+            @RequestParam(required = false, name="status") AppliedJobStatus status,
             @RequestParam(defaultValue = "0", name = "page") int page,
             @RequestParam(defaultValue = "20", name = "limit") int limit,
             @RequestParam(defaultValue = "date_desc", name = "sort_by") String sortBy
     ){
         PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("updatedAt").descending());
-        Page<AppliedJobResponse> appliedJobResponses = appliedJobService.getAllAppliedJob(keyword, jobId, company.getId(), pageRequest);
+        Page<AppliedJobResponse> appliedJobResponses = appliedJobService.getAllAppliedJob(keyword, jobId, company.getId(), pageRequest, status);
         AppliedJobListResponse appliedJobListResponse = AppliedJobListResponse.builder()
                 .appliedJobResponses(appliedJobResponses.getContent())
                 .totalAppliedJob(appliedJobResponses.getTotalElements())

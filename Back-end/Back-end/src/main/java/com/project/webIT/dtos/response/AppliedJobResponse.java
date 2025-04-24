@@ -1,6 +1,7 @@
 package com.project.webIT.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.webIT.constant.AppliedJobStatus;
 import com.project.webIT.models.AppliedJob;
 import com.project.webIT.models.AppliedJobCV;
 import lombok.*;
@@ -31,6 +32,9 @@ public class AppliedJobResponse {
     String nationality;
 
     String email;
+
+    @JsonProperty("status")
+    AppliedJobStatus appliedJobStatus;
 
     @JsonProperty("cv_list")
     List<AppliedJobCVResponse> appliedJobCVS;
@@ -95,6 +99,9 @@ public class AppliedJobResponse {
     boolean jobIsActive;
 
     //company
+    @JsonProperty("company_id")
+    Long companyId;
+
     @JsonProperty("company_name")
     String companyName;
 
@@ -135,6 +142,8 @@ public class AppliedJobResponse {
                 .appliedJobCVS(appliedJob.getAppliedJobCVList().stream()
                         .map(AppliedJobCVResponse::fromAppliedJobCV)
                         .collect(Collectors.toList()))
+                .appliedJobStatus(appliedJob.getAppliedJobStatus())
+                .companyId(appliedJob.getJob().getCompany().getId())
                 .build();
         appliedJobResponse.setApplyDate(appliedJob.getApplyDate());
         return appliedJobResponse;

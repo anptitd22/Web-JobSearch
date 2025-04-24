@@ -1,5 +1,6 @@
 package com.project.webIT.services;
 
+import com.project.webIT.constant.JobStatus;
 import com.project.webIT.dtos.response.JobResponse;
 import com.project.webIT.helper.JwtTokenHelper;
 import com.project.webIT.dtos.request.CompanyDTO;
@@ -10,6 +11,7 @@ import com.project.webIT.exceptions.InvalidParamException;
 import com.project.webIT.models.Company;
 import com.project.webIT.models.CompanyImage;
 import com.project.webIT.models.Job;
+import com.project.webIT.repositories.CompanyDashBoardRepository;
 import com.project.webIT.repositories.CompanyImageRepository;
 import com.project.webIT.repositories.CompanyRepository;
 import com.project.webIT.repositories.JobRepository;
@@ -25,12 +27,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CompanyServiceImpl implements com.project.webIT.services.IService.CompanyService {
     private final CompanyRepository companyRepository;
+    private final CompanyDashBoardRepository companyDashBoardRepository;
     private final CompanyImageRepository companyImageRepository;
     private final JobRepository jobRepository;
     private final AuthenticationManager authenticationManager;
@@ -43,7 +47,6 @@ public class CompanyServiceImpl implements com.project.webIT.services.IService.C
         if (companyLoginDTO.getRoleID() != 2) {
             throw new Exception("Bạn cần đăng nhập bằng tài khoản công ty");
         }
-
         // Dùng AuthenticationManager để uỷ quyền cho CompanyAuthenticationProvider xử lý xác thực
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -51,10 +54,8 @@ public class CompanyServiceImpl implements com.project.webIT.services.IService.C
                         companyLoginDTO.getPassword()
                 )
         );
-
         // Lấy thông tin company sau khi xác thực thành công
         Company company = (Company) authentication.getPrincipal();
-
         // Tạo và trả về token
         return jwtTokenHelper.generateTokenFromCompany(company);
     }
@@ -77,8 +78,8 @@ public class CompanyServiceImpl implements com.project.webIT.services.IService.C
     }
 
     @Override
-    public Page<JobResponse> getJobs(Long companyId, String keyword, Long jobFunctionId, PageRequest pageRequest) {
-        var jobPage = jobRepository.searchJobsFromCompany(companyId, keyword, jobFunctionId, pageRequest);
+    public Page<JobResponse> getJobs(Long companyId, String keyword, Long jobFunctionId, PageRequest pageRequest, JobStatus jobStatus){
+        var jobPage = jobRepository.searchJobsFromCompany(companyId, keyword, jobFunctionId, pageRequest, jobStatus);
         return jobPage.map(JobResponse::fromJob);
     }
 
@@ -130,6 +131,23 @@ public class CompanyServiceImpl implements com.project.webIT.services.IService.C
             existingCompany.setActive(!active);
             companyRepository.save(existingCompany);
         }
+    }
+
+    @Override
+    public Map<String, Object> getLast12MonthsData(Long companyId) {
+        List<Object[]> data = companyDashBoardRepository.findLast12MonthsData(companyId);
+
+        List<String> months = data.stream().map(row -> (String) row[0]).toList();
+        List<Long> appliedJobs = data.stream().map(row -> (Long) row[1]).toList();
+        List<Long> totalJobs = data.stream().map(row -> (Long) row[2]).toList();
+        List<Long> appliedJobAccept = data.stream().map(row -> (Long) row[3]).toList();
+
+        return Map.of(
+                "months", months,
+                "appliedJobs", appliedJobs,
+                "totalJobs", totalJobs,
+                "appliedJobAccept", appliedJobAccept
+        );
     }
 
     @Override
