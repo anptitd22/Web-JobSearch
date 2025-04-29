@@ -72,8 +72,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "current_industry", length = 200)
     private String currentIndustry;
 
-    @Column(name = "current_job_function")
-    private String currentJobFunction;
+    @ManyToOne
+    @JoinColumn(name = "current_job_function")
+    private JobFunction currentJobFunction;
 
     @Column(name = "years_of_experience")
     private Long yearsOfExperience;

@@ -23,7 +23,7 @@ public class JobViewHistoryServiceImpl implements com.project.webIT.services.ISe
 
     @Override
     public List<JobViewHistory> jobViewHistories(Long userId) {
-        return jobViewHistoryRepository.findByUserIdOrderByUpdatedAtDesc(userId);
+        return jobViewHistoryRepository.findByUserIdAndJobIsActiveTrueOrderByUpdatedAtDesc(userId);
     }
 
     @Override

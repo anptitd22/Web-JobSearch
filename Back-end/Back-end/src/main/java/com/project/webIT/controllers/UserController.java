@@ -199,6 +199,7 @@ public class UserController{
             HttpServletRequest request
     ) throws Exception {
 //        if (codeManager.isCodeUsed(code)) {
+//
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 //                    ObjectResponse.<String>builder()
 //                            .status(HttpStatus.BAD_REQUEST)

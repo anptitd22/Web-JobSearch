@@ -7,6 +7,7 @@ import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.exceptions.InvalidParamException;
 import com.project.webIT.models.Role;
 import com.project.webIT.models.User;
+import com.project.webIT.repositories.JobFunctionRepository;
 import com.project.webIT.repositories.RoleRepository;
 import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.utils.MessageKeys;
@@ -36,6 +37,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
     private final JwtTokenHelper jwtTokenHelper;
     private final AuthenticationManager authenticationManager;
     private final LocalizationUtils localizationUtils;
+    private final JobFunctionRepository jobFunctionRepository;
 
     @Transactional
     @Override
@@ -178,7 +180,6 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
                         .password("")
                         .build();
 
-                log.info("sbcegfregre {}, {}",newUser.getGoogleAccountId(),newUser.getFacebookAccountId());
                 userRepository.save(newUser);
                 return jwtTokenHelper.generateTokenFromUser(newUser);
             }
@@ -301,8 +302,10 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
         if (updateUserDTO.getCurrentIndustry() != null && !updateUserDTO.getCurrentIndustry().isEmpty()) {
             existingUser.setCurrentIndustry(updateUserDTO.getCurrentIndustry());
         }
-        if (updateUserDTO.getCurrentJobFunction() != null && !updateUserDTO.getCurrentJobFunction().isEmpty()) {
-            existingUser.setCurrentJobFunction(updateUserDTO.getCurrentJobFunction());
+        if (updateUserDTO.getCurrentJobFunction() != null && updateUserDTO.getCurrentJobFunction() != 0) {
+            var existingJobFunction = jobFunctionRepository.findById(updateUserDTO.getCurrentJobFunction())
+                    .orElseThrow(() -> new DataNotFoundException("job function not found"));
+            existingUser.setCurrentJobFunction(existingJobFunction);
         }
         if (updateUserDTO.getCurrentJobLevel() != null && !updateUserDTO.getCurrentJobLevel().isEmpty()) {
             existingUser.setCurrentJobLevel(updateUserDTO.getCurrentJobLevel());

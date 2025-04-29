@@ -63,6 +63,9 @@ public class UserResponse {
     @JsonProperty("current_job_function")
     private String currentJobFunction;
 
+    @JsonProperty("current_job_function_id")
+    private Long currentJobFunctionId;
+
     @JsonProperty("years_of_experience")
     private Long yearsOfExperience;
 
@@ -99,7 +102,8 @@ public class UserResponse {
                 .isActive(user.isActive())
                 .highestEducation(user.getHighestEducation())
                 .currentIndustry(user.getCurrentIndustry())
-                .currentJobFunction(user.getCurrentJobFunction())
+                .currentJobFunction(user.getCurrentJobFunction().getName())
+                .currentJobFunctionId(user.getCurrentJobFunction().getId())
                 .yearsOfExperience(user.getYearsOfExperience())
                 .jobTitle(user.getJobTitle())
                 .note(user.getNote())

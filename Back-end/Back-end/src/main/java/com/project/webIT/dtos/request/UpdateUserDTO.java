@@ -54,7 +54,7 @@ public class UpdateUserDTO {
     private String currentIndustry;
 
     @JsonProperty("current_job_function")
-    private String currentJobFunction;
+    private Long currentJobFunction;
 
     @JsonProperty("years_of_experience")
     private Long yearsOfExperience;

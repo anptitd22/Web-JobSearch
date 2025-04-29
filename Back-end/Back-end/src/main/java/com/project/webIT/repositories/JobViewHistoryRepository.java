@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface JobViewHistoryRepository extends JpaRepository<JobViewHistory, Long> {
-    List<JobViewHistory> findByUserIdOrderByUpdatedAtDesc(Long userId);
+    List<JobViewHistory> findByUserIdAndJobIsActiveTrueOrderByUpdatedAtDesc(Long userId);
 
     Optional<JobViewHistory> findByUserIdAndJobId(Long userId, Long jobId);
 }

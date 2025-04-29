@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.webIT.models.JobViewHistory;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -39,6 +41,12 @@ public class JobViewHistoryResponse{
     @JsonProperty("view")
     private Long view;
 
+    @JsonProperty("update_at")
+    private LocalDateTime updateAt;
+
+    @JsonProperty("end_at")
+    private LocalDateTime endAt;
+
     //company
     @JsonProperty("company_name")
     private String companyName;
@@ -60,6 +68,7 @@ public class JobViewHistoryResponse{
                 .companyLogo(jobViewHistory.getJob().getCompany().getLogo())
                 .viewCount(jobViewHistory.getViewCount())
                 .jobId(jobViewHistory.getJob().getId())
+                .endAt(jobViewHistory.getJob().getEndAt())
                 .build();
     }
 }
