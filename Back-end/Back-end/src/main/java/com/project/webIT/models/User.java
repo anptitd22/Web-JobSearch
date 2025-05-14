@@ -1,7 +1,6 @@
 package com.project.webIT.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.project.webIT.utils.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
@@ -73,8 +72,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "current_industry", length = 200)
     private String currentIndustry;
 
-    @Column(name = "current_job_function")
-    private String currentJobFunction;
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "current_job_function", nullable = true)
+    private JobFunction currentJobFunction;
 
     @Column(name = "years_of_experience")
     private Long yearsOfExperience;
@@ -85,8 +85,11 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "job_title", length = 200)
     private String jobTitle;
 
-    @Column(name = "note", length = 200)
+    @Column(name = "note", length = 500)
     private String note;
+
+    @Column(name = "target", length = 500)
+    private String target;
 
     @Column(name = "nationality", length = 50)
     private String nationality;
@@ -98,26 +101,13 @@ public class User extends BaseEntity implements UserDetails {
     private String maritalStatus;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @OrderBy("updatedAt DESC")
-    @JsonManagedReference
-    private List<AppliedJob> appliedJobs = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     @Where(clause = "is_active = true")
-    private List<UserCV> userCVS = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @OrderBy("createdAt DESC")
-    @JsonManagedReference
-    private List<UserPayment> userPayments = new ArrayList<>();
+    private List<UserCV> userCVs = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        authorityList.add(new SimpleGrantedAuthority("ROLE_"+getRole().getName().toUpperCase()));
-//        authorityList.add(new SimpleGrantedAuthority("ROLE_USER"));
-        return authorityList;
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.getName().toUpperCase()));
     }
 
     @Override
@@ -142,6 +132,6 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return this.isActive;
     }
 }

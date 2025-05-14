@@ -1,66 +1,106 @@
 package com.project.webIT.controllers;
 
-import com.project.webIT.dtos.jobs.JobFunctionDTO;
+import com.project.webIT.dtos.request.JobFunctionDTO;
+import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.JobFunction;
-import com.project.webIT.services.JobFunctionService;
-import jakarta.validation.*;
+import com.project.webIT.dtos.response.ObjectResponse;
+import com.project.webIT.services.JobFunctionServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("${api.prefix}/functions")
-//@Validated
-//Dependency Injection
 @RequiredArgsConstructor
-public class JobFunctionController {
+public class JobFunctionController{
 
-    private final JobFunctionService jobFunctionService;
+    private final JobFunctionServiceImpl jobFunctionService;
+
     @PostMapping("")
-    public ResponseEntity<?> createJobFunction(
-            @Valid @RequestBody JobFunctionDTO jobFunctionDTO,
-            BindingResult result
-    ){
-        try {
-            if (result.hasErrors()) {
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            jobFunctionService.createJobFunction(jobFunctionDTO);
-            return ResponseEntity.ok().body("create JobFunction successfully " + jobFunctionDTO);
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ObjectResponse<?>> create(
+            @RequestBody JobFunctionDTO request,
+            BindingResult result) throws Exception {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body(
+                    ObjectResponse.<Void>builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .message(ValidationHelper.extractDetailedErrorMessages(result))
+                            .data(null)
+                            .build()
+            );
         }
+
+        jobFunctionService.createJobFunction(request);
+
+        return ResponseEntity.ok(
+                ObjectResponse.<Void>builder()
+                        .status(HttpStatus.OK)
+                        .message("Job function created successfully")
+                        .data(null)
+                        .build()
+        );
     }
 
-    @GetMapping("")
-    public ResponseEntity<?> getJobFunctions(){
-        List<JobFunction> jobFunctions = jobFunctionService.getAllJobFunctions();
-        return ResponseEntity.ok().body(jobFunctions);
+    @PutMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ObjectResponse<?>> update(
+            @Valid @PathVariable("id") Long id,
+            @Valid @RequestBody JobFunctionDTO request,
+            BindingResult result
+    ) throws Exception {
+        JobFunction updatedJobFunction = jobFunctionService.updateJobFunction(id, request);
+
+        return ResponseEntity.ok(
+                ObjectResponse.<JobFunction>builder()
+                        .status(HttpStatus.OK)
+                        .message("Job function updated successfully")
+                        .data(updatedJobFunction)
+                        .build()
+        );
     }
 
-    @PutMapping("/{id}")
-    @Transactional
-    public ResponseEntity<?> updateJobFunction(
-            @Valid @PathVariable Long id,
-            @Valid @RequestBody JobFunctionDTO jobFunctionDTO
-    ){
-        JobFunction newJobFunction = jobFunctionService.updateJobFunction(id,jobFunctionDTO);
-        return ResponseEntity.ok().body(newJobFunction);
+    @GetMapping("get")
+    public ResponseEntity<ObjectResponse<?>> getAll() {
+        List<JobFunction> jobFunctionEntities = jobFunctionService.getAllJobFunctions();
+
+        return ResponseEntity.ok(
+                ObjectResponse.<List<JobFunction>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Job functions retrieved successfully")
+                        .data(jobFunctionEntities)
+                        .build()
+        );
     }
 
-    @DeleteMapping("/{id}")
-    @Transactional
-    public ResponseEntity<String> deleteJobFunction(@Valid @PathVariable Long id){
+    @GetMapping("get/{id}")
+    public ResponseEntity<ObjectResponse<?>> getById(@PathVariable("id") Long id) throws Exception {
+        return null;
+    }
+
+    @DeleteMapping("delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ObjectResponse<?>> deleteById(@PathVariable("id") Long id) throws Exception {
         jobFunctionService.deleteJobFunction(id);
-        return ResponseEntity.ok().body("delete JobFunction successfully with id = "+id);
+
+        return ResponseEntity.ok(
+                ObjectResponse.<Void>builder()
+                        .status(HttpStatus.OK)
+                        .message("Job function deleted successfully")
+                        .data(null)
+                        .build()
+        );
+    }
+
+    @DeleteMapping("delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ObjectResponse<?>> deleteByListId(List<Long> listId) throws Exception {
+        return null;
     }
 }

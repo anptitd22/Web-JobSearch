@@ -4,7 +4,6 @@ import com.project.webIT.models.UserDashboard;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +19,7 @@ public interface UserDashboardRepository extends JpaRepository<UserDashboard, Lo
                   UNION SELECT 10 UNION SELECT 11) AS months
         )
         SELECT lm.month AS month,
-               COALESCE(ud.applied_jobs, 0) AS appliedJobs,
+               COALESCE(ud.applied_jobs, 0) AS appliedJobEntities,
                COALESCE(ud.job_views, 0) AS jobViews,
                COALESCE(ud.job_searches, 0) AS jobSearches
         FROM Last12Months lm

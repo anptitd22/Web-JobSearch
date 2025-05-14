@@ -1,15 +1,19 @@
 package com.project.webIT.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.project.webIT.utils.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.project.webIT.constant.AppliedJobStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
+import java.util.List;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Map;
 
 @Entity
 @Table(name = "applied_job")
-@Data
 @Getter
 @Setter
 @AllArgsConstructor
@@ -18,7 +22,6 @@ import java.time.LocalDateTime;
 public class AppliedJob extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "id") //khong can thiet vi id giong mysql
     private Long id;
 
     @ManyToOne
@@ -65,7 +68,8 @@ public class AppliedJob extends BaseEntity {
     private LocalDateTime feedBackDate;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private AppliedJobStatus appliedJobStatus;
 
     @Column(name = "is_active")
     private boolean isActive;
@@ -81,4 +85,16 @@ public class AppliedJob extends BaseEntity {
 
     @Column(name = "years_of_experience")
     private Long yearsOfExperience;
+
+    @OneToMany (mappedBy = "appliedJob", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Where(clause = "is_active = true")
+    @JsonManagedReference
+    private List<AppliedJobCV> appliedJobCVList = new ArrayList<>();
+
+    public static final Map<String, String> STATUS_MAP = Map.of(
+            "Pending", "Đang duyệt",
+            "Accept", "Chấp nhận",
+            "Refuse", "Từ chối",
+            "Interview", "Đã phỏng vấn"
+    );
 }

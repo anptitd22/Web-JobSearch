@@ -1,49 +1,36 @@
 package com.project.webIT.configurations;
 
-import com.project.webIT.repositories.UserRepository;
+import com.project.webIT.provider.AdminAuthenticationProvider;
+import com.project.webIT.provider.CompanyAuthenticationProvider;
+import com.project.webIT.provider.UserAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
-@Configuration  //tu dong khoi tao
+import java.util.Arrays;
+import java.util.List;
+
+@Configuration
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final UserRepository userRepository;
-    //ten tai khoan: email
-    @Bean
-    public UserDetailsService userDetailService(){
-        return email -> userRepository
-                    .findByEmail(email)
-                    .orElseThrow(() ->
-                            new UsernameNotFoundException(
-                                    "Cannot find user with email = "+email));
-    }
-    //ma hoa mat khau
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder(); //tu dong ma hoa
-    }
+
+    private final UserAuthenticationProvider userAuthProvider;
+    private final CompanyAuthenticationProvider companyAuthProvider;
+    private final AdminAuthenticationProvider adminAuthenticationProvider;
+
     //tai khoan
     @Bean
-    public AuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailService());
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
-    //quan li tai khoan
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config
-    ) throws Exception{
-        return config.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() {
+        List<AuthenticationProvider> providers = Arrays.asList(
+                userAuthProvider,
+                companyAuthProvider,
+                adminAuthenticationProvider
+        );
+        return new ProviderManager(providers);
     }
 }

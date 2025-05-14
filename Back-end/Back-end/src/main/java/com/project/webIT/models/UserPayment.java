@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Entity
 @Table(name = "user_payments")
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserPayment {
+public class UserPayment extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,6 +39,10 @@ public class UserPayment {
     @Column(name="status")
     private String status;
 
-    @Column(name="created_at")
-    private LocalDateTime createdAt;
+    public static final Map<String, String> STATUS_MAP = Map.of(
+            "COMPLETED", "Thành công",
+            "APPROVED", "Đã duyệt",
+            "FAILED", "Thất bại",
+            "CANCELED", "Đã hủy"
+    );
 }

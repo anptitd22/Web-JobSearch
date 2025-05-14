@@ -1,13 +1,16 @@
 package com.project.webIT.controllers;
 
 import com.project.webIT.models.JobViewHistory;
-import com.project.webIT.models.UsersFavoriteJobs;
-import com.project.webIT.repositories.JobViewHistoryRepository;
-import com.project.webIT.response.jobs.JobViewHistoryResponse;
-import com.project.webIT.response.users.UsersFavoriteJobsResponse;
-import com.project.webIT.services.JobViewHistoryService;
+import com.project.webIT.dtos.response.ObjectResponse;
+import com.project.webIT.dtos.response.JobViewHistoryResponse;
+import com.project.webIT.models.User;
+import com.project.webIT.services.JobViewHistoryServiceImpl;
+import com.project.webIT.services.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,32 +20,47 @@ import java.util.stream.Collectors;
 @RequestMapping("${api.prefix}/history")
 @RequiredArgsConstructor
 public class JobViewHistoryController {
-    private final JobViewHistoryService jobViewHistoryService;
+    private final JobViewHistoryServiceImpl jobViewHistoryServiceImpl;
+    private final UserServiceImpl userService;
 
-    @GetMapping("{userId}")
-    public ResponseEntity<?> saveFavorite(
-            @PathVariable("userId") Long userId
-    ) {
-        try{
-            List<JobViewHistory> jobViewHistories = jobViewHistoryService.jobViewHistories(userId);
-            return ResponseEntity.ok(jobViewHistories.stream()
-                    .map(JobViewHistoryResponse::fromJobViewHistoryResponse)
-                    .collect(Collectors.toList()));
-        } catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @GetMapping("")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ObjectResponse<List<JobViewHistoryResponse>>> getJobViewHistories(
+            @AuthenticationPrincipal User user
+    ){
+//        String extractedToken = authorizationHeader.substring(7);
+//        User user = userService.getUserDetailsFromToken(extractedToken);
+        List<JobViewHistory> jobViewHistories = jobViewHistoryServiceImpl.jobViewHistories(user.getId());
+        List<JobViewHistoryResponse> responses = jobViewHistories.stream()
+                .map(JobViewHistoryResponse::fromJobViewHistoryResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(
+                ObjectResponse.<List<JobViewHistoryResponse>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Retrieved viewed jobs successfully")
+                        .data(responses)
+                        .build()
+        );
     }
 
-    @PostMapping("{userId}/{jobId}")
-    public ResponseEntity<?> saveFavorite(
-            @PathVariable("userId") Long userId,
+    @PostMapping("user/{jobId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ObjectResponse<JobViewHistoryResponse>> saveJobViewHistory(
+//            @RequestHeader("Authorization") String authorizationHeader,
+            @AuthenticationPrincipal User user,
             @PathVariable("jobId") Long jobId
-    ) {
-        try{
-            JobViewHistory jobViewHistory = jobViewHistoryService.saveJobViewHistory(userId, jobId);
-            return ResponseEntity.ok(JobViewHistoryResponse.fromJobViewHistoryResponse(jobViewHistory));
-        } catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    ) throws Exception {
+//        String extractedToken = authorizationHeader.substring(7);
+//        User user = userService.getUserDetailsFromToken(extractedToken);
+        JobViewHistory jobViewHistory = jobViewHistoryServiceImpl.saveJobViewHistory(user.getId(), jobId);
+
+        return ResponseEntity.ok(
+                ObjectResponse.<JobViewHistoryResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("Job view saved successfully")
+                        .data(JobViewHistoryResponse.fromJobViewHistoryResponse(jobViewHistory))
+                        .build()
+        );
     }
 }

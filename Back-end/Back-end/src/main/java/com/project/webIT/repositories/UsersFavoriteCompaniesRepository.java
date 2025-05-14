@@ -1,14 +1,15 @@
 package com.project.webIT.repositories;
 
-import com.project.webIT.models.UsersFavoriteCompanies;
-import com.project.webIT.models.UsersFavoriteJobs;
+import com.project.webIT.models.UserFavoriteCompany;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UsersFavoriteCompaniesRepository extends JpaRepository<UsersFavoriteCompanies, Long> {
-    List<UsersFavoriteCompanies> findByUserId(Long userId);
+public interface UsersFavoriteCompaniesRepository extends JpaRepository<UserFavoriteCompany, Long> {
+    List<UserFavoriteCompany> findByUserId(Long userId);
 
-    Optional<UsersFavoriteCompanies> findByUserIdAndCompanyId(Long userId, Long companyId);
+    List<UserFavoriteCompany> findByCompanyId(Long companyId);
+
+    Optional<UserFavoriteCompany> findByUserIdAndCompanyId(Long userId, Long companyId);
 }

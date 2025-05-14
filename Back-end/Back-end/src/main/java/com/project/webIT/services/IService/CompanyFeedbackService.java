@@ -1,16 +1,16 @@
 package com.project.webIT.services.IService;
 
-import com.project.webIT.dtos.companies.CompanyFeedbackDTO;
-import com.project.webIT.models.CompanyFeedback;
-
-import java.util.List;
+import com.project.webIT.dtos.request.CompanyFeedbackAcceptDTO;
+import com.project.webIT.dtos.request.CompanyFeedbackRefuseDTO;
+import com.project.webIT.models.CompanyFeedbackAccept;
+import com.project.webIT.models.CompanyFeedbackRefuse;
 
 public interface CompanyFeedbackService {
-    CompanyFeedback createCompanyFeedback(CompanyFeedbackDTO companyFeedbackDTO) throws Exception;
+    CompanyFeedbackAccept createFeedbackAccept (CompanyFeedbackAcceptDTO companyFeedbackAcceptDTO) throws Exception;
 
-    CompanyFeedback getCompanyFeedback(Long id) throws Exception;
+    CompanyFeedbackAccept getFeedbackAccept (Long id) throws Exception;
 
-    List<CompanyFeedback> findByCompanyId(Long companyId);
+    CompanyFeedbackRefuse createFeedbackRefuse (CompanyFeedbackRefuseDTO companyFeedbackRefuseDTO) throws Exception;
 
-    void deleteCompanyFeedback (Long id);
+    CompanyFeedbackRefuse getFeedbackRefuse (Long id) throws Exception;
 }

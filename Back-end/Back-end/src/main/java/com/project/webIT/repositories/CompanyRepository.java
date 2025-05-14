@@ -1,21 +1,20 @@
 package com.project.webIT.repositories;
 
 import com.project.webIT.models.Company;
-import com.project.webIT.models.Job;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company,Long> {
     boolean existsByName (String name);
-//    List<Company> findByCompanyId(Long companyId);
+
+    Optional<Company> findByAccount (String account);
 
     @Query("SELECT c From Company c WHERE "+
             "(:industryId IS NULL OR :industryId = 0 OR c.industry.id = :industryId) " +
@@ -23,5 +22,15 @@ public interface CompanyRepository extends JpaRepository<Company,Long> {
     Page<Company> searchCompanies
             (@Param("keyword") String keyword,
              @Param("industryId") Long industryId,
+             Pageable pageable);
+
+    @Query("SELECT c From Company c WHERE "+
+            "(:industryId IS NULL OR :industryId = 0 OR c.industry.id = :industryId) " +
+            "AND (:keyword IS NULL OR :keyword = '' OR c.name LIKE %:keyword%) " +
+            "AND (:active IS NULL OR :active = c.isActive)")
+    Page<Company> managerCompanies
+            (@Param("keyword") String keyword,
+             @Param("industryId") Long industryId,
+             @Param("active") Boolean active,
              Pageable pageable);
 }

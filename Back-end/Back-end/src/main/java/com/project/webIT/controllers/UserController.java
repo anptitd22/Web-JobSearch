@@ -1,276 +1,326 @@
 package com.project.webIT.controllers;
 
-import com.project.webIT.dtos.users.*;
+import com.project.webIT.dtos.request.*;
+import com.project.webIT.dtos.response.DataListResponse;
+import com.project.webIT.dtos.response.UserPaymentResponse;
+import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.User;
-import com.project.webIT.response.auth.LoginResponse;
-import com.project.webIT.response.auth.RegisterResponse;
-import com.project.webIT.response.users.UserResponse;
-import com.project.webIT.services.AuthService;
-import com.project.webIT.services.CloudinaryService;
-import com.project.webIT.services.UserService;
+import com.project.webIT.dtos.response.ObjectResponse;
+import com.project.webIT.dtos.response.UserResponse;
+import com.project.webIT.services.*;
 import com.project.webIT.components.LocalizationUtils;
 import com.project.webIT.utils.MessageKeys;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
 @RequiredArgsConstructor
-public class UserController {
-    private final UserService userService;
+@Slf4j
+public class UserController{
+    private final UserServiceImpl userServiceImpl;
     private final LocalizationUtils localizationUtils;
-    private final CloudinaryService cloudinaryService;
-    private final AuthService authService;
+    private final CloudinaryServiceImpl cloudinaryServiceImpl;
+    private final AuthServiceImpl authServiceImpl;
+    private final FileServiceImpl fileServiceImpl;
+    private final OAuthCodeManager codeManager;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> createUser(
+    @PostMapping("register")
+    public ResponseEntity<ObjectResponse<?>> createUser(
             @Valid @RequestBody UserDTO userDTO,
             BindingResult result
-    ){
-        try{
-            if (result.hasErrors()){
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            if (!userDTO.getPassword().equals(userDTO.getRetypePassword())){
-                return ResponseEntity.badRequest().body(RegisterResponse.builder()
-                        .message(localizationUtils.getLocalizedMessage(MessageKeys.PASSWORD_NOT_MATCH))
-                        .build());
-            }
-            User newUser = userService.createUser(userDTO);
-            return ResponseEntity.ok().body(RegisterResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_SUCCESSFULLY,newUser))
-                    .user(newUser)
-                    .build());
-        } catch (Exception e) {
+    ) throws Exception {
+        if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(
-                    localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_FAILED, e.getMessage()));
+                    ObjectResponse.<Void>builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .message(ValidationHelper.extractDetailedErrorMessages(result))
+                            .build()
+            );
         }
+        User newUser = userServiceImpl.createUser(userDTO);
+        return ResponseEntity.ok(
+                ObjectResponse.<Void>builder()
+                        .status(HttpStatus.OK)
+                        .message(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_SUCCESSFULLY, newUser))
+                        .build()
+        );
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
+    public ResponseEntity<ObjectResponse<String>> login(
             @RequestBody UserLoginDTO userLoginDTO,
-            HttpServletRequest request
-    ){
-        //kiem tra dang nhap va sinh token
-        try {
-//            String userAgent = request.getHeader("User-Agent");
-            String token = userService.loginUser(userLoginDTO);
-            //tra token trong response
-            return ResponseEntity.ok().body(LoginResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY))
-                    .token(token).build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(LoginResponse.builder()
-                    .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_FAILED,e.getMessage()))
-                    .build());
+            BindingResult result
+    ) throws Exception {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body(
+                    ObjectResponse.<String>builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .message(ValidationHelper.extractDetailedErrorMessages(result))
+                            .data(null)
+                            .build()
+            );
         }
+        String token = userServiceImpl.loginUser(userLoginDTO);
+        return ResponseEntity.ok(
+                ObjectResponse.<String>builder()
+                        .status(HttpStatus.OK)
+                        .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY))
+                        .data(token)
+                        .build()
+        );
     }
 
-    @PostMapping("/details")
-    public ResponseEntity<UserResponse> getUserDetails(
-            @RequestHeader("Authorization") String authorizationHeader
-    ){
-        //kiem tra dang nhap va sinh token
-        try {
-            String extractedToken = authorizationHeader.substring(7); //bo Bearer
-            User user = userService.getUserDetailsFromToken(extractedToken);
-            return ResponseEntity.ok().body(UserResponse.fromUser(user));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+    @GetMapping("/details")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ObjectResponse<UserResponse>> getUserDetails(
+            @AuthenticationPrincipal User user
+//            @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception {
+//        String extractedToken = authorizationHeader.substring(7);
+//        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
+        return ResponseEntity.ok(
+                ObjectResponse.<UserResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("Successfully retrieved user information")
+                        .data(UserResponse.fromUser(user))
+                        .build()
+        );
+    }
+
+    @PostMapping(value = "uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ObjectResponse<Map>> postImage(
+            @RequestPart("files") List<MultipartFile> files,
+            @AuthenticationPrincipal User user
+    ) throws Exception {
+        fileServiceImpl.validateImageAvatar(files);
+        MultipartFile file = files.get(0);
+        String publicId = userServiceImpl.getPublicId(user.getId());
+        if (!publicId.isEmpty()) {
+            return ResponseEntity.ok(
+                    ObjectResponse.<Map>builder()
+                            .status(HttpStatus.OK)
+                            .message("Avatar updated successfully")
+                            .data(cloudinaryServiceImpl.updateImage(publicId, file))
+                            .build()
+            );
         }
+        return ResponseEntity.ok(
+                ObjectResponse.<Map>builder()
+                        .status(HttpStatus.OK)
+                        .message("Avatar uploaded successfully")
+                        .data(cloudinaryServiceImpl.upload(file))
+                        .build()
+        );
     }
 
-    private boolean isImageFile(MultipartFile file) {
-        String contentType = file.getContentType();
-        return contentType != null && (contentType.endsWith(".jpg") || contentType.endsWith(".png"));
-    }
-
-    @PostMapping(value = "uploads/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> postImage(
-            @PathVariable("userId") Long userId,
-            @RequestPart("files") List<MultipartFile> files
-    ){
-        try{
-            if (files == null || files.isEmpty()) {
-                files = new ArrayList<>(); //truong hop khong tai file
-            }
-            if(files.size() > 1){
-                return ResponseEntity.badRequest().body("You can only upload maximum 1 images");
-            }
-            MultipartFile file = files.getFirst();
-            if (file.getSize() == 0) { //truong hop file rong
-                return ResponseEntity.badRequest().body("upload fail");
-            }
-            if (file.getSize() > 10 * 1024 * 1024) { //kiem tra kich thuoc file anh
-                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).
-                        body("File is too large, Maximum is 10MB");
-            }
-            if (isImageFile(file)) {
-                return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).
-                        body("File must be an image");
-            };
-            String publicId = userService.getPublicId(userId);
-            if (!publicId.isEmpty()){
-                return ResponseEntity.ok().body(cloudinaryService.updateImage(publicId,file));
-            }
-            return ResponseEntity.ok().body(cloudinaryService.upload(file));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    @PutMapping("details/{userId}")
-    public ResponseEntity<?> updateUser(
-            @PathVariable ("userId") Long userId,
+    @PutMapping("details")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ObjectResponse<UserResponse>> updateUser(
             @RequestBody UpdateUserDTO updateUserDTO,
-            @RequestHeader("Authorization") String authorizationHeader
-    ){
-        try {
-            String extractedToken = authorizationHeader.substring(7); //bo Bearer
-            User user = userService.getUserDetailsFromToken(extractedToken);
-            //kiem tra xem dung tai khoan khong
-            if(!Objects.equals(user.getId(), userId)){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-
-            User updateUser = userService.updateUser(userId, updateUserDTO);
-            return ResponseEntity.ok().body(UserResponse.fromUser(updateUser));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error",e.getMessage()));
-        }
+            @AuthenticationPrincipal User user
+    ) throws Exception {
+        User updateUser = userServiceImpl.updateUser(user.getId(), updateUserDTO);
+        return ResponseEntity.ok(
+                ObjectResponse.<UserResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("User information updated successfully")
+                        .data(UserResponse.fromUser(updateUser))
+                        .build()
+        );
     }
 
-    @PutMapping("password/{userId}")
-    public ResponseEntity<UserResponse> updatePassword(
-            @PathVariable ("userId") Long userId,
+    @PutMapping("password")
+    public ResponseEntity<ObjectResponse<UserResponse>> updatePassword(
             @RequestBody PasswordDTO passwordDTO,
             @RequestHeader("Authorization") String authorizationHeader
-    ){
-        try {
-            String extractedToken = authorizationHeader.substring(7); //bo Bearer
-            User user = userService.getUserDetailsFromToken(extractedToken);
-            //kiem tra xem dung tai khoan khong
-            if(!Objects.equals(user.getId(), userId)){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-
-            User updateUser = userService.updatePassword(userId, passwordDTO);
-            return ResponseEntity.ok().body(UserResponse.fromUser(updateUser));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    ) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
+        User updateUser = userServiceImpl.updatePassword(user, passwordDTO);
+        return ResponseEntity.ok(
+                ObjectResponse.<UserResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("Password changed successfully")
+                        .data(UserResponse.fromUser(updateUser))
+                        .build()
+        );
     }
 
-    @PutMapping("email/{userId}")
-    public ResponseEntity<?> updateEmail(
-            @PathVariable ("userId") Long userId,
+    @PutMapping("email")
+    public ResponseEntity<ObjectResponse<String>> updateEmail(
             @RequestBody EmailDTO emailDTO,
             @RequestHeader("Authorization") String authorizationHeader
+    ) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userServiceImpl.getUserDetailsFromToken(extractedToken);
+        String token = userServiceImpl.updateEmail(user.getId(), emailDTO);
+        return ResponseEntity.ok(
+                ObjectResponse.<String>builder()
+                        .status(HttpStatus.OK)
+                        .message("Email changed successfully")
+                        .data(token)
+                        .build()
+        );
+    }
+    @DeleteMapping("delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ObjectResponse<Void>> deleteUser(
+            @Valid @PathVariable("id") Long id
     ){
-        try {
-            String extractedToken = authorizationHeader.substring(7); //bo Bearer
-            User user = userService.getUserDetailsFromToken(extractedToken);
-            //kiem tra xem dung tai khoan khong
-            if(!Objects.equals(user.getId(), userId)){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            User updateUser = userService.updateEmail(userId, emailDTO);
-            //tra token trong response
-            return ResponseEntity.ok().body(UserResponse.fromUser(updateUser));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        userServiceImpl.deleteUser(id);
+        return ResponseEntity.ok().body(ObjectResponse.<Void>builder()
+                .message("delete User successfully")
+                .status(HttpStatus.OK)
+                .build());
+    }
+
+    @GetMapping("get/page")
+    public ResponseEntity<ObjectResponse<DataListResponse<UserResponse>>> getUserPage (
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(required = false, name = "active") Boolean active,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "20", name = "limit") int limit
+    ){
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("updatedAt").descending());
+        Page<UserResponse> userResponses = userServiceImpl.managerUser(keyword, active, pageRequest);
+        List<UserResponse> userListResponses = userResponses.getContent();
+
+        DataListResponse<UserResponse> dataListResponse = DataListResponse.<UserResponse>builder()
+                .dataList(userListResponses)
+                .totalData(userResponses.getTotalElements())
+                .totalPages(userResponses.getTotalPages())
+                .build();
+
+        return ResponseEntity.ok(
+                ObjectResponse.<DataListResponse<UserResponse>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Lấy danh sách thanh toán thành công")
+                        .data(dataListResponse)
+                        .build()
+        );
     }
 
     @GetMapping("auth/social-login")
-    public ResponseEntity<String> socialAuth (
+    public ResponseEntity<ObjectResponse<String>> socialAuth(
             @RequestParam("login_type") String loginType
-    ){
-        System.out.println("Received request with login_type: " + loginType);
+    ) {
         loginType = loginType.trim().toLowerCase();
-        String url = authService.generateAuthUrl(loginType);
-        return ResponseEntity.ok(url);
+        String url = authServiceImpl.generateAuthUrl(loginType);
+        return ResponseEntity.ok(
+                ObjectResponse.<String>builder()
+                        .status(HttpStatus.OK)
+                        .message("Social login URL generated")
+                        .data(url)
+                        .build()
+        );
     }
 
     @GetMapping("auth/social/callback")
-    public ResponseEntity<?>callback (
+    public ResponseEntity<ObjectResponse<String>> callback(
             @RequestParam("code") String code,
             @RequestParam(name = "login_type", required = false) String loginType,
             HttpServletRequest request
     ) throws Exception {
-        System.out.println("Code: " + code + ", LoginType: " + loginType);
-        Map<String, Object> userInfo = authService.authenticateAndFetchProfile(code, loginType);
-        if(userInfo == null) {
-//            return ResponseEntity.badRequest().body(new ResponseObject("Failed to authenticate",
-//                    HttpStatus.BAD_REQUEST,null));
-            return ResponseEntity.badRequest().body("Failed to authenticate");
-        }
+//        if (codeManager.isCodeUsed(code)) {
+//
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                    ObjectResponse.<String>builder()
+//                            .status(HttpStatus.BAD_REQUEST)
+//                            .message("Mã ủy quyền đã được sử dụng")
+//                            .data(null)
+//                            .build()
+//            );
+//        }
+//
+//        // Đánh dấu mã đã được sử dụng
+//        codeManager.markCodeAsUsed(code);
+
+        // Phần còn lại của mã của bạn...
+        Map<String, Object> userInfo = authServiceImpl.authenticateAndFetchProfile(code, loginType);
+
         String accountId = "";
         String name = "";
         String picture = "";
         String email = "";
 
-        if (loginType.trim().equals("google")) {
-            accountId = (String) Objects.requireNonNullElse(userInfo.get("sub"), "");
-            name = (String) Objects.requireNonNullElse(userInfo.get("name"), "");
-            picture = (String) Objects.requireNonNullElse(userInfo.get("picture"), "");
-            email = (String) Objects.requireNonNullElse(userInfo.get("email"), "");
-        } else if (loginType.trim().equals("facebook")) {
-//            loginType: "facebook"
-            accountId = (String) Objects.requireNonNullElse(userInfo.get("id"), "");
-            name = (String) Objects.requireNonNullElse(userInfo.get("name"), "");
-            email = (String) Objects.requireNonNullElse(userInfo.get("email"), "");
-            // Lấy URL ảnh từ cấu trúc dữ liệu của Facebook
-            Object pictureObj = userInfo.get("picture");
-            if (pictureObj instanceof Map) {
-                Map<?, ?> pictureData = (Map<?, ?>) pictureObj;
-                Object dataObj = pictureData.get("data");
-                if (dataObj instanceof Map) {
-                    Map<?, ?> dataMap = (Map<?, ?>) dataObj;
-                    Object urlObj = dataMap.get("url");
-                    if (urlObj instanceof String) {
-                        picture = (String) urlObj;
+        loginType = loginType != null ? loginType.trim().toLowerCase() : "";
+
+        switch (loginType) {
+            case "google":
+                accountId = (String) Objects.requireNonNullElse(userInfo.get("sub"), "");
+                name = (String) Objects.requireNonNullElse(userInfo.get("name"), "");
+                picture = (String) Objects.requireNonNullElse(userInfo.get("picture"), "");
+                email = (String) Objects.requireNonNullElse(userInfo.get("email"), "");
+                break;
+
+            case "facebook":
+                accountId = (String) Objects.requireNonNullElse(userInfo.get("id"), "");
+                name = (String) Objects.requireNonNullElse(userInfo.get("name"), "");
+                email = (String) Objects.requireNonNullElse(userInfo.get("email"), "");
+                Object pictureObj = userInfo.get("picture");
+                if (pictureObj instanceof Map) {
+                    Map<?, ?> pictureData = (Map<?, ?>) pictureObj;
+                    Object dataObj = pictureData.get("data");
+                    if (dataObj instanceof Map) {
+                        Map<?, ?> dataMap = (Map<?, ?>) dataObj;
+                        Object urlObj = dataMap.get("url");
+                        if (urlObj instanceof String) {
+                            picture = (String) urlObj;
+                        }
                     }
                 }
-            }
+                break;
+
+            default:
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        ObjectResponse.<String>builder()
+                                .status(HttpStatus.BAD_REQUEST)
+                                .message("Invalid login type")
+                                .data(null)
+                                .build()
+                );
         }
-        // Tạo đối tượng UserLoginDTO
+
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
                 .email(email)
                 .fullName(name)
                 .password("")
                 .phoneNumber("")
-                .avatar(picture) //profileImage
-                .facebookAccountId("")
-                .googleAccountId("")
-                .roleId((long)1)
+                .avatar(picture)
+                .facebookAccountId(loginType.equals("facebook") ? accountId : "")
+                .googleAccountId(loginType.equals("google") ? accountId : "")
+                .roleId(1L)
                 .build();
-        if (loginType.trim().equals("google")) {
-            userLoginDTO.setGoogleAccountId(accountId);
-            //userLoginDTO.setFacebookAccountId("");
-        } else if (loginType.trim().equals("facebook")) {
-            userLoginDTO.setFacebookAccountId(accountId);
-            //userLoginDTO.setGoogleAccountId("");
-        }
 
-        return this.login(userLoginDTO,request);
+        // Đăng nhập và trả token
+        String token = userServiceImpl.loginUser(userLoginDTO);
+
+        return ResponseEntity.ok(
+                ObjectResponse.<String>builder()
+                        .status(HttpStatus.OK)
+                        .message("Social login successful")
+                        .data(token)
+                        .build()
+        );
     }
+
 }
