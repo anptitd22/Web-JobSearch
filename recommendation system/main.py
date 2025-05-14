@@ -34,8 +34,7 @@ try:
     class JobInput(BaseModel):
         jobId: int
 
-    # Dummy dữ liệu jobs
-    df_jobs = pd.read_sql(query, engine)  # hoặc load từ MySQL như bạn đã làm
+    df_jobs = pd.read_sql(query, engine)
     df_jobs = df_jobs.fillna("").copy()
 
     jobId_to_index = pd.Series(df_jobs.index, index=df_jobs['id']).to_dict()

@@ -30,6 +30,17 @@ public class AppliedJobCVServiceImpl {
         appliedJobCV.setIsActive(true);
         return appliedJobCVRepository.save(appliedJobCV);
     }
+    public AppliedJobCV updateAppliedJobCV(Long id, AppliedJobCVDTO appliedJobCVDTO)throws Exception{
+        var existingAppliedJob = appliedJobRepository.findById(appliedJobCVDTO.getAppliedJobId())
+                .orElseThrow(() -> new DataNotFoundException("applied job not found"));
+        var appliedJobCV = new AppliedJobCV();
+        appliedJobCV.setAppliedJob(existingAppliedJob);
+        appliedJobCV.setName(appliedJobCVDTO.getName());
+        appliedJobCV.setCvUrl(appliedJobCVDTO.getCvUrl());
+        appliedJobCV.setPublicIdCV(appliedJobCVDTO.getPublicIdCV());
+        appliedJobCV.setIsActive(true);
+        return appliedJobCVRepository.save(appliedJobCV);
+    }
 
     public List<AppliedJobCV> getAppliedJobCV(Long appliedJobId){
         return appliedJobCVRepository.findByAppliedJobIdAndIsActiveTrueOrderByUpdatedAtDesc(appliedJobId);

@@ -6,6 +6,7 @@ import com.project.webIT.models.User;
 import com.project.webIT.models.UserPayment;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class UserResponse {
     @JsonProperty("google_account_id")
     private String googleAccountId;
 
-    @JsonProperty("is_active")
+    @JsonProperty("user_is_active")
     private boolean isActive;
 
     @JsonProperty("role_id")
@@ -87,6 +88,12 @@ public class UserResponse {
     @JsonProperty("marital_status")
     private String maritalStatus;
 
+    @JsonProperty("user_updated_at")
+    private LocalDateTime updatedAt;
+
+    @JsonProperty("target")
+    private String target;
+
     public static UserResponse fromUser(User user){
         return UserResponse.builder()
                 .avatar(user.getAvatar())
@@ -102,8 +109,8 @@ public class UserResponse {
                 .isActive(user.isActive())
                 .highestEducation(user.getHighestEducation())
                 .currentIndustry(user.getCurrentIndustry())
-                .currentJobFunction(user.getCurrentJobFunction().getName())
-                .currentJobFunctionId(user.getCurrentJobFunction().getId())
+                .currentJobFunction(user.getCurrentJobFunction() != null ? user.getCurrentJobFunction().getName() : null)
+                .currentJobFunctionId(user.getCurrentJobFunction() != null ? user.getCurrentJobFunction().getId() : null)
                 .yearsOfExperience(user.getYearsOfExperience())
                 .jobTitle(user.getJobTitle())
                 .note(user.getNote())
@@ -114,6 +121,8 @@ public class UserResponse {
                 .lastName(user.getLastName())
                 .currentJobLevel(user.getCurrentJobLevel())
                 .roleID(user.getRole().getId())
+                .updatedAt(user.getUpdatedAt())
+                .target(user.getTarget())
                 .build();
     }
 }

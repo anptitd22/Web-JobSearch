@@ -1,5 +1,6 @@
 package com.project.webIT.services.IService;
 
+import com.project.webIT.constant.JobStatus;
 import com.project.webIT.dtos.request.JobDTO;
 import com.project.webIT.dtos.request.JobImageDTO;
 import com.project.webIT.models.Job;
@@ -19,6 +20,8 @@ public interface JobService {
     Job getJobByIdFromCompany(Long id) throws Exception;
 
     Page<JobResponse> getAllJobs(String keyword,Long jobFunctionId, PageRequest pageRequest);
+
+    Page<JobResponse> getAllJobsFromAdmin(String keyword, Long jobFunctionId, JobStatus jobStatus, PageRequest pageRequest);
 
     List<Job> getAllJobsNotPage();
 

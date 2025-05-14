@@ -1,6 +1,8 @@
 package com.project.webIT.controllers;
 
 import com.project.webIT.dtos.request.*;
+import com.project.webIT.dtos.response.DataListResponse;
+import com.project.webIT.dtos.response.UserPaymentResponse;
 import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.User;
 import com.project.webIT.dtos.response.ObjectResponse;
@@ -13,6 +15,9 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -176,6 +181,43 @@ public class UserController{
                         .build()
         );
     }
+    @DeleteMapping("delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ObjectResponse<Void>> deleteUser(
+            @Valid @PathVariable("id") Long id
+    ){
+        userServiceImpl.deleteUser(id);
+        return ResponseEntity.ok().body(ObjectResponse.<Void>builder()
+                .message("delete User successfully")
+                .status(HttpStatus.OK)
+                .build());
+    }
+
+    @GetMapping("get/page")
+    public ResponseEntity<ObjectResponse<DataListResponse<UserResponse>>> getUserPage (
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(required = false, name = "active") Boolean active,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "20", name = "limit") int limit
+    ){
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("updatedAt").descending());
+        Page<UserResponse> userResponses = userServiceImpl.managerUser(keyword, active, pageRequest);
+        List<UserResponse> userListResponses = userResponses.getContent();
+
+        DataListResponse<UserResponse> dataListResponse = DataListResponse.<UserResponse>builder()
+                .dataList(userListResponses)
+                .totalData(userResponses.getTotalElements())
+                .totalPages(userResponses.getTotalPages())
+                .build();
+
+        return ResponseEntity.ok(
+                ObjectResponse.<DataListResponse<UserResponse>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Lấy danh sách thanh toán thành công")
+                        .data(dataListResponse)
+                        .build()
+        );
+    }
 
     @GetMapping("auth/social-login")
     public ResponseEntity<ObjectResponse<String>> socialAuth(
@@ -280,4 +322,5 @@ public class UserController{
                         .build()
         );
     }
+
 }

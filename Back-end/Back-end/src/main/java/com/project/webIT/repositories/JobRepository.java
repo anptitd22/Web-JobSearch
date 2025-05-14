@@ -39,4 +39,14 @@ public interface JobRepository extends JpaRepository<Job, Long> {
             (@Param("jobFunctionId") Long jobFunctionId,
              @Param("keyword") String keyword,
              Pageable pageable);
+
+    @Query("SELECT j FROM Job j WHERE " +
+            "(:jobStatus IS NULL OR :jobStatus = '' OR j.jobStatus = :jobStatus) " +
+            "AND (:jobFunctionId IS NULL OR :jobFunctionId = 0 OR j.jobFunction.id = :jobFunctionId) " +
+            "AND (:keyword IS NULL OR :keyword = '' OR j.name LIKE %:keyword% OR j.description LIKE %:keyword%)")
+    Page<Job> searchJobsFromAdmin
+            (@Param("jobFunctionId") Long jobFunctionId,
+             @Param("keyword") String keyword,
+             @Param("jobStatus") JobStatus jobStatusEnum,
+             Pageable pageable);
 }

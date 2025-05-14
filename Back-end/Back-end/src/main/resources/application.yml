@@ -1,6 +1,7 @@
 #port-server
 server:
   port: 8088
+  address: 0.0.0.0
 
 spring:
   datasource:
@@ -107,4 +108,7 @@ management:
       exposure:
         #include: "health"
         include: health, info
-
+google:
+  recaptcha:
+    secret: 6LeoEisrAAAAJB6N1RKL5PE3CVwFRlN4HyT2Tzg
+#6LeoEisrAAAAADZ06P_twZz1lTK55Wz8Zg6kIZdD

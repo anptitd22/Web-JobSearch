@@ -72,8 +72,8 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "current_industry", length = 200)
     private String currentIndustry;
 
-    @ManyToOne
-    @JoinColumn(name = "current_job_function")
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "current_job_function", nullable = true)
     private JobFunction currentJobFunction;
 
     @Column(name = "years_of_experience")
@@ -85,8 +85,11 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "job_title", length = 200)
     private String jobTitle;
 
-    @Column(name = "note", length = 200)
+    @Column(name = "note", length = 500)
     private String note;
+
+    @Column(name = "target", length = 500)
+    private String target;
 
     @Column(name = "nationality", length = 50)
     private String nationality;
@@ -129,6 +132,6 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return this.isActive;
     }
 }

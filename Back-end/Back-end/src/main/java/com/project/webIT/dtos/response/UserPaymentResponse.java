@@ -34,6 +34,18 @@ public class UserPaymentResponse {
     @JsonProperty("updated_at")
     private LocalDateTime updatedAt;
 
+    @JsonProperty("user_name")
+    private String userName;
+
+    @JsonProperty("user_address")
+    private String userAddress;
+
+    @JsonProperty("user_email")
+    private String userEmail;
+
+    @JsonProperty("user_phone")
+    private String userPhone;
+
     public static UserPaymentResponse fromUserPayment(UserPayment userPayment){
         return UserPaymentResponse.builder()
                 .orderId(userPayment.getOrderId())
@@ -43,6 +55,10 @@ public class UserPaymentResponse {
                 .status(userPayment.getStatus())
                 .createdAt(userPayment.getCreatedAt())
                 .updatedAt(userPayment.getUpdatedAt())
+                .userName(userPayment.getUser().getFullName())
+                .userAddress(userPayment.getUser().getAddress())
+                .userEmail(userPayment.getUser().getEmail())
+                .userPhone(userPayment.getUser().getPhoneNumber())
                 .build();
     }
 }

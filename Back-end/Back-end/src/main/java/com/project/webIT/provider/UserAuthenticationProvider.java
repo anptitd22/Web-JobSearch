@@ -24,6 +24,10 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         UserDetails user = userDetailsService.loadUserByUsername(account);
+        if (!user.isEnabled()) {
+            throw new BadCredentialsException("User account is deactivated");
+        }
+
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BadCredentialsException("Invalid user credentials");
         }

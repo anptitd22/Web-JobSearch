@@ -1,6 +1,7 @@
 package com.project.webIT.services;
 
 import com.project.webIT.constant.JobStatus;
+import com.project.webIT.dtos.request.CompanyDetailDTO;
 import com.project.webIT.dtos.response.JobResponse;
 import com.project.webIT.helper.JwtTokenHelper;
 import com.project.webIT.dtos.request.CompanyDTO;
@@ -61,7 +62,7 @@ public class CompanyServiceImpl implements com.project.webIT.services.IService.C
     }
 
     @Override
-    public Company createCompany(CompanyDTO companyDTO) {
+    public Company createCompany(CompanyDetailDTO companyDTO) {
         modelMapper.typeMap(CompanyDTO.class, Company.class)
                 .addMappings(mapper -> mapper.skip(Company::setId));
         Company newCompany = new Company();
@@ -90,6 +91,12 @@ public class CompanyServiceImpl implements com.project.webIT.services.IService.C
     }
 
     @Override
+    public Page<CompanyResponse> mangerCompanies(String keyword, Long industryId, Boolean active, PageRequest pageRequest) {
+        Page<Company> companyPage = companyRepository.managerCompanies(keyword, industryId, active, pageRequest);
+        return companyPage.map(CompanyResponse::fromCompany);
+    }
+
+    @Override
     public String getPublicId(Long companyId) throws Exception {
         Company existingCompany = companyRepository.findById(companyId)
                 .orElseThrow(() -> new DataNotFoundException("company not found"));
@@ -97,7 +104,7 @@ public class CompanyServiceImpl implements com.project.webIT.services.IService.C
     }
 
     @Override
-    public Company updateCompany(long id, CompanyDTO companyDTO) throws Exception {
+    public Company updateCompany(long id, CompanyDetailDTO companyDTO) throws Exception {
         Company existingCompany = companyRepository.findById(id)
                 .orElseThrow(() ->
                         new DataNotFoundException("Cannot find company with id = "+id));

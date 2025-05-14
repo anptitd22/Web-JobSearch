@@ -1,5 +1,6 @@
 package com.project.webIT.provider;
 
+import com.project.webIT.services.AdminDetailServiceImpl;
 import com.project.webIT.services.CompanyDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AdminAuthenticationProvider implements AuthenticationProvider {
 
-    private final CompanyDetailServiceImpl companyDetailsService;
+    private final AdminDetailServiceImpl adminDetailService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -23,12 +24,12 @@ public class AdminAuthenticationProvider implements AuthenticationProvider {
         String account = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        UserDetails company = companyDetailsService.loadUserByUsername(account);
-        if (!passwordEncoder.matches(password, company.getPassword())) {
-            throw new BadCredentialsException("Invalid company credentials");
+        UserDetails admin = adminDetailService.loadUserByUsername(account);
+        if (!passwordEncoder.matches(password, admin.getPassword())) {
+            throw new BadCredentialsException("Invalid admin credentials");
         }
 
-        return new UsernamePasswordAuthenticationToken(company, null, company.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(admin, null, admin.getAuthorities());
     }
 
     @Override

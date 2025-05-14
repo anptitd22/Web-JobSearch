@@ -37,7 +37,11 @@ public class WebSecurityConfig {
             @Override
             public void customize(CorsConfigurer<HttpSecurity> httpSecurityCorsConfigurer) {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOriginPatterns(List.of("http://localhost:4200"));
+                configuration.setAllowedOriginPatterns(List.of(
+                        "http://localhost:4200",
+                        "http://192.168.0.100:4200",  // IP của máy Angular
+                        "http://192.168.1.100:4200"   // IP backend (nếu cần test ngược)
+                ));
                 configuration.setAllowCredentials(true); // Bắt buộc nếu dùng credentials
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList(
@@ -96,7 +100,11 @@ public class WebSecurityConfig {
 
                                     String.format("%s/applied/**", apiPrefix),
 
-                                    String.format("%s/feedback/**", apiPrefix)
+                                    String.format("%s/feedback/**", apiPrefix),
+
+                                    String.format("%s/payments/**", apiPrefix),
+
+                                    String.format("%s/admin/**", apiPrefix)
                             ).permitAll()
 
                             .requestMatchers(
@@ -121,6 +129,7 @@ public class WebSecurityConfig {
                                     String.format("%s/users/login", apiPrefix),
                                     String.format("%s/users/auth/**", apiPrefix),
                                     String.format("%s/companies/login", apiPrefix),
+                                    String.format("%s/admin/login", apiPrefix),
 
                                     String.format("%s/jobs/uploads/**", apiPrefix), // POST
 
@@ -164,6 +173,8 @@ public class WebSecurityConfig {
                                     HttpMethod.DELETE,
                                     String.format("%s/questions/**", apiPrefix), // GET/POST/PUT/DELETE
 
+                                    String.format("%s/users/**", apiPrefix),
+
                                     String.format("%s/cv/**", apiPrefix), // GET/PUT/DELETE
 
                                     String.format("%s/applied-cv/**", apiPrefix) //POST/ GET/PUT/DELETE
@@ -180,9 +191,6 @@ public class WebSecurityConfig {
                             .requestMatchers(HttpMethod.POST, String.format("%s/history/**", apiPrefix)).hasRole(Role.USER)
 
                             .requestMatchers(HttpMethod.POST, String.format("%s/applied/**", apiPrefix)).hasRole(Role.USER)
-
-                            .requestMatchers(HttpMethod.GET, String.format("%s/payments/**", apiPrefix)).hasRole(Role.USER)
-
                             //COMPANY
                             .requestMatchers(HttpMethod.POST, String.format("%s/jobs/**", apiPrefix)).permitAll()
                             .requestMatchers(HttpMethod.PUT, String.format("%s/jobs/**", apiPrefix)).hasAnyRole(Role.COMPANY, Role.ADMIN)
@@ -192,7 +200,7 @@ public class WebSecurityConfig {
                             .requestMatchers(HttpMethod.PUT, String.format("%s/functions/**", apiPrefix)).hasRole(Role.ADMIN)
                             .requestMatchers(HttpMethod.DELETE, String.format("%s/functions/**", apiPrefix)).hasRole(Role.ADMIN)
 
-                            .requestMatchers(HttpMethod.DELETE, String.format("%s/jobs/**", apiPrefix)).hasRole(Role.COMPANY)
+                            .requestMatchers(HttpMethod.DELETE, String.format("%s/jobs/**", apiPrefix)).hasAnyRole(Role.COMPANY, Role.ADMIN)
 
                             .requestMatchers(HttpMethod.PUT, String.format("%s/applied/**", apiPrefix)).hasRole(Role.ADMIN)
                             .requestMatchers(HttpMethod.DELETE, String.format("%s/applied/**", apiPrefix)).hasRole(Role.ADMIN)

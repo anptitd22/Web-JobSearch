@@ -1,21 +1,24 @@
 package com.project.webIT.services;
 
+import com.project.webIT.constant.NotificationStatus;
+import com.project.webIT.dtos.response.UserPaymentResponse;
+import com.project.webIT.dtos.response.UserResponse;
 import com.project.webIT.helper.JwtTokenHelper;
 import com.project.webIT.components.LocalizationUtils;
 import com.project.webIT.dtos.request.*;
 import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.exceptions.InvalidParamException;
-import com.project.webIT.models.Role;
-import com.project.webIT.models.User;
-import com.project.webIT.repositories.JobFunctionRepository;
-import com.project.webIT.repositories.RoleRepository;
-import com.project.webIT.repositories.UserRepository;
+import com.project.webIT.models.*;
+import com.project.webIT.notification.Notification;
+import com.project.webIT.repositories.*;
 import com.project.webIT.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +27,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -38,6 +44,9 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
     private final AuthenticationManager authenticationManager;
     private final LocalizationUtils localizationUtils;
     private final JobFunctionRepository jobFunctionRepository;
+    private final AdminDashboardActivityRepository adminDashboardActivityRepository;
+    private final AdminRepository adminRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     @Override
@@ -60,6 +69,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
         if(!userDTO.getPhoneNumber().isEmpty()&&userRepository.existsByPhoneNumber(userDTO.getPhoneNumber())){
             throw new DataIntegrityViolationException(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_EXIST_PHONE));
         }
+        updateTotalUser();
         //convert from user -> userDTO
         modelMapper.typeMap(UserDTO.class, User.class)
                 .addMappings(mapper ->
@@ -75,6 +85,28 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
             newUser.setPassword(encodedPassword);
         }
         return userRepository.save(newUser);
+    }
+
+    public void updateTotalUser() throws Exception {
+        var existingAdmin = adminRepository.findById(1L)
+                .orElseThrow(() -> new DataNotFoundException("admin not found"));
+
+        String currentMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("MMM-yyyy"));
+        Optional<AdminDashboardActivity> existingRecord = adminDashboardActivityRepository.findByAdminIdAndMonth(1L, currentMonth);
+
+        if (existingRecord.isPresent()) {
+            // Nếu bản ghi đã tồn tại, cập nhật số lượng total_jobs
+            AdminDashboardActivity record = existingRecord.get();
+            record.setTotalUser(record.getTotalUser() + 1);
+            adminDashboardActivityRepository.save(record);
+        } else {
+            // Nếu bản ghi chưa tồn tại, tạo bản ghi mới
+            AdminDashboardActivity newRecord = new AdminDashboardActivity();
+            newRecord.setAdmin(existingAdmin);
+            newRecord.setMonth(currentMonth);
+            newRecord.setTotalUser(1L);
+            adminDashboardActivityRepository.save(newRecord);
+        }
     }
 
     @Transactional
@@ -110,6 +142,9 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
         // Nếu email không tồn tại, tìm theo Facebook ID
         if (optionalUser.isEmpty()) {
             optionalUser = userRepository.findByFacebookAccountId(userLoginDTO.getFacebookAccountId());
+            if(optionalUser.isPresent() && !optionalUser.get().isActive()){
+                throw new InvalidParamException("user is block");
+            }
 
             // Nếu chưa có tài khoản, tạo mới
             if (optionalUser.isEmpty()) {
@@ -119,6 +154,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
                         && userRepository.existsByPhoneNumber(userLoginDTO.getPhoneNumber())) {
                     throw new DataNotFoundException("Phone number already exists");
                 }
+                updateTotalUser();
 
                 // Tạo user mới
                 User newUser = User.builder()
@@ -159,6 +195,9 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
         // Nếu email không tồn tại, tìm theo Google ID
         if (optionalUser.isEmpty()) {
             optionalUser = userRepository.findByGoogleAccountId(userLoginDTO.getGoogleAccountId());
+            if(optionalUser.isPresent() && !optionalUser.get().isActive()){
+                throw new InvalidParamException("user is block");
+            }
 
             // Nếu chưa có tài khoản, tạo mới
             if (optionalUser.isEmpty()) {
@@ -168,6 +207,7 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
                         && userRepository.existsByPhoneNumber(userLoginDTO.getPhoneNumber())) {
                     throw new DataNotFoundException("Phone number already exists");
                 }
+                updateTotalUser();
 
                 // Tạo user mới
                 User newUser = User.builder()
@@ -322,6 +362,9 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
         if (updateUserDTO.getNote() != null && !updateUserDTO.getNote().isEmpty()) {
             existingUser.setNote(updateUserDTO.getNote());
         }
+        if (updateUserDTO.getTarget() != null && !updateUserDTO.getTarget().isEmpty()) {
+            existingUser.setTarget(updateUserDTO.getTarget());
+        }
         if (updateUserDTO.getJobTitle() != null && !updateUserDTO.getJobTitle().isEmpty()) {
             existingUser.setJobTitle(updateUserDTO.getJobTitle());
         }
@@ -403,6 +446,12 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
     }
 
     @Override
+    public Page<UserResponse> managerUser(String keyword, Boolean active, PageRequest pageRequest) {
+        Page<User> users = userRepository.managerUser(keyword, active, pageRequest);
+        return users.map(UserResponse::fromUser);
+    }
+
+    @Override
     public String getPublicId(Long userId) throws Exception{
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(()->new DataNotFoundException("user not found"));
@@ -410,6 +459,21 @@ public class UserServiceImpl implements com.project.webIT.services.IService.User
             return existingUser.getPublicIdImages();
         }
         return "";
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        var existingUser = userRepository.findById(id).orElse(null);
+        if(existingUser != null){
+            existingUser.setActive(!existingUser.isActive());
+            userRepository.save(existingUser);
+            Notification notification = Notification.builder()
+                    .status(NotificationStatus.END)
+                    .message("Hết phiên đang đăng nhập")
+                    .jobTitle("DELETE")
+                    .build();
+            notificationService.sendNotificationToUser(id.toString(),notification);
+        }
     }
 
     @Override

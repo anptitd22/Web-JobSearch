@@ -1,6 +1,7 @@
 package com.project.webIT.components;
 
 import com.project.webIT.helper.JwtTokenHelper;
+import com.project.webIT.services.AdminDetailServiceImpl;
 import com.project.webIT.services.CompanyDetailServiceImpl;
 import com.project.webIT.services.UserDetailServiceImpl;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -38,6 +39,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtTokenHelper jwtTokenUtil;
     private final UserDetailServiceImpl userDetailService;
     private final CompanyDetailServiceImpl companyDetailService;
+    private final AdminDetailServiceImpl adminDetailService;
 
     @Override
     protected void doFilterInternal (
@@ -68,8 +70,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
                 if ("company".equalsIgnoreCase(authType)) {
                     userDetails = companyDetailService.loadUserByUsername(subject);
-                } else {
+                } else if ("user".equalsIgnoreCase(authType)) {
                     userDetails = userDetailService.loadUserByUsername(subject);
+                } else {
+                    userDetails = adminDetailService.loadUserByUsername(subject);
                 }
                 System.out.println(userDetails);
 
@@ -103,6 +107,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
 //                Pair.of(String.format("%s/companies",apiPrefix),"GET"),
                 Pair.of(String.format("%s/companies/images",apiPrefix),"GET"),
+                Pair.of(String.format("%s/companies/**",apiPrefix),"PUT"),
+                Pair.of(String.format("%s/companies",apiPrefix),"POST"),
                 Pair.of(String.format("%s/jobs/images",apiPrefix), "GET"),
                 Pair.of(String.format("%s/roles",apiPrefix), "GET"),
                 Pair.of(String.format("%s/jobs/get/**", apiPrefix), "GET"),
@@ -127,6 +133,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
                 Pair.of(String.format("%s/companies/login", apiPrefix), "POST"),
+                Pair.of(String.format("%s/admin/login", apiPrefix), "POST"),
 
                 Pair.of(String.format("%s/companies/get/**", apiPrefix), "GET"),
                 Pair.of(String.format("%s/companies/public/**", apiPrefix), "GET"),

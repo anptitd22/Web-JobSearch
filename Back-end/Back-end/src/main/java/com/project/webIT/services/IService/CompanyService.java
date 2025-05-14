@@ -2,6 +2,7 @@ package com.project.webIT.services.IService;
 
 import com.project.webIT.constant.JobStatus;
 import com.project.webIT.dtos.request.CompanyDTO;
+import com.project.webIT.dtos.request.CompanyDetailDTO;
 import com.project.webIT.dtos.request.CompanyImageDTO;
 import com.project.webIT.dtos.request.CompanyLoginDTO;
 import com.project.webIT.dtos.response.JobResponse;
@@ -19,7 +20,7 @@ public interface CompanyService {
 
     String loginCompany(CompanyLoginDTO companyLoginDTO) throws Exception;
 
-    Company createCompany(CompanyDTO companyDTO);
+    Company createCompany(CompanyDetailDTO companyDTO);
 
     Company getCompanyById(long id) throws Exception;
 
@@ -27,9 +28,11 @@ public interface CompanyService {
 
     Page<CompanyResponse> getAllCompanies(String keyword, Long industryId, PageRequest pageRequest);
 
+    Page<CompanyResponse> mangerCompanies(String keyword, Long industryId, Boolean active, PageRequest pageRequest);
+
     String getPublicId(Long companyId) throws Exception;
 
-    Company updateCompany(long id, CompanyDTO companyDTO) throws Exception;
+    Company updateCompany(long id, CompanyDetailDTO companyDTO) throws Exception;
 
     Company getCompanyDetail (String token) throws Exception;
 

@@ -46,4 +46,19 @@ public class AppliedJobCVController {
                         .build()
         );
     }
+    @PutMapping("{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ObjectResponse<AppliedJobCVResponse>> putAppliedJobCV(
+            @RequestBody AppliedJobCVDTO appliedJobCVDTO,
+            @AuthenticationPrincipal User user
+    ) throws Exception {
+        AppliedJobCV appliedJobCV = appliedJobCVService.createAppliedJobCV(appliedJobCVDTO);
+        return ResponseEntity.ok(
+                ObjectResponse.<AppliedJobCVResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("Add CV successfully")
+                        .data(AppliedJobCVResponse.fromAppliedJobCV(appliedJobCV))
+                        .build()
+        );
+    }
 }

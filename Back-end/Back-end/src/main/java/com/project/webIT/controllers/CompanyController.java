@@ -2,6 +2,7 @@ package com.project.webIT.controllers;
 
 import com.project.webIT.constant.JobStatus;
 import com.project.webIT.dtos.request.CompanyDTO;
+import com.project.webIT.dtos.request.CompanyDetailDTO;
 import com.project.webIT.dtos.request.CompanyLoginDTO;
 import com.project.webIT.dtos.response.*;
 import com.project.webIT.helper.FileHelper;
@@ -224,13 +225,41 @@ public class CompanyController{
         );
     }
 
+    @GetMapping("private/get/page")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ObjectResponse<CompanyListResponse>> getCompanyList(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0", name = "industry_id") Long industryId,
+            @RequestParam(required = false, name = "active") Boolean active,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "20", name = "limit") int limit
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("updatedAt").descending());
+        Page<CompanyResponse> companyPage = companyServiceImpl.mangerCompanies(keyword, industryId, active, pageRequest);
+        List<CompanyResponse> companies = companyPage.getContent();
+
+        CompanyListResponse companyListResponse = CompanyListResponse.builder()
+                .companies(companies)
+                .totalPages(companyPage.getTotalPages())
+                .totalCompanies(companyPage.getTotalElements())
+                .build();
+
+        return ResponseEntity.ok(
+                ObjectResponse.<CompanyListResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("Lấy danh sách công ty thành công")
+                        .data(companyListResponse)
+                        .build()
+        );
+    }
+
     @PostMapping("")
     public ResponseEntity<ObjectResponse<?>> createCompany(
-            @Valid @RequestBody CompanyDTO request,
+            @Valid @RequestBody CompanyDetailDTO request,
             BindingResult result) throws Exception {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(
-                    ObjectResponse.<Company>builder()
+                    ObjectResponse.<Void>builder()
                             .status(HttpStatus.BAD_REQUEST)
                             .message(ValidationHelper.extractDetailedErrorMessages(result))
                             .data(null)
@@ -251,9 +280,17 @@ public class CompanyController{
     @PutMapping("{id}")
     public ResponseEntity<ObjectResponse<?>> update(
             @Valid @PathVariable("id") Long id,
-            @Valid @RequestBody CompanyDTO request,
+            @Valid @RequestBody CompanyDetailDTO request,
             BindingResult result
     ) throws Exception {
+        if(result.hasErrors()){
+            return ResponseEntity.badRequest().body(
+                    ObjectResponse.<Void>builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .message(ValidationHelper.extractDetailedErrorMessages(result))
+                            .build()
+            );
+        }
         Company updated = companyServiceImpl.updateCompany(id, request);
         return ResponseEntity.ok(
                 ObjectResponse.<CompanyResponse>builder()

@@ -24,17 +24,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @Order(Ordered.HIGHEST_PRECEDENCE+99)
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-//    @Override
-//    public void registerStompEndpoints(StompEndpointRegistry registry) {
-//        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
-//    }
-//
-//    @Override
-//    public void configureMessageBroker(MessageBrokerRegistry registry) {
-//        registry.setApplicationDestinationPrefixes("/app","");
-//        registry.enableSimpleBroker("/topic", "/queue");
-//        registry.setUserDestinationPrefix("/user");
-//    }
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/user", "/topic");
@@ -45,7 +34,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("api/v1/ws")
-                .setAllowedOrigins("http://localhost:4200")
+                .setAllowedOrigins("http://localhost:4200", "http://192.168.0.100:4200")
                 .withSockJS();
     }
 

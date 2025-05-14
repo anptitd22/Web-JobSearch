@@ -11,8 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Builder
-public class ObjectListResponse <T>{
-    private List<T> objectList;
-    private int totalPages;
-    private long totalCompanies;
+public class DataListResponse<T>{
+    private List<T> dataList;
+    private Integer totalPages;
+    private Long totalData;
 }

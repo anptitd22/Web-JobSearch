@@ -6,6 +6,7 @@ import com.project.webIT.models.UserFavoriteCompany;
 import com.project.webIT.repositories.CompanyRepository;
 import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.repositories.UsersFavoriteCompaniesRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class UsersFavoriteCompaniesServiceImpl implements com.project.webIT.serv
     private final CompanyRepository companyRepository;
 
     @Override
+    @Transactional
     public UserFavoriteCompany saveFavoriteCompany(User user, Long companyId) throws Exception {
         Optional<UserFavoriteCompany> favoriteCompanies = usersFavoriteCompaniesRepository.findByUserIdAndCompanyId(user.getId(), companyId);
 

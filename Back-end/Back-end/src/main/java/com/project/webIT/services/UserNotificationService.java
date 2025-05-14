@@ -4,6 +4,7 @@ import com.project.webIT.constant.UserNotificationStatus;
 import com.project.webIT.exceptions.DataNotFoundException;
 import com.project.webIT.models.UserNotification;
 import com.project.webIT.repositories.UserNotificationRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class UserNotificationService {
         return userNotificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
+    @Transactional
     public void updateNotification(Long id) throws Exception {
         UserNotification userNotification = userNotificationRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("notification not found"));

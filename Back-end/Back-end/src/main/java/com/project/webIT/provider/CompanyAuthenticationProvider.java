@@ -24,6 +24,10 @@ public class CompanyAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         UserDetails company = companyDetailsService.loadUserByUsername(account);
+        if (!company.isEnabled()) {
+            throw new BadCredentialsException("Company account is deactivated");
+        }
+
         if (!passwordEncoder.matches(password, company.getPassword())) {
             throw new BadCredentialsException("Invalid company credentials");
         }

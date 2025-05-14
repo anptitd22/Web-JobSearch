@@ -47,7 +47,7 @@ public class JwtTokenHelper {
     public String generateTokenFromAdmin(Admin admin){
         Map<String, Object> claims = new HashMap<>();
         claims.put("account", admin.getAccount());
-        claims.put("companyId", admin.getId());
+        claims.put("adminId", admin.getId());
         claims.put("role", admin.getRole().getName());
         return createToken(claims, admin.getAccount());
     }

@@ -12,13 +12,12 @@ import java.util.List;
 
 @Entity
 @Table(name = "companies")
-@Data
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Company implements UserDetails {
+public class Company extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -66,6 +65,9 @@ public class Company implements UserDetails {
     @Column(name = "is_active")
     private boolean isActive;
 
+    @Column(name = "banner")
+    private String banner;
+
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
@@ -76,6 +78,9 @@ public class Company implements UserDetails {
 
     @Formula("(SELECT COUNT(*) FROM jobs j WHERE j.company_id = id AND j.is_active = 1)")
     private Long total_jobs;
+
+    @Formula("(SELECT COUNT(*) FROM users_favorite_companies u WHERE u.company_id = id AND u.is_active = 1)")
+    private Long total_follow;
 
 //    @Formula("(SELECT COUNT(*) FROM applied_job a JOIN jobs j ON a.job_id = j.id JOIN companies c ON j.company_id = c.id")
 //    private Long total_applied_jobs;
@@ -106,6 +111,6 @@ public class Company implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return this.isActive;
     }
 }

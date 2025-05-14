@@ -68,6 +68,9 @@ public class UpdateUserDTO {
     @JsonProperty("note")
     private String note;
 
+    @JsonProperty("target")
+    private String target;
+
     @JsonProperty("nationality")
     private String nationality;
 

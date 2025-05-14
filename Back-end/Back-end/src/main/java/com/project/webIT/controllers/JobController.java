@@ -1,6 +1,7 @@
 package com.project.webIT.controllers;
 
 import com.github.javafaker.Faker;
+import com.project.webIT.constant.JobStatus;
 import com.project.webIT.dtos.request.JobDTO;
 import com.project.webIT.helper.ValidationHelper;
 import com.project.webIT.models.Job;
@@ -57,6 +58,31 @@ public class JobController{
 
         PageRequest pageRequest = PageRequest.of(page, limit, sort);
         Page<JobResponse> jobPage = jobService.getAllJobs(keyword, jobFunctionId, pageRequest);
+
+        JobListResponse jobListResponse = JobListResponse.builder()
+                .jobs(jobPage.getContent())
+                .totalPages(jobPage.getTotalPages())
+                .totalJob(jobPage.getTotalElements())
+                .build();
+
+        return ResponseEntity.ok(
+                ObjectResponse.<JobListResponse>builder()
+                        .status(HttpStatus.OK)
+                        .message("Jobs retrieved successfully")
+                        .data(jobListResponse)
+                        .build()
+        );
+    }
+    @GetMapping("get/page/private")
+    public ResponseEntity<ObjectResponse<?>> getJobsFromAdmin(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0", name = "job_function_id") Long jobFunctionId,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "20", name = "limit") int limit,
+            @RequestParam(required = false, name = "job_status") JobStatus jobStatus
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("updatedAt").descending());
+        Page<JobResponse> jobPage = jobService.getAllJobsFromAdmin(keyword, jobFunctionId, jobStatus, pageRequest);
 
         JobListResponse jobListResponse = JobListResponse.builder()
                 .jobs(jobPage.getContent())
@@ -187,7 +213,7 @@ public class JobController{
     }
 
     @DeleteMapping("delete/{id}")
-    @PreAuthorize("hasRole('COMPANY')")
+    @PreAuthorize("hasAnyRole('COMPANY', 'ADMIN')")
     public ResponseEntity<ObjectResponse<?>> deleteById(
             @PathVariable("id") Long id
     ) throws Exception {

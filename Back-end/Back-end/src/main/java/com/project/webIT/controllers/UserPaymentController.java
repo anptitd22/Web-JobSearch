@@ -1,14 +1,16 @@
 package com.project.webIT.controllers;
 
 import com.project.webIT.dtos.request.UserPaymentDTO;
+import com.project.webIT.dtos.response.*;
 import com.project.webIT.models.User;
 import com.project.webIT.models.UserPayment;
 import com.project.webIT.repositories.UserPaymentRepository;
-import com.project.webIT.dtos.response.ObjectResponse;
-import com.project.webIT.dtos.response.UserPaymentResponse;
 import com.project.webIT.services.UserPaymentServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -53,6 +55,32 @@ public class UserPaymentController {
                         .data(userPaymentList.stream()
                                 .map(UserPaymentResponse::fromUserPayment)
                                 .collect(Collectors.toList()))
+                        .build()
+        );
+    }
+
+    @GetMapping("get/page")
+    public ResponseEntity<ObjectResponse<DataListResponse<UserPaymentResponse>>> getPaymentPage (
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(required = false, name = "status") String status,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "20", name = "limit") int limit
+    ){
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("updatedAt").descending());
+        Page<UserPaymentResponse> paymentResponses = userPaymentServiceImpl.managerPayment(keyword, status, pageRequest);
+        List<UserPaymentResponse> userPaymentResponses = paymentResponses.getContent();
+
+        DataListResponse<UserPaymentResponse> dataListResponse = DataListResponse.<UserPaymentResponse>builder()
+                .dataList(userPaymentResponses)
+                .totalData(paymentResponses.getTotalElements())
+                .totalPages(paymentResponses.getTotalPages())
+                .build();
+
+        return ResponseEntity.ok(
+                ObjectResponse.<DataListResponse<UserPaymentResponse>>builder()
+                        .status(HttpStatus.OK)
+                        .message("Lấy danh sách thanh toán thành công")
+                        .data(dataListResponse)
                         .build()
         );
     }

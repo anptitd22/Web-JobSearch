@@ -128,7 +128,6 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
         }
     }
 
-
     @Override
     public Job getJobById(long id) throws Exception {
         Job job =  jobRepository.findById(id)
@@ -149,6 +148,12 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
     public Page<JobResponse> getAllJobs(String keyword, Long jobFunctionId, PageRequest pageRequest) { //page va limit
         //lay danh sach cong viec theo trang(page) va gioi han(limit)
         Page<Job> jobPage = jobRepository.searchJobs(jobFunctionId, keyword, pageRequest);
+        return jobPage.map(JobResponse::fromJob);
+    }
+
+    @Override
+    public Page<JobResponse> getAllJobsFromAdmin(String keyword, Long jobFunctionId, JobStatus jobStatus, PageRequest pageRequest) {
+        Page<Job> jobPage = jobRepository.searchJobsFromAdmin(jobFunctionId, keyword,jobStatus, pageRequest);
         return jobPage.map(JobResponse::fromJob);
     }
 
@@ -232,6 +237,12 @@ public class JobServiceImpl implements com.project.webIT.services.IService.JobSe
     public void overJob(long id) throws Exception {
         Job existingJob = jobRepository.findById(id).orElse(null);
         if (existingJob != null){
+            if(!existingJob.isActive()) {
+                existingJob.setActive(true);
+                existingJob.setJobStatus(JobStatus.Open);
+                jobRepository.save(existingJob);
+                return;
+            }
             existingJob.setActive(false);
             existingJob.setJobStatus(JobStatus.Close);
             List<UserFavoriteJob> userFavoriteJobs = usersFavoriteJobsRepository.findByJobId(id);

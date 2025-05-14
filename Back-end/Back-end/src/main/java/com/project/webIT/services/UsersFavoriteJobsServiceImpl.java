@@ -7,6 +7,7 @@ import com.project.webIT.models.UserFavoriteJob;
 import com.project.webIT.repositories.JobRepository;
 import com.project.webIT.repositories.UserRepository;
 import com.project.webIT.repositories.UsersFavoriteJobsRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class UsersFavoriteJobsServiceImpl implements com.project.webIT.services.
     private final JobRepository jobRepository;
 
     @Override
+    @Transactional
     public UserFavoriteJob saveFavoriteJob(User user, Long jobId) throws Exception {
         Optional<UserFavoriteJob> existingJob = usersFavoriteJobsRepository.findByUserIdAndJobId(user.getId(), jobId);
 
