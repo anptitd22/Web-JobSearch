@@ -1,12 +1,16 @@
 services:
   database:
-    image: mysql
+    image: mysql:8
+    container_name: mysql-container
     environment:
-      MYSQL_ROOT_PASSWORD: <root_password>
-      MYSQL_DATABASE: <database_name>
-      MYSQL_USER: <user_name>
-      MYSQL_PASSWORD: <user_password>
+      MYSQL_ROOT_PASSWORD: an147258
+      MYSQL_DATABASE: itwork
+      MYSQL_USER: root
+      MYSQL_PASSWORD: an147258
     ports:
-      - 3306:3306
+      - "3306:3306"
+    volumes:
+      - mysql:/var/lib/mysql
+
 volumes:
   mysql:
