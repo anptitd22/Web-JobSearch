@@ -1,15 +1,15 @@
-# Build stage
-FROM maven:3.8.6-openjdk-17 AS build
-WORKDIR /src
+# Build stage - Sử dụng JDK 21 để build
+FROM maven:3.8.7-openjdk-21 AS build
+WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline
 COPY src ./src
-RUN mvn install -DskipTests=true
+RUN mvn clean package -DskipTests=true
 
-# Run stage
-FROM eclipse-temurin:21-jre-alpine
-WORKDIR /run
-COPY --from=build /src/target/hcaredemo-0.0.1-SNAPSHOT.jar .
-EXPOSE 8888
-ENV JAVA_OPTIONS="-Xmx2048m -Xms256m"
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTIONS -jar hcaredemo-0.0.1-SNAPSHOT.jar"]
+# Run stage - Sử dụng JRE 21 để chạy
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8080  # Thay đổi port nếu cần
+ENV JAVA_OPTS="-Xmx2048m -Xms256m"
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
