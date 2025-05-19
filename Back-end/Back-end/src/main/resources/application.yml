@@ -5,9 +5,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/itwork?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://root:EFOfAfDlNsnMybszRdaNAcVlMpOeLbQT@metro.proxy.rlwy.net:49755/railway
     username: root
-    password: an147258
+    password: EFOfAfDlNsnMybszRdaNAcVlMpOeLbQT
     driver-class-name: com.mysql.cj.jdbc.Driver
 #    driver-class-name: org.postgresql.Driver
   jpa:
