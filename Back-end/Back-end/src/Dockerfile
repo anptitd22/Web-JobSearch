@@ -1,14 +1,15 @@
 # Build stage
-FROM maven:3.9.6-eclipse-temurin-21 AS build
-WORKDIR /app
-COPY Back-end/Back-end/pom.xml .
+FROM maven:3.8.6-openjdk-17 AS build
+WORKDIR /src
+COPY pom.xml .
 RUN mvn dependency:go-offline
-COPY Back-end/Back-end/src ./src
-RUN mvn clean package -DskipTests
+COPY src ./src
+RUN mvn install -DskipTests=true
 
 # Run stage
-FROM eclipse-temurin:21-jre
-WORKDIR /app
-COPY --from=build /app/target/DrComputer-0.0.1-SNAPSHOT.war drcomputer.war
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "drcomputer.war"]
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /run
+COPY --from=build /src/target/hcaredemo-0.0.1-SNAPSHOT.jar .
+EXPOSE 8888
+ENV JAVA_OPTIONS="-Xmx2048m -Xms256m"
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTIONS -jar hcaredemo-0.0.1-SNAPSHOT.jar"]
