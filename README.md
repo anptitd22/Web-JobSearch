@@ -634,66 +634,87 @@ Hình 4.86: Giao diện đăng nhập admin
 Hình 4.87: Giao diện trang chủ admin
  
 Hình 4.88: Giao diện trang chủ admin
+
 4.5.3.	Giao diện quản lí công ty
  
 Hình 4.89: Giao diện trang quản lý công ty
  
 Hình 4.90: Khóa công ty
+
 4.5.4.	Giao diện tìm kiếm công ty
  
 Hình 4.91: Tìm kiếm công ty
+
 4.5.5.	Giao diện quản lí hóa đơn
  
 Hình 4.92: Giao diện quản lí hóa đơn
+
 4.5.6.	Giao diện tìm kiếm hóa đơn
  
 Hình 4.93: Giao diện tìm kiếm hóa đơn
+
 4.5.7.	Giao diện quản lí người dùng
  
 Hình 4.94: Giao diện quản lí người dùng
  
 Hình 4.95: khóa tài khoản người dùng
+
 4.5.8.	Giao diện tìm kiếm người dùng
  
 Hình 4.96: Tìm kiếm người dùng
+
 4.4.10.	Giao diện quản lí công việc
  
 Hình 4.97: Giao diện quản lí công việc
  
 Hình 4.98: đóng công việc
+
 4.4.11.	Giao diện tìm kiếm công việc
  
 Hình 4.99: tìm kiếm công việc
+
 4.6.	Ứng dụng bảo mật
+
 4.6.1.	Phân quyền token (đăng nhập) và api backend
+
 -	Chia ra 3 quyền: USER, COMPANY, ADMIN
 -	Mỗi quyền sẽ có 1 token đăng nhập khác nhau
  
 Hình 4.100:3 loại token USER, COMPANY, ADMIN
+
 -	Phân quyền api:
 •	Phân quyền trên 1 đoạn api
  
 Hình 4.101: phân quyền từng đoạn api
+
 •	Phân quyền trên từng api một
  
 Hình 4.102: phân quyền từng api một
+
 4.6.2.	Ngăn trặn truy cập api khi chưa có quyền
+
 -	Nếu không có token đăng nhập trang company, admin sẽ dẫn đến trang 404 và báo lỗi
  
 Hình 4.103: ngăn chặn truy cập trực tiếp vào trang chủ quản trị
+
 4.6.3.	Mã capcha
+
 -	Sử dụng mã capcha để tránh dò mật khẩu (vét cạn)
  
 Hình 4.104: mã capcha
+
 4.6.4.	Phòng chống tấn công XSS
  
 Hình 4.105: Phòng chống XSS
+
 4.7.	Tích hợp cổng thanh toán trực tiếp vào trang web
  
 Hình 4.106: cổng thanh toán quốc tế PAYPAL
  
 Hình 4.107: Khi thanh toán thành công
+
 4.8.	Các công nghệ
+
 4.8.1.	Đăng nhập bằng facebook, google
 -	Gọi api yêu cầu đăng nhập
 -	Đăng nhập và gọi api lấy dữ liệu về (gmail, avatar, tên, số điện thoại)
@@ -701,6 +722,7 @@ Hình 4.107: Khi thanh toán thành công
 Hình 4.108: Đăng nhập bằng facebook
  
 Hình 4.109: Đăng nhập bằng google
+
 4.8.2.	Hệ thống gợi ý việc làm phù hợp
 -	Bước 1: kết nối database và lấy danh sách công việc trong python:
  
@@ -710,6 +732,7 @@ Hình 4.110: Kết nối và lấy dữ liệu từ database trong python
 •	Phân tích dựa trên thông tin cá nhân
  
 Hình 4.111: Class hứng dữ liệu
+
 -	Bước 3: Xử lí dữ liệu
 •	Sử dung thư viện NLP: TfidfVectorizer() sử dụng để chuyển đổi văn bản (text) thành dạng vector số bằng cách tính toán giá trị TF-IDF cho từng từ trong tập văn bản
 	TF (Term Frequency): Tần suất xuất hiện của một từ trong một tài liệu.
@@ -720,6 +743,7 @@ Hình 4.111: Class hứng dữ liệu
 Hình 4.112: Xử lí dữ liệu lấy top 5 công việc đề xuất 
  
 Hình 4.113: Xử lí dữ liệu lấy top 5 công việc đề xuất người dùng
+
 -	Bước 4: Tạo cổng api để kết nối dữ liệu với backend
 •	Sử dụng thư viện fastapi và uvicorn
  
@@ -728,7 +752,9 @@ Hình 4.90: Tạo cổng api
 Hình 4.114: Đề xuất 5 công việc giống với công việc đang xem
  
 Hình 4.115: Đề xuất 5 công việc với thông tin người dùng
+
 4.8.3.	Công nghệ websocket làm hệ thống thông báo
+
 -	WebSocket là một giao thức truyền thông (communication protocol) cho phép giao tiếp hai chiều (full-duplex) giữa client (trình duyệt hoặc app) và server thông qua một kết nối TCP duy nhất, mà không cần phải tạo nhiều request như HTTP thông thường.
 -	WebSocket giúp client và server có thể "nói chuyện" với nhau liên tục, theo thời gian thực, mà không cần client phải liên tục gửi request để "hỏi thăm" server
 -	Ứng dụng: làm hệ thống thông báo, nhắn tin, ...
@@ -769,7 +795,9 @@ Hình 4.126: tải lên backend lên server thành công
 -	Bước 5: Thành công
  
 Hình 4.127: web sau khi deloy
+
 Chương V. KẾT LUẬN
+
 -	Website tìm kiếm việc làm được xây dựng với mục tiêu tạo ra một nền tảng trung gian kết nối giữa ứng viên đang tìm kiếm cơ hội việc làm và doanh nghiệp có nhu cầu tuyển dụng nhân sự. Hệ thống hỗ trợ đầy đủ các chức năng cần thiết như: đăng tin tuyển dụng, nộp đơn ứng tuyển, quản lý công việc, gợi ý việc làm phù hợp, và quản trị hệ thống.
 -	Quá trình xây dựng hệ thống đã trải qua các giai đoạn: khảo sát, phân tích yêu cầu, thiết kế hệ thống, thiết kế cơ sở dữ liệu, xây dựng sơ đồ chức năng và luồng dữ liệu, từ đó đảm bảo hệ thống hoạt động logic, hiệu quả và có khả năng mở rộng về sau. Việc phân chia rõ ràng giữa vai trò công ty, ứng viên và quản trị viên giúp hệ thống dễ quản lý và đảm bảo tính bảo mật, phân quyền.
 -	Với giao diện thân thiện, trực quan cùng với nền tảng kỹ thuật hiện đại (có thể triển khai bằng Angular, Spring Boot, MySQL…), hệ thống hướng đến trải nghiệm người dùng tốt, tăng tính tương tác giữa nhà tuyển dụng và người tìm việc. Ngoài ra, hệ thống còn có khả năng tích hợp các chức năng nâng cao như gợi ý việc làm bằng trí tuệ nhân tạo (AI), phân tích xu hướng tuyển dụng, hoặc chatbot hỗ trợ.
