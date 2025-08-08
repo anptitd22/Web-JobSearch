@@ -483,7 +483,9 @@ Hình 4.47: Bỏ theo dõi công việc
  <img width="975" height="454" alt="image" src="https://github.com/user-attachments/assets/49252a05-f3ea-4f9f-9c16-2982664c686b" />
 
 Hình 4.48: Sau khi bỏ theo dõi công việc
+
 4.3.16.	Giao diện trang lịch sử công việc đã xem
+
 -	Cập nhật và sắp xếp theo thời gian xem
 -	Sẽ không hiện các công việc đã hết hạn hoặc đóng sớm
 
@@ -614,16 +616,21 @@ Hình 4.83: Giao diện tìm kiếm đơn ứng tuyển
  <img width="975" height="443" alt="image" src="https://github.com/user-attachments/assets/89be9240-d9ca-4322-8c56-5408cf245d28" />
 
 Hình 4.84: Giao diện cài đặt
+
 4.4.9.	Giao diện trang công ty góc nhìn từ công ty
  <img width="975" height="436" alt="image" src="https://github.com/user-attachments/assets/fa98d50d-a018-4784-ad92-cabfc916d7cd" />
 
 Hình 4.85: Giao diện trang chủ công ty
+
 4.5.	Giao diện quản trị trang web(admin)
+
 4.5.1.	Giao diện đăng nhập
- 
+ <img width="975" height="453" alt="image" src="https://github.com/user-attachments/assets/1f7a104b-eaac-4ad0-9c50-ba9a47ef0790" />
+
 Hình 4.86: Giao diện đăng nhập admin
 4.5.2.	Giao diện trang chủ admin
- 
+ <img width="975" height="440" alt="image" src="https://github.com/user-attachments/assets/8c06f9c6-5e25-4239-8209-78cc8e0e9b55" />
+
 Hình 4.87: Giao diện trang chủ admin
  
 Hình 4.88: Giao diện trang chủ admin
