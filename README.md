@@ -1,91 +1,173 @@
 # Web-JobSearch
 
 Chương I. MÔ TẢ, KHẢO SÁT VÀ XÁC ĐỊNH YÊU CẦU TRANG WEB	5
+
 1.1	Mô tả trang web quản lý, tìm kiếm việc làm	5
+
 1.2	Khảo sát, xác định yêu cầu bài toán	5
+
 1.2.1. Khảo sát hiện trạng	5
+
 1.2.2. Mục tiêu của hệ thống	5
+
 1.2.3. Phạm vi hệ thống	6
+
 Chương II. KIẾN THỨC ÁP DỤNG	6
+
 2.1.	Phân tích & Thiết kế hệ thống	6
+
 2.1.1.	Biểu đồ phân cấp chức năng (BFD)	6
+
 2.1.2.	Biểu đồ luồng dữ liệu (DFD)	6
+
 2.2.	Quản trị hệ thống	7
+
 2.3.	Cơ sở dữ liệu	7
+
 2.4.	Ngôn ngữ lập trình	10
+
 Chương III. PHÂN TÍCH THIẾT KẾ HỆ THỐNG	10
+
 3.1.	Phân tích thiết kế CSDL	10
+
 3.2.	Phân tích thiết kế chức năng	12
+
 3.3.	Các chức năng chưa làm được	12
+
 Chương IV. CÀI ĐẶT VÀ HƯỚNG DẪN SỬ DỤNG	12
+
 4.1.	Cài đặt CSDL	12
+
 4.2.	Cài đặt giả lập môi trường server hosting	13
+
 4.3.	Giao diện người dùng (user)	14
+
 4.3.1.	Giao diện trang chủ	14
+
 4.3.2.	Giao diện xem trước công việc	16
+
 4.3.3.	Giao diện đầu trang và cuối trang	17
+
 4.3.4.	Giao diện tìm kiếm công việc	18
+
 4.3.5.	Giao diện trang thông báo người dùng	19
+
 4.3.6.	Giao diện trang đăng nhập	21
+
 4.3.7.	Giao diện trang đăng kí	22
+
 4.3.8.	Giao diện trang quên mật khẩu	22
+
 4.3.9.	Giao diện chi tiết công việc	23
+
 4.3.10.	Giao diện đơn ứng tuyển công việc	24
+
 4.3.11.	Giao diện trang thông tin người dùng	26
+
 4.3.12.	Giao diện thống kê hoạt động người dùng trong 12 tháng gần nhất	31
+
 4.3.13.	Giao diện theo dõi công ty yêu thích	31
+
 4.3.14.	Giao diện trang các đơn ứng tuyển	32
+
 4.3.15.	Giao diện trang theo dõi các công việc yêu thích	34
+
 4.3.16.	Giao diện trang lịch sử công việc đã xem	35
+
 4.3.17.	Giao diện trang thư mời ứng tuyển	36
+
 4.3.18.	Giao diện trang cài đặt thông báo việc làm	36
+
 4.3.19.	Giao diện trang quản lí hóa đơn	37
+
 4.3.20.	Giao diện trang cài đặt	37
+
 4.3.21.	Giao diện trang tìm kiếm công ty	39
+
 4.3.22.	Giao diện trang chủ công ty	40
+
 4.3.23.	Giao diện công việc ở trang chủ công ty	42
+
 4.3.24.	Giao diện dịch vụ	43
+
 4.3.25.	Giao diện ngoài	43
+
 4.3.26.	Giao diện trang 404	44
+
 4.4.	Giao diện quản trị công ty	45
+
 4.4.1.	Giao diện đăng nhập	45
+
 4.4.2.	Giao diện trang thông kê quản trị công ty	45
+
 4.4.3.	Giao diện trang đầu của quản trị công ty	46
+
 4.4.4.	Giao diện quản lý công việc	46
+
 4.4.5.	Giao diện tìm kiếm công việc	48
+
 4.4.6.	Giao diện quản lý đơn ứng tuyển	48
+
 4.4.7.	Giao diện tìm kiếm đơn ứng tuyển	51
+
 4.4.8.	Giao diện cài đặt	52
+
 4.5.	Giao diện quản trị trang web(admin)	53
+
 4.5.1.	Giao diện đăng nhập	53
+
 4.5.2.	Giao diện trang chủ admin	53
+
 4.5.3.	Giao diện quản lí công ty	54
+
 4.5.4.	Giao diện tìm kiếm công ty	55
+
 4.5.5.	Giao diện quản lí hóa đơn	56
+
 4.5.6.	Giao diện tìm kiếm hóa đơn	56
+
 4.5.7.	Giao diện quản lí người dùng	56
+
 4.5.8.	Giao diện tìm kiếm người dùng	57
+
 4.4.10.	Giao diện quản lí công việc	58
+
 4.4.11.	Giao diện tìm kiếm công việc	59
+
 4.6.	Ứng dụng bảo mật	59
+
 4.6.1.	Phân quyền token (đăng nhập) và api backend	59
+
 4.6.2.	Ngăn trặn truy cập api khi chưa có quyền	60
+
 4.6.3.	Mã capcha	61
+
 4.6.4.	Phòng chống tấn công XSS	61
+
 4.7.	Tích hợp cổng thanh toán trực tiếp vào trang web	62
+
 4.8.	Các công nghệ	63
+
 4.8.1.	Đăng nhập bằng facebook, google	63
+
 4.8.2.	Hệ thống gợi ý việc làm phù hợp	64
+
 4.8.3.	Công nghệ websocket làm hệ thống thông báo	68
+
 4.8.4.	Chatbot	71
+
 4.9.  Đẩy dự án lên mạng có tên miền (deloy)	73
+
 Chương V. KẾT LUẬN	76
+
 CHƯƠNG VI. HƯỚNG PHÁT TRIỂN	77
+
 CHƯƠNG VII. TÀI LIỆU THAM KHẢO	77
 
-
 Chương I. MÔ TẢ, KHẢO SÁT VÀ XÁC ĐỊNH YÊU CẦU TRANG WEB
+
 1.1	Mô tả trang web quản lý, tìm kiếm việc làm
+
 -	Trang web tìm kiếm việc làm là nền tảng kết nối hiệu quả giữa người tìm việc và các nhà tuyển dụng. Với giao diện thân thiện, dễ sử dụng và hệ thống lọc thông minh, người dùng có thể dễ dàng tìm kiếm các công việc phù hợp theo ngành nghề, vị trí, mức lương, kinh nghiệm và địa điểm.
 -	Hệ thống cho phép người dùng tạo hồ sơ cá nhân, nộp CV trực tuyến, theo dõi quá trình ứng tuyển, và nhận thông báo tự động khi có công việc phù hợp được đăng tải. Đồng thời, các công ty có thể đăng tuyển dụng, quản lý danh sách ứng viên và tương tác trực tiếp thông qua nền tảng.
 -	Bên cạnh đó, trang web còn tích hợp các công nghệ hiện đại như gợi ý việc làm thông minh, chatbot hỗ trợ 24/7, các dịch vụ theo thời gian thực qua WebSocket và bảo mật thông tin tối đa nhằm nâng cao trải nghiệm người dùng...
@@ -293,10 +375,6 @@ Hình 4.18: Giao diện thông báo người dùng
 4.3.6.	Giao diện trang đăng nhập
  
 Hình 4.19: Giao diện đăng nhập người dùng
-
-
-
-
 
 4.3.7.	Giao diện trang đăng kí
  
