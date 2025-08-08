@@ -192,10 +192,12 @@ Hệ thống sẽ bao gồm các chức năng chính sau:
 Chương II. KIẾN THỨC ÁP DỤNG
 2.1.	Phân tích & Thiết kế hệ thống
 2.1.1.	Biểu đồ phân cấp chức năng (BFD)
- 
+ <img width="975" height="367" alt="image" src="https://github.com/user-attachments/assets/908c18fc-c5b2-4de2-8cb0-77a25e9fce36" />
+
 Hình  2.1: Biểu đồ BFD
 2.1.2.	Biểu đồ luồng dữ liệu (DFD)
- 
+ <img width="975" height="506" alt="image" src="https://github.com/user-attachments/assets/d0ea6951-25fc-4ba8-a5d4-db8fb662c469" />
+
 Hình 2.2: Biểu đồ DFD 
 2.2.	Quản trị hệ thống
 -	Cơ chế phân quyền người dùng(USER, COMPANY, ADMIN)
@@ -207,11 +209,14 @@ Hình 2.2: Biểu đồ DFD
 2.3.	Cơ sở dữ liệu
 -	Thiết kế cơ sở dữ liệu quan hệ sử dụng MySQL.
 -	Một số bảng chính: role, users, companies, jobs, applied_jobs , admin, ....
- 
+ <img width="975" height="804" alt="image" src="https://github.com/user-attachments/assets/a88f0a59-18f2-4844-a4f2-c1bb146d9269" />
+
 Hình 2.1: Các quan hệ company
- 
+ <img width="975" height="819" alt="image" src="https://github.com/user-attachments/assets/41149746-6c7c-40cc-baf7-64b1027dd4e9" />
+
 Hình 2.2: Các quan hệ job và applied_job
- 
+ <img width="975" height="573" alt="image" src="https://github.com/user-attachments/assets/ed83b814-4a2d-464e-903f-a738875e006a" />
+
 Hình 2.3: Các quan hệ user và admin
 2.4.	Ngôn ngữ lập trình
 -	Front-end: Angular 19+ mới nhất, HTML, SCSS, Bootstrap, typescript, ...
@@ -260,7 +265,8 @@ Chương III. PHÂN TÍCH THIẾT KẾ HỆ THỐNG
 •	Bảng districts: lưu trữ các xã, huyện
 •	Bảng provinces: lưu trữ các tỉnh, thành phố
 3.2.	Phân tích thiết kế chức năng
- 
+ <img width="975" height="439" alt="image" src="https://github.com/user-attachments/assets/a2017d36-5fdd-4aea-a7d4-2c94c8a23be0" />
+
 Hình 3.1: Bảng thiết kế chức năng
 -	Quản trị viên:
 •	Quản lí người dùng: khóa tài khoản
@@ -313,7 +319,8 @@ ________________________________________
 •	npm -i
 -	Chạy ứng dụng:
 •	yarn start
- 
+ <img width="975" height="218" alt="image" src="https://github.com/user-attachments/assets/84bd4376-6854-430a-9529-06e795ca57d1" />
+
 Hình 4.1: mở cổng localhost
 4.3.	Giao diện người dùng (user)
 4.3.1.	Giao diện trang chủ
@@ -373,175 +380,243 @@ Hình 4.17: Giao diện thông báo người dùng
 
 Hình 4.18: Giao diện thông báo người dùng
 4.3.6.	Giao diện trang đăng nhập
- 
+ <img width="975" height="451" alt="image" src="https://github.com/user-attachments/assets/1e672243-d3b3-4c0c-b54b-7e26eafa63c5" />
+
 Hình 4.19: Giao diện đăng nhập người dùng
+<img width="975" height="451" alt="image" src="https://github.com/user-attachments/assets/5b8fa22c-d96b-49a1-b429-a0a30dec6ccf" />
 
 4.3.7.	Giao diện trang đăng kí
- 
+ <img width="975" height="455" alt="image" src="https://github.com/user-attachments/assets/5c426985-d82a-4147-900a-1d0296bb6afd" />
+
 Hình 4.20: Giao diện đăng kí người dùng
 4.3.8.	Giao diện trang quên mật khẩu
- 
+ <img width="975" height="228" alt="image" src="https://github.com/user-attachments/assets/1d47d70b-057e-40da-9fe2-a1ebc9bbaa11" />
+
 Hình 4.21: Giao diện nhập email quên mật khẩu
- 
+ <img width="975" height="268" alt="image" src="https://github.com/user-attachments/assets/d9d9b181-3788-4103-ae5e-8a5ea7b1ffc9" />
+
 Hình 4.22: Email gửi link xác nhận đổi mật khẩu
- 
+ <img width="975" height="392" alt="image" src="https://github.com/user-attachments/assets/7cbc6d2a-dc79-40ac-9a0f-342b81ebbcff" />
+
 Hình 4.23: Giao diện trang đổi mật khẩu mới
 4.3.9.	Giao diện chi tiết công việc
- 
+ <img width="975" height="449" alt="image" src="https://github.com/user-attachments/assets/a97d3b4e-a38b-4383-b9b2-c15942a5af88" />
+
 Hình 4.24: Giao diện trang chi tiết công việc còn hạn
- 
+ <img width="975" height="448" alt="image" src="https://github.com/user-attachments/assets/f59d4124-e7b6-4de8-93f6-53954c12b155" />
+
 Hình 4.25: Giao diện trang chi tiết công việc hết hạn hoặc đóng sớm
 4.3.10.	Giao diện đơn ứng tuyển công việc
- 
+ <img width="975" height="438" alt="image" src="https://github.com/user-attachments/assets/7d7d3fbc-e707-4868-b523-5ebe49c62d10" />
+
 Hình 4.26: Giao diện đơn ứng tuyển công việc
- 
+ <img width="975" height="525" alt="image" src="https://github.com/user-attachments/assets/e6d357a8-2590-40cf-890a-835a7ef34eec" />
+
 Hình 4.27: Giao diện đơn ứng tuyển công việc
- 
+ <img width="975" height="596" alt="image" src="https://github.com/user-attachments/assets/60435b6a-31b0-4897-a62e-55543515f408" />
+
 Hình 4.28: Giao diện khi thành công ứng tuyển
- 
+ <img width="975" height="359" alt="image" src="https://github.com/user-attachments/assets/53462594-f6fa-490f-a517-0676ed4184ba" />
+
 Hình 4.29: Giao diện sau khi ứng tuyển
- 
+ <img width="975" height="404" alt="image" src="https://github.com/user-attachments/assets/9795883e-b97b-4b1e-8333-640fa6efefb7" />
+
 Hình 4.30: Giao diện xem đơn đã ứng tuyển
 4.3.11.	Giao diện trang thông tin người dùng
- 
+ <img width="975" height="445" alt="image" src="https://github.com/user-attachments/assets/08f97604-764c-4871-b46f-13feb39063cb" />
+
 Hình 4.31: Giao diện thông tin người dùng
- 
+ <img width="975" height="457" alt="image" src="https://github.com/user-attachments/assets/83edce79-88f9-41ca-95c9-f87a02f15515" />
+
 Hình 4.32: Giao diện kho hồ sơ CV người dùng
- 
+ <img width="975" height="428" alt="image" src="https://github.com/user-attachments/assets/d817d592-8948-4d42-9933-a25bff0704bb" />
+
 Hình 4.33: Giao diện thay đổi thông tin người dùng
- 
+ <img width="975" height="437" alt="image" src="https://github.com/user-attachments/assets/8c94b602-4716-449f-9904-cd656edf5975" />
+
 Hình 4.34: Giao diện sau khi thay đổi thông tin người dùng
- 
+ <img width="975" height="480" alt="image" src="https://github.com/user-attachments/assets/818c0b8b-6b93-491e-96c6-24a3e0fc7f1f" />
+
 Hình 4.35: Giao diện tải file CV lên trang web
- 
+ <img width="975" height="437" alt="image" src="https://github.com/user-attachments/assets/fbaeb4a9-7017-45ce-8283-a5a547f7e931" />
+
 Hình 4.36: Giao diện tải file CV lên trang web thành công
- 
+ <img width="975" height="458" alt="image" src="https://github.com/user-attachments/assets/b90d2d78-45f7-40e5-8353-f3572f3d7428" />
+
 Hình 4.37: Giao diện sau khi tải file CV lên trang web thành công
- 
+ <img width="975" height="524" alt="image" src="https://github.com/user-attachments/assets/96c51d00-b6e9-4808-964f-4207cafc1ce8" />
+
 Hình 4.38: Có thể xem trực tiếp file CV trên trang web và tải về
- 
+ <img width="975" height="333" alt="image" src="https://github.com/user-attachments/assets/81e064dc-fae5-4623-b14b-46fafe83a753" />
+
 Hình 4.39: Xóa, đổi tên file CV
 4.3.12.	Giao diện thống kê hoạt động người dùng trong 12 tháng gần nhất
- 
+ <img width="975" height="453" alt="image" src="https://github.com/user-attachments/assets/97fe1c28-aa34-4e8f-87c5-fb7feafba52f" />
+
 Hình 4.40: Giao diện thống kê hoạt động người dùng
 4.3.13.	Giao diện theo dõi công ty yêu thích
- 
+ <img width="975" height="448" alt="image" src="https://github.com/user-attachments/assets/de73d1ff-d950-4764-b620-6e6c2945c0bf" />
+
 Hình 4.41: Giao diện trang theo dõi các công ty yêu thích
 4.3.14.	Giao diện trang các đơn ứng tuyển
- 
+ <img width="975" height="452" alt="image" src="https://github.com/user-attachments/assets/7884c18e-5fed-429a-9f75-a123b0a160eb" />
+
 Hình 4.42: Giao diện trang các đơn người dùng ứng tuyển
- 
+ <img width="975" height="443" alt="image" src="https://github.com/user-attachments/assets/08a455de-39ff-44bc-b6a9-f9fd13bf3fd6" />
+
 Hình 4.43: Giao diện xem đơn đã ứng tuyển
- 
+ <img width="975" height="412" alt="image" src="https://github.com/user-attachments/assets/3d5a6d59-8212-429f-a328-849958a27c08" />
+
 Hình 4.44: Giao diện xem đơn đã được duyệt
- 
+ <img width="975" height="449" alt="image" src="https://github.com/user-attachments/assets/c7816f03-30f9-4d72-8855-9e64237d94f5" />
+
 Hình 4.45: Giao diện xem đơn đã được duyệt
 4.3.15.	Giao diện trang theo dõi các công việc yêu thích
 -	Sắp xếp theo thời gian theo dõi
 -	Không hiện các công việc đã hết hạn hoặc đóng sớm
- 
+ <img width="975" height="454" alt="image" src="https://github.com/user-attachments/assets/1f391455-0445-4361-aada-4fb99f25f8ad" />
+
 Hình 4.46: Giao diện trang theo dõi các công việc yêu thích
- 
+ <img width="975" height="447" alt="image" src="https://github.com/user-attachments/assets/1c8cdda7-f6b1-4b26-abee-b4573aafc43e" />
+
 Hình 4.47: Bỏ theo dõi công việc
- 
+ <img width="975" height="454" alt="image" src="https://github.com/user-attachments/assets/49252a05-f3ea-4f9f-9c16-2982664c686b" />
+
 Hình 4.48: Sau khi bỏ theo dõi công việc
 4.3.16.	Giao diện trang lịch sử công việc đã xem
 -	Cập nhật và sắp xếp theo thời gian xem
 -	Sẽ không hiện các công việc đã hết hạn hoặc đóng sớm
 
- 
+ <img width="975" height="449" alt="image" src="https://github.com/user-attachments/assets/b46cb152-2571-4ffb-a86a-cab971da0452" />
+
 Hình 4.49: Giao diện lịch sử công việc đã xem
 4.3.17.	Giao diện trang thư mời ứng tuyển
- 
+ <img width="975" height="455" alt="image" src="https://github.com/user-attachments/assets/cd3a447f-cf2d-4394-8f28-0bdaefd7d9b2" />
+
 Hình 4.50: Giao diện lịch sử công việc đã xem
 4.3.18.	Giao diện trang cài đặt thông báo việc làm
- 
+ <img width="975" height="451" alt="image" src="https://github.com/user-attachments/assets/70538a43-e686-4472-984f-0f29c42e2342" />
+
 Hình 4.51: Giao diện thông báo việc làm
 4.3.19.	Giao diện trang quản lí hóa đơn
- 
+ <img width="975" height="454" alt="image" src="https://github.com/user-attachments/assets/d849f540-19c1-4e0f-a3f3-3e68cd90d7ad" />
+
 Hình 4.52: Giao diện quản lí hóa đơn
 4.3.20.	Giao diện trang cài đặt
- 
+ <img width="975" height="456" alt="image" src="https://github.com/user-attachments/assets/8c257d3a-a98d-4776-88db-9cc731e074af" />
+
 Hình 4.53: Giao diện trang cài đặt tài khoản
- 
+ <img width="975" height="454" alt="image" src="https://github.com/user-attachments/assets/f0774e12-e486-4bd2-a87b-92ebcacfdc4d" />
+
 Hình 4.54: Giao diện thay đổi email 
- 
+ <img width="975" height="449" alt="image" src="https://github.com/user-attachments/assets/2155e066-df11-43c9-acae-3cfe07ff300a" />
+
 Hình 4.55: Giao diện thay đổi mật khẩu
 4.3.21.	Giao diện trang tìm kiếm công ty
- 
+ <img width="975" height="454" alt="image" src="https://github.com/user-attachments/assets/09900339-7236-4e2f-becd-cc274c4a75b9" />
+
 Hình 4.56: Giao diện trang tìm kiếm công ty
- 
+ <img width="975" height="434" alt="image" src="https://github.com/user-attachments/assets/6bc66d3c-556d-4c1f-8464-30da42aaea17" />
+
 Hình 4.57: Giao diện trang tìm kiếm công ty
- 
+ <img width="975" height="451" alt="image" src="https://github.com/user-attachments/assets/f9506ac6-5a2c-49c2-96a7-ed186dee1a6a" />
+
 Hình 4.58: Theo dõi công ty
 4.3.22.	Giao diện trang chủ công ty 
- 
+ <img width="975" height="448" alt="image" src="https://github.com/user-attachments/assets/71a33133-c24b-4aa7-b359-e19dcb9a4911" />
+
 Hình 4.59: Giao diện trang chủ công ty
- 
+ <img width="975" height="404" alt="image" src="https://github.com/user-attachments/assets/c22b3980-1ddd-4dce-9f9a-b769d3291664" />
+
 Hình 4.60: Giao diện trang chủ công ty
- 
+ <img width="975" height="452" alt="image" src="https://github.com/user-attachments/assets/3f5a359a-56b2-4264-a28a-73948d33eaf9" />
+
 Hình 4.61: Giao diện trang chủ công ty
 4.3.23.	Giao diện công việc ở trang chủ công ty 
- 
+ <img width="975" height="445" alt="image" src="https://github.com/user-attachments/assets/0f0011c2-86bd-49d2-85ef-b62ce4d8ee05" />
+
 Hình 4.62: Giao diện công việc ở trang chủ công ty
- 
+ <img width="975" height="366" alt="image" src="https://github.com/user-attachments/assets/92cea45c-2ef7-4c16-bcab-87a99964cd89" />
+
 Hình 4.63: Giao diện tìm kiếm công việc ở trang chủ công ty
 4.3.24.	Giao diện dịch vụ
- 
+ <img width="975" height="454" alt="image" src="https://github.com/user-attachments/assets/a9a705b9-2bfc-4536-8a2a-ee1a8ba9f8e6" />
+
 Hình 4.64: Giao diện dịch vụ
 4.3.25.	Giao diện ngoài 
- 
+ <img width="975" height="449" alt="image" src="https://github.com/user-attachments/assets/aafe44e6-a507-438a-8269-5f2848950fbc" />
+
 Hình 4.65: Giao diện ngoài
- 
+ <img width="975" height="440" alt="image" src="https://github.com/user-attachments/assets/85f2a7f0-e965-4e0f-b4d1-79e6fb558637" />
+
 Hình 4.66: Giao diện ngoài
 4.3.26.	Giao diện trang 404
- 
+ <img width="975" height="507" alt="image" src="https://github.com/user-attachments/assets/b3ffe36c-a77b-4ba8-8805-9fc667c70f28" />
+
 Hình 4.67: Giao diện trang 404
 4.4.	Giao diện quản trị công ty
 4.4.1.	Giao diện đăng nhập
- 
+ <img width="975" height="449" alt="image" src="https://github.com/user-attachments/assets/6d18943b-1046-4008-9f9d-bf9ab73bb3e5" />
+
 Hình 4.68: Giao diện đăng nhập của công ty
 4.4.2.	Giao diện trang thông kê quản trị công ty
- 
+ <img width="975" height="455" alt="image" src="https://github.com/user-attachments/assets/cc882981-b55b-4805-8457-c08b87de94c3" />
+
 Hình 4.69: Giao diện trang chủ của công ty
 4.4.3.	Giao diện trang đầu của quản trị công ty
- 
+ <img width="975" height="139" alt="image" src="https://github.com/user-attachments/assets/befcc15d-3fb3-4632-82ee-f887f5170873" />
+
 Hình 4.70: Giao diện trang đầu của công ty
 4.4.4.	Giao diện quản lý công việc
- 
+ <img width="975" height="453" alt="image" src="https://github.com/user-attachments/assets/1748ad71-9ce1-48cc-87f6-1fc250ae49bb" />
+
 Hình 4.71: Giao diện quản lý công việc
- 
+ <img width="975" height="451" alt="image" src="https://github.com/user-attachments/assets/feb03777-1794-40d4-8f21-7d4241bd1a7a" />
+
 Hình 4.72: Giao diện thêm công việc mới
- 
+ <img width="975" height="443" alt="image" src="https://github.com/user-attachments/assets/e414ef60-6210-4e8d-ad49-02621b307062" />
+
 Hình 4.73: Chỉnh sửa, cập nhật công việc
- 
+ <img width="975" height="294" alt="image" src="https://github.com/user-attachments/assets/6166feaa-f954-482e-a969-ea343807c7df" />
+
 Hình 4.74: Đóng công việc
 4.4.5.	Giao diện tìm kiếm công việc
- 
+ <img width="975" height="457" alt="image" src="https://github.com/user-attachments/assets/b163d62e-26e6-4556-8859-9429cd257fa7" />
+
 Hình 4.75: Giao diện tìm kiếm công việc
 4.4.6.	Giao diện quản lý đơn ứng tuyển
- 
+ <img width="975" height="459" alt="image" src="https://github.com/user-attachments/assets/2074b360-2a1b-403f-8545-caf7d732ff9d" />
+
 Hình 4.76: Giao diện quản lí đơn ứng tuyển
- 
+ <img width="975" height="449" alt="image" src="https://github.com/user-attachments/assets/25729e20-4656-4ee2-ae2c-b237450112c1" />
+
 Hình 4.77: Xem chi tiết đơn ứng tuyển
- 
+ <img width="975" height="454" alt="image" src="https://github.com/user-attachments/assets/94221718-62d3-40a4-8faf-456646c68ef8" />
+
 Hình 4.78: Giao diện đơn chấp nhận
- 
+ <img width="975" height="446" alt="image" src="https://github.com/user-attachments/assets/170f7e5f-6dba-4c84-868d-8f4d3e88aaba" />
+
 Hình 4.79: Giao diện đơn từ chối
- 
+ <img width="975" height="453" alt="image" src="https://github.com/user-attachments/assets/69077d5e-9350-40f1-b2a9-00cb08107044" />
+
 Hình 4.80: Giao diện đơn sau khi duyệt
- 
+ <img width="975" height="462" alt="image" src="https://github.com/user-attachments/assets/32ff1d97-9050-4563-be17-754e830251fd" />
+
 Hình 4.81: Giao diện đơn từ chối
- 
+ <img width="975" height="452" alt="image" src="https://github.com/user-attachments/assets/6a02a1a9-864c-4014-be1c-cf5c0adf23c8" />
+
 Hình 4.82: Giao diện đơn chấp nhận
 4.4.7.	Giao diện tìm kiếm đơn ứng tuyển
- 
+ <img width="975" height="365" alt="image" src="https://github.com/user-attachments/assets/ade3604b-8292-4e4a-b373-1732e42f346e" />
+
 Hình 4.83: Giao diện tìm kiếm đơn ứng tuyển
 4.4.8.	Giao diện cài đặt
- 
+ <img width="975" height="443" alt="image" src="https://github.com/user-attachments/assets/89be9240-d9ca-4322-8c56-5408cf245d28" />
+
 Hình 4.84: Giao diện cài đặt
 4.4.9.	Giao diện trang công ty góc nhìn từ công ty
- 
+ <img width="975" height="436" alt="image" src="https://github.com/user-attachments/assets/fa98d50d-a018-4784-ad92-cabfc916d7cd" />
+
 Hình 4.85: Giao diện trang chủ công ty
 4.5.	Giao diện quản trị trang web(admin)
 4.5.1.	Giao diện đăng nhập
